@@ -24,6 +24,8 @@ public class Task {
     @Column(nullable = false)
     private String description;
     @Column(nullable = false)
+    private Date dateOfStart;
+    @Column(nullable = false)
     private Date dateOfEnd;
     @Column(nullable = false,unique = true)
     @Enumerated(EnumType.STRING)
@@ -31,5 +33,6 @@ public class Task {
     @PrePersist
     public void init(){
         dateOfCreate = LocalDateTime.now();
+        status = Status.CREATED;
     }
 }

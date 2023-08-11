@@ -4,5 +4,5 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 public enum Status {
-    IN_PROCESS,DONE,NOT_DONE
+    CREATED,IN_PROCESS,DONE,NOT_DONE
 }
