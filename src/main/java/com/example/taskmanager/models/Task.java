@@ -25,7 +25,7 @@ public class Task {
     private String description;
     @Column(nullable = false)
     private Date dateOfEnd;
-    @Column(nullable = false)
+    @Column(nullable = false,unique = true)
     @Enumerated(EnumType.STRING)
     private Status status;
     @PrePersist
