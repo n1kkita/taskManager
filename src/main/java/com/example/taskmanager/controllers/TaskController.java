@@ -32,7 +32,7 @@ public class TaskController {
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @GetMapping("/{id}")
+    @DeleteMapping("/{id}")
     public void deleteTaskById(@PathVariable Long id){
         taskService.deleteById(id);
     }
