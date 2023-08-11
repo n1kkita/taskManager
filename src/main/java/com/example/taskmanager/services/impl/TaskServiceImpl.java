@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 @Service
 @RequiredArgsConstructor
@@ -33,5 +34,18 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public void deleteById(Long id) {
         taskRepository.deleteById(id);
+    }
+
+    @Override
+    public void updateTaskById(Long id, Task editTask) {
+        taskRepository.findById(id)
+                .ifPresent(task -> {
+                    task.setTitle(editTask.getTitle());
+                    task.setDescription(editTask.getDescription());
+                    task.setStatus(editTask.getStatus());
+                    task.setDateOfStart(editTask.getDateOfStart());
+                    task.setDateOfEnd(editTask.getDateOfEnd());
+                    task.setDateOfCreate(LocalDateTime.now());
+                });
     }
 }
