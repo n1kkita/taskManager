@@ -21,8 +21,8 @@ public class TaskController {
     }
 
     @GetMapping("/{id}")
-    public List< TaskDto > getTaskById(@PathVariable Long id){
-        return taskService.getAll();
+    public TaskDto getTaskById(@PathVariable Long id){
+        return taskService.getById(id);
     }
 
     @ResponseStatus(HttpStatus.CREATED)
