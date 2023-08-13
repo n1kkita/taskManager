@@ -20,19 +20,20 @@ public class Task {
     private Long id;
     @Column(nullable = false)
     private String title;
-    private LocalDateTime dateOfCreate;
+    private Date dateOfCreate;
     @Column(nullable = false)
     private String description;
     @Column(nullable = false)
     private Date dateOfStart;
     @Column(nullable = false)
     private Date dateOfEnd;
-    @Column(nullable = false,unique = true)
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Status status;
+    private boolean allDay;
     @PrePersist
     public void init(){
-        dateOfCreate = LocalDateTime.now();
+        dateOfCreate = new Date();
         status = Status.CREATED;
     }
 }

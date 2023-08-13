@@ -1,4 +1,4 @@
-package com.example.taskmanager.controllers;
+package com.example.taskmanager.controllers.api;
 
 
 import com.example.taskmanager.dto.TaskDto;
