@@ -12,8 +12,6 @@ import java.util.List;
 public interface TaskRepository extends JpaRepository< Task, Long > {
 
 
-    @Query("select new com.example.taskmanager.dto.TaskDto(t.title,t.description,t.status,t.dateOfEnd) from Task t")
-    List< TaskDto > findAllTasks();
-    @Query("select new com.example.taskmanager.dto.TaskDto(t.title,t.description,t.status,t.dateOfEnd) from Task t where t.id = ?1")
+    @Query("select new com.example.taskmanager.dto.TaskDto(t.id,t.title,t.description,t.status,t.dateOfEnd,t.dateOfStart,t.allDay) from Task t where t.id = ?1")
     TaskDto findTaskById(Long id);
 }

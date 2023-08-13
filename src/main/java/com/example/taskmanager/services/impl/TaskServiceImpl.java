@@ -1,6 +1,7 @@
 package com.example.taskmanager.services.impl;
 
 import com.example.taskmanager.dto.TaskDto;
+import com.example.taskmanager.models.Status;
 import com.example.taskmanager.models.Task;
 import com.example.taskmanager.repositories.TaskRepository;
 import com.example.taskmanager.services.interfaceses.TaskService;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 @Service
 @RequiredArgsConstructor
@@ -16,9 +18,26 @@ import java.util.List;
 public class TaskServiceImpl implements TaskService {
     private final TaskRepository taskRepository;
     @Override
-    @Transactional(readOnly = true)
     public List< TaskDto > getAll() {
-        return taskRepository.findAllTasks();
+        var currentDate = new Date();
+        return taskRepository.findAll().stream().map(task -> {
+
+            if(task.getStatus().equals(Status.CREATED) || !task.getStatus().equals(Status.DONE) ){
+                //Если текущая дата подошла к началу задания меняем статус IN_PROCESS
+                if(currentDate.after(task.getDateOfStart())) {
+                    System.out.println("Статус изменен на IN_PROCESS");
+                    task.setStatus(Status.IN_PROCESS);
+                }
+                //Если дата окончания задания прошла до текущей даты меняем статус на NOT_DONE
+                if(task.getDateOfEnd().before(currentDate)) {
+                    System.out.println("Статус изменен на NOT_DONE");
+                    task.setStatus(Status.NOT_DONE);
+                }
+
+            }
+            return new TaskDto(task.getId(),task.getTitle(),task.getDescription(),
+                    task.getStatus(),task.getDateOfEnd(),task.getDateOfStart(), task.isAllDay());
+        }).toList();
     }
     @Override
     @Transactional(readOnly = true)
@@ -42,10 +61,12 @@ public class TaskServiceImpl implements TaskService {
                 .ifPresent(task -> {
                     task.setTitle(editTask.getTitle());
                     task.setDescription(editTask.getDescription());
-                    task.setStatus(editTask.getStatus());
                     task.setDateOfStart(editTask.getDateOfStart());
                     task.setDateOfEnd(editTask.getDateOfEnd());
-                    task.setDateOfCreate(LocalDateTime.now());
+                    task.setDateOfCreate(new Date());
+                    if(editTask.getStatus() != null){
+                        task.setStatus(editTask.getStatus());
+                    }
                 });
     }
 }
