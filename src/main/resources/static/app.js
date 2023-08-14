@@ -323,10 +323,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
 });
-
-
-
-
 function getBackgroundColorByStatus(status) {
     switch (status) {
         case "CREATED":

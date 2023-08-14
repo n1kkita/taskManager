@@ -5,6 +5,7 @@ import com.example.taskmanager.models.Status;
 import com.example.taskmanager.models.Task;
 import com.example.taskmanager.repositories.TaskRepository;
 import com.example.taskmanager.services.interfaceses.TaskService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -40,9 +43,9 @@ public class TaskServiceImpl implements TaskService {
         }).toList();
     }
     @Override
-    @Transactional(readOnly = true)
     public TaskDto getById(Long id) {
-        return taskRepository.findTaskById(id);
+        Optional<TaskDto> taskDto = taskRepository.findTaskById(id);
+        return taskDto.orElseThrow(() -> new EntityNotFoundException("Task with id " + id + " not found"));
     }
 
     @Override
