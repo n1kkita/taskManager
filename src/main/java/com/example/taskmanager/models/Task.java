@@ -31,6 +31,10 @@ public class Task {
     @Enumerated(EnumType.STRING)
     private Status status;
     private boolean allDay;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id",foreignKey = @ForeignKey(name = "user_task_fk"))
+    private User user;
     @PrePersist
     public void init(){
         dateOfCreate = new Date();
