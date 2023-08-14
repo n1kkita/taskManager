@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -59,17 +58,35 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public void updateTaskById(Long id, Task editTask) {
-        taskRepository.findById(id)
-                .ifPresent(task -> {
-                    task.setTitle(editTask.getTitle());
-                    task.setDescription(editTask.getDescription());
-                    task.setDateOfStart(editTask.getDateOfStart());
-                    task.setDateOfEnd(editTask.getDateOfEnd());
-                    task.setDateOfCreate(new Date());
-                    if(editTask.getStatus() != null){
-                        task.setStatus(editTask.getStatus());
-                    }
-                });
+    public Task updateTaskById(Long id, Task editTask) {
+        Optional<Task> taskOptional = taskRepository.findById(id);
+
+        if(taskOptional.isPresent()) {
+            var currentDay = new Date();
+            Task task = taskOptional.get();
+
+            task.setTitle(editTask.getTitle());
+            task.setDescription(editTask.getDescription());
+            task.setDateOfStart(editTask.getDateOfStart());
+            task.setDateOfEnd(editTask.getDateOfEnd());
+            task.setDateOfCreate(new Date()); //Перезаписываем дату создания
+
+            if(currentDay.before(task.getDateOfStart())){
+                task.setStatus(Status.CREATED);
+
+            } else if(currentDay.after(task.getDateOfStart())){
+                task.setStatus(Status.IN_PROCESS);
+
+            } else if(task.getDateOfEnd().before(currentDay)){
+                task.setStatus(Status.NOT_DONE);
+            }
+        }
+
+        return taskOptional.orElseThrow(() -> new EntityNotFoundException("Ошибка при обновлении задачи"));
+    }
+
+    @Override
+    public void updateTaskStatusById(Long id) {
+        taskRepository.findById(id).ifPresent(task -> task.setStatus(Status.DONE));
     }
 }

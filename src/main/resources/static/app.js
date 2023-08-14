@@ -136,24 +136,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
             document.getElementById('completedButton').addEventListener('click',function () {
-                const taskId = id; // замените на актуальный ID задачи
-                const startDateFormatted = event.start.toISOString(); // Преобразование в формат "yyyy-MM-ddTHH:mm:ss.SSSX"
-                const endDateFormatted = event.end.toISOString();
-
-                const taskData = {
-                    title: eventTitle.textContent,
-                    description: eventDescription.textContent,
-                    dateOfStart: startDateFormatted,
-                    dateOfEnd: endDateFormatted,
-                    status: 'DONE'
-                };
-
-                fetch(`/tasks/${taskId}`, {
-                    method: 'PUT',
+                fetch(`/tasks/${id}`, {
+                    method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(taskData)
+                    }
                 })
                     .then(response => response.json())
                     .then(data => {
