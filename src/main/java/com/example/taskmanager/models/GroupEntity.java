@@ -10,23 +10,32 @@ import lombok.NoArgsConstructor;
 import java.util.ArrayList;
 import java.util.List;
 
+
 @Entity
 @Data
 @Table
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-public class User {
+public class GroupEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(nullable = false,unique = true)
-    private String login;
     @Column(nullable = false)
-    private String password;
-    @ManyToMany(mappedBy = "users")
-    private List<GroupEntity> groups = new ArrayList<>();
-    @OneToOne(mappedBy = "owner", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private GroupEntity ownGroup;
+    private String name;
+    @MapsId
+    @OneToOne
+    private User owner;
 
+    public void setOwner(User owner) {
+        this.owner = owner;
+        users.add(owner);
+    }
+
+    @ManyToMany
+    @JoinTable(
+            name = "user_group",
+            joinColumns = @JoinColumn(name = "group_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private List<User> users = new ArrayList<>();
 }
