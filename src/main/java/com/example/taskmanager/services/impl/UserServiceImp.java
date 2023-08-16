@@ -8,6 +8,8 @@ import com.example.taskmanager.repositories.UserRepository;
 import com.example.taskmanager.services.interfaceses.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,8 +22,8 @@ import java.util.List;
 public class UserServiceImp implements UserService{
 private final UserRepository userRepository;
     @Override
-    public List< User > getAll() {
-        return userRepository.findAll();
+    public Page< User > getAll(Pageable pageable) {
+        return userRepository.findAll(pageable);
     }
     @Override
     public User create(RegistrationForm form) {

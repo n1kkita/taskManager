@@ -7,7 +7,7 @@ import com.example.taskmanager.models.User;
 public interface GroupService {
     GroupEntity create(GroupDto group);
 
-    void addToGroup(Long idGroup, User addedUser);
+    void addToGroup(Long idGroup, Long addedUserId);
 
     GroupEntity getById(Long id);
 }
