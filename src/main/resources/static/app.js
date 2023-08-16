@@ -1,6 +1,8 @@
 document.addEventListener('DOMContentLoaded', function() {
     let id = 0;
     const calendarEl = document.getElementById('calendar');
+    const groupIdJson = document.getElementById('groupId');
+    let groupId = groupIdJson.value;
     const calendar = new FullCalendar.Calendar(calendarEl, {
 
         selectable: true,
@@ -58,21 +60,31 @@ document.addEventListener('DOMContentLoaded', function() {
             const eventDateStart = document.getElementById('eventDateStart');
             const eventDateEnd = document.getElementById('eventDateEnd');
             const eventStatus = document.getElementById('eventStatus');
+            const eventUser = document.getElementById('eventUser');
             const iconElement = document.getElementById('icon');
             const head = document.getElementById('head');
 
 
             id = event.id;
             var statusName = getStatus(event.extendedProps.status);
+            const userId = info.event.extendedProps.userId;
 
+            // Загрузка информации о пользователе
+            fetch(`/users/${userId}`)
+                .then(response => response.json())
+                .then(user => {
+                    // Отображение информации о пользователе
+                    eventUser.textContent = `Пользователь: ${user.login}`;
+                })
+                .catch(error => {
+                    console.error('Error fetching user:', error);
+                });
 
             eventTitle.textContent = event.title;
             eventDescription.textContent = event.extendedProps.description;
             eventDateStart.textContent = `Начало: ${event.start.toLocaleString()}`;
             eventDateEnd.textContent = `Конец: ${event.end.toLocaleString()}`;
             eventStatus.textContent = statusName;
-
-
 
 
             switch (statusName) {
@@ -180,6 +192,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const eventDateEnd = document.getElementById('eventDateEnd');
         const changeButton = document.getElementById('editButton');
 
+
         // Преобразование даты и времени в формат datetime-local
         const startDate = new Date(eventDateStart.textContent);
         const endDate = new Date(eventDateEnd.textContent);
@@ -256,20 +269,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
         });
     }
+
+    console.log(groupId);
     // Загрузка задач из базы данных
-    fetch('/tasks')
+    fetch(`/tasks/groups/${groupId}`)
         .then(response => response.json())
         .then(tasks => {
             tasks.forEach(task => {
-                console.log('Adding event:',task.id,task.status, task.title, task.description, task.dateOfStart, task.dateOfEnd);
+                console.log('Adding event:', task.id, task.userId, task.status, task.title, task.description, task.dateOfStart, task.dateOfEnd);
                 calendar.addEvent({
                     id: task.id,
                     title: task.title,
                     allDay: task.allDay,
                     status: task.status,
+                    userId: task.userId, // Добавляем userId в объект события
                     start: task.dateOfStart,
                     end: task.dateOfEnd,
-                    display:'block',
+                    display: 'block',
                     description: task.description,
                     backgroundColor: getBackgroundColorByStatus(task.status),
                     borderColor: 'rgba(255,255,255,0)'
@@ -280,6 +296,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .catch(error => {
             console.error('Error fetching tasks:', error);
         });
+
 
     const createTaskForm = document.getElementById('createTaskForm');
     createTaskForm.addEventListener('submit', function(event) {
@@ -337,8 +354,6 @@ function getStatus(status) {
     }
 }
 
-
-
 document.getElementById('createTaskForm').addEventListener('submit', function(event) {
     event.preventDefault();
 
@@ -348,14 +363,21 @@ document.getElementById('createTaskForm').addEventListener('submit', function(ev
     const dateOfEndInput = document.getElementById('dateOfEnd');
     const allDay = document.getElementById('allDay').checked;
 
+
+
     const dateOfStart = new Date(dateOfStartInput.value).toISOString(); // Преобразование в стандартный ISO8601 формат
     const dateOfEnd = new Date(dateOfEndInput.value).toISOString();
+    const groupIdJson = document.getElementById('groupId');
+    let userId = document.getElementById("selectedUserId").value;
+    let groupId = groupIdJson.value;
 
     const taskData = {
         title: title,
         description: description,
         dateOfStart: dateOfStart,
         dateOfEnd: dateOfEnd,
+        groupId: groupId,
+        userId: userId,
         allDay: allDay
     };
 
@@ -369,11 +391,12 @@ document.getElementById('createTaskForm').addEventListener('submit', function(ev
         .then(response => response.json())
         .then(data => {
             console.log('Task added:', data);
-            window.location.reload();
+            window.location.reload()
             // Дополнительные действия после успешного добавления задачи
         })
         .catch(error => {
             console.error('Error adding task:', error);
             // Обработка ошибки, если что-то пошло не так
+            window.location.reload()
         });
 });

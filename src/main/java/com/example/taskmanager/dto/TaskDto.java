@@ -17,5 +17,6 @@ public class TaskDto {
     private Date dateOfEnd;
     private Date dateOfStart;
     private boolean allDay;
-
+    private Long groupId;
+    private Long userId;
 }

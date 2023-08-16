@@ -13,7 +13,7 @@
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/locales/ru.js"></script>
 </head>
 <body style="background-color: #ecf4ff;">
-
+<input id="groupId" type="hidden" th:value="${groupId}">
 <div class="container mt-4" style="max-width: 1050px;">
     <div class="card">
         <div class="card-header">
@@ -69,6 +69,14 @@
                         <input type="datetime-local" class="form-control" id="dateOfEnd" name="dateOfEnd">
                     </div>
                     <div class="form-group">
+                        <select id="user_selected" class="form-select" aria-label="Default select example">
+                            <option selected disabled>Выберите пользователя</option>
+                            <!-- Проходите по пользователям и заполняйте варианты выпадающего списка -->
+                            <option th:each="user : ${users}" th:value="${user.id}" th:text="${user.login}"></option>
+                        </select>
+                    </div>
+                    <input type="hidden" id="selectedUserId" name="selectedUserId">
+                    <div class="form-group">
                         <label for="allDay">Задача на весь день:</label>
                         <input type="checkbox" class="form-check-input" id="allDay" name="allDay">
                     </div>
@@ -100,6 +108,12 @@
                 </div>
                 <hr>
                 <div class="d-flex align-items-center">
+                    <ion-icon class="fs-1 me-2" name="document-text-outline"></ion-icon>
+                    <p class="modal-title m-0" id="eventUser" style="align-self: center;">Задачу получил</p>
+                </div>
+
+                <hr>
+                <div class="d-flex align-items-center">
                     <ion-icon class="fs-1 me-2" name="calendar-number-outline"></ion-icon>
                     <p class="modal-title m-0 font-weight-bold" id="eventDateStart" style="align-self: center; font-size: 18px; font-weight: bold;">Дата старта</p>
                 </div>
@@ -126,14 +140,17 @@
                 <button class="btn btn-danger rounded-pill px-2" type="button" id="deleteButton">
                     <ion-icon name="trash-outline" style="font-size: 1.7rem; vertical-align: middle;"></ion-icon>
                 </button>
-
-
-
-
             </div>
         </div>
     </div>
 </div>
+<script>
+    // Обработчик изменения выбранного пользователя
+    document.getElementById("user_selected").addEventListener("change", function() {
+        const selectedUserId = this.value;
+        document.getElementById("selectedUserId").value = selectedUserId;
+    });
+</script>
 <script src="/app.js"></script>
 <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
 <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
