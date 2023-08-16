@@ -7,8 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.List;
+
+import java.util.*;
 
 @Entity
 @Data
@@ -26,7 +26,14 @@ public class User {
     private String password;
     @ManyToMany(mappedBy = "users")
     private List<GroupEntity> groups = new ArrayList<>();
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST,CascadeType.MERGE}, orphanRemoval = true)
+    private List<Task> tasks = new ArrayList<>();
+    @Enumerated(EnumType.STRING)
+    private Role role;
     @OneToOne(mappedBy = "owner", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private GroupEntity ownGroup;
-
+    public void addTask(Task task){
+        tasks.add(task);
+        task.setUser(this);
+    }
 }

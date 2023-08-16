@@ -25,6 +25,8 @@ public class GroupEntity {
     @MapsId
     @OneToOne
     private User owner;
+    @OneToMany(mappedBy = "group")
+    private List<Task> tasks = new ArrayList<>();
 
     public void setOwner(User owner) {
         this.owner = owner;
