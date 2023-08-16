@@ -23,8 +23,9 @@ public class GroupController {
         return groupService.getById(id);
     }
 
-    @PutMapping("/{idGroup}")
-    public void addToGroup(@PathVariable Long idGroup,@RequestBody User addedUser) {
-        groupService.addToGroup(idGroup,addedUser);
+    @PutMapping("/{idGroup}/{addedUserId}")
+    public void addToGroup(@PathVariable Long idGroup, @PathVariable Long addedUserId) {
+        groupService.addToGroup(idGroup, addedUserId);
     }
+
 }

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Регистрация</title>
+</head>
+<body>
+<form id="registrationForm">
+    <label for="login">Логин</label>
+    <input type="text" id="login" name="login">
+    <br>
+    <label for="password">Пароль</label>
+    <input type="password" id="password" name="password">
+    <br>
+    <input type="submit" value="Зарегистрироваться">
+</form>
+<a href="/authentication">Уже есть аккаунт?</a>
+
+<script>
+    document.getElementById('registrationForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const form = event.target;
+        const formData = {
+            login: form.login.value,
+            password: form.password.value
+        };
+
+        fetch('/users', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.id) {
+                    window.location.href = '/home';
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка при создании пользователя:', error);
+            });
+    });
+</script>
+
+</body>
+</html>

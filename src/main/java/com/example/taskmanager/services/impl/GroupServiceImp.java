@@ -33,9 +33,9 @@ public class GroupServiceImp implements GroupService {
     }
 
     @Override
-    public void addToGroup(Long idGroup, User addedUser) {
+    public void addToGroup(Long idGroup, Long addedUserId) {
         Optional< GroupEntity > groupEntity = groupRepository.findById(idGroup);
-        groupEntity.ifPresent(group -> group.getUsers().add(userService.getUserById(addedUser.getId())));
+        groupEntity.ifPresent(group -> group.getUsers().add(userService.getUserById(addedUserId)));
     }
     @Override
     public GroupEntity getById(Long id) {

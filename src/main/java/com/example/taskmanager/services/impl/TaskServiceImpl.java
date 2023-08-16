@@ -59,8 +59,6 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public Task saveTask(TaskDto taskDto) {
 
-
-        System.out.println(taskDto);
         GroupEntity group = groupService.getById(taskDto.getGroupId());
         User user = userService.getUserById(taskDto.getUserId());
 

@@ -1,12 +1,14 @@
 package com.example.taskmanager.controllers;
 
 import com.example.taskmanager.dto.RegistrationForm;
+import com.example.taskmanager.models.GroupEntity;
 import com.example.taskmanager.models.User;
 import com.example.taskmanager.services.interfaceses.GroupService;
 import com.example.taskmanager.services.interfaceses.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,7 +21,7 @@ public class MainController {
     private final UserService userService;
     private final GroupService groupService;
     @GetMapping("/home")
-    public String showUserPage(HttpSession session,Model model){
+    public String showUserPage(HttpSession session, Model model, Pageable pageable){
 
         User user = (User) session.getAttribute("user");
 
@@ -28,8 +30,13 @@ public class MainController {
         } else {
             return "redirect:/registration";
         }
+
+        User finalUser = user;
         model.addAttribute("user",user);
-        model.addAttribute("groups", user.getGroups());
+        model.addAttribute("users",userService.getAll(pageable).stream().filter(user1 -> !user1.equals(finalUser)));
+        model.addAttribute("groups", user.getGroups().stream()
+                .filter(group -> ! group.getOwner().equals(finalUser)));
+
         return "userPage";
     }
     @GetMapping("/registration")
@@ -56,15 +63,17 @@ public class MainController {
         return "home";
     }
 
-    @GetMapping("/groups/{idGroup}")
+    @GetMapping("/otherGroups/{idGroup}")
     public String showHomePage(@PathVariable Long idGroup, Model model,HttpSession session){
         User user = (User) session.getAttribute("user");
 
-        model.addAttribute("groupId",user.getGroups().stream()
-                .filter(group -> group.getId().equals(idGroup))
+        GroupEntity group = user.getGroups().stream()
+                .filter(group1 -> group1.getId().equals(idGroup))
                 .findFirst()
-                .orElseThrow(()-> new EntityNotFoundException("Группа не найдена"))
-        );
+                .orElseThrow(()-> new EntityNotFoundException("Группа не найдена"));
+
+
+        model.addAttribute("groupId",group.getId());
         return "home";
     }
 
