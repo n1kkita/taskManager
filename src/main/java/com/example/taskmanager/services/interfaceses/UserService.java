@@ -1,13 +1,15 @@
 package com.example.taskmanager.services.interfaceses;
 
-import com.example.taskmanager.dto.UserDto;
+import com.example.taskmanager.dto.AuthenticationForm;
+import com.example.taskmanager.dto.RegistrationForm;
 import com.example.taskmanager.models.User;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface UserService {
     List< User > getAll();
-    User create(User user);
+    User create(RegistrationForm form);
     User getUserById(Long id);
+
+    User authentication(AuthenticationForm form);
 }

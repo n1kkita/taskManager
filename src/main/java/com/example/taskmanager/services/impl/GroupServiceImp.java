@@ -17,7 +17,6 @@ import java.util.Optional;
 @Transactional
 @RequiredArgsConstructor
 public class GroupServiceImp implements GroupService {
-
     private final UserService userService;
     private final GroupRepository groupRepository;
     public GroupEntity create(GroupDto group) {

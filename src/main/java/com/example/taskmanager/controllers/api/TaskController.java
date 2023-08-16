@@ -1,6 +1,7 @@
 package com.example.taskmanager.controllers.api;
 
 
+import com.example.taskmanager.dto.GroupDto;
 import com.example.taskmanager.dto.TaskDto;
 import com.example.taskmanager.models.Task;
 import com.example.taskmanager.services.interfaceses.TaskService;
@@ -15,9 +16,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TaskController {
     private final TaskService taskService;
-    @GetMapping
-    public List< TaskDto > getAllTasks(){
-        return taskService.getAll();
+    @GetMapping("/groups/{groupId}")
+    public List< TaskDto > getAllTasksByGroupId(@PathVariable Long groupId){
+        return taskService.getAllByGroupId(groupId);
     }
 
     @GetMapping("/{id}")
@@ -27,8 +28,8 @@ public class TaskController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    public Task saveTask(@RequestBody Task task){
-        return taskService.saveTask(task);
+    public Task saveTask(@RequestBody TaskDto taskDto){
+        return taskService.saveTask(taskDto);
     }
 
     @PutMapping("/{id}")

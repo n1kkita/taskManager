@@ -1,10 +1,15 @@
 package com.example.taskmanager.services.impl;
 
+import com.example.taskmanager.dto.GroupDto;
 import com.example.taskmanager.dto.TaskDto;
+import com.example.taskmanager.models.GroupEntity;
 import com.example.taskmanager.models.Status;
 import com.example.taskmanager.models.Task;
+import com.example.taskmanager.models.User;
 import com.example.taskmanager.repositories.TaskRepository;
+import com.example.taskmanager.services.interfaceses.GroupService;
 import com.example.taskmanager.services.interfaceses.TaskService;
+import com.example.taskmanager.services.interfaceses.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,10 +24,13 @@ import java.util.Optional;
 @Transactional
 public class TaskServiceImpl implements TaskService {
     private final TaskRepository taskRepository;
+    private final GroupService groupService;
+    private final UserService userService;
     @Override
-    public List< TaskDto > getAll() {
+    public List< TaskDto > getAllByGroupId(Long groupId) {
         var currentDate = new Date();
-        return taskRepository.findAll().stream().map(task -> {
+        return taskRepository.findAllByGroupId(groupId).stream()
+                .map(task -> {
 
             if(task.getStatus().equals(Status.CREATED) || !task.getStatus().equals(Status.DONE) ){
                 //Если текущая дата подошла к началу задания меняем статус IN_PROCESS
@@ -38,7 +46,8 @@ public class TaskServiceImpl implements TaskService {
 
             }
             return new TaskDto(task.getId(),task.getTitle(),task.getDescription(),
-                    task.getStatus(),task.getDateOfEnd(),task.getDateOfStart(), task.isAllDay());
+                    task.getStatus(),task.getDateOfEnd(),task.getDateOfStart(), task.isAllDay(),
+                    task.getGroup().getId(), task.getUser().getId());
         }).toList();
     }
     @Override
@@ -48,7 +57,25 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public Task saveTask(Task task) {
+    public Task saveTask(TaskDto taskDto) {
+
+
+        System.out.println(taskDto);
+        GroupEntity group = groupService.getById(taskDto.getGroupId());
+        User user = userService.getUserById(taskDto.getUserId());
+
+        Task task = new Task();
+
+        task.setGroup(group);
+        task.setAllDay(taskDto.isAllDay());
+        task.setStatus(taskDto.getStatus());
+        task.setDescription(taskDto.getDescription());
+        task.setTitle(taskDto.getTitle());
+        task.setDateOfStart(taskDto.getDateOfStart());
+        task.setDateOfEnd(taskDto.getDateOfEnd());
+        task.setUser(user);
+
+
         return taskRepository.save(task);
     }
 

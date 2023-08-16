@@ -15,4 +15,7 @@ public interface TaskRepository extends JpaRepository< Task, Long > {
 
     @Query("select new com.example.taskmanager.dto.TaskDto(t.id,t.title,t.description,t.status,t.dateOfEnd,t.dateOfStart,t.allDay) from Task t where t.id = ?1")
     Optional<TaskDto> findTaskById(Long id);
+
+    List<Task> findAllByGroupId(Long id);
+
 }
