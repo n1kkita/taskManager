@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Вход</title>
+</head>
+<body>
+<form id="authenticationForm">
+  <label for="login">Логин</label>
+  <input type="text" id="login" name="login">
+  <br>
+  <label for="password">Пароль</label>
+  <input type="password" id="password" name="password">
+  <br>
+  <input type="submit" value="Войти">
+</form>
+<a href="/registration">Нету аккаунта?</a>
+
+<script>
+  document.getElementById('authenticationForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const form = event.target;
+    const formData = {
+      login: form.login.value,
+      password: form.password.value
+    };
+
+    fetch('/users/authentication', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(formData)
+    })
+            .then(response => response.json())
+            .then(data => {
+              if (data && data.id) {
+                window.location.href = '/home';
+              }
+            })
+            .catch(error => {
+              console.error('Ошибка при входе:', error);
+            });
+  });
+</script>
+
+</body>
+</html>
