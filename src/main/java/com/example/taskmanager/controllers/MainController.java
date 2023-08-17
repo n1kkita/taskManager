@@ -2,6 +2,7 @@ package com.example.taskmanager.controllers;
 
 import com.example.taskmanager.dto.RegistrationForm;
 import com.example.taskmanager.models.GroupEntity;
+import com.example.taskmanager.models.Role;
 import com.example.taskmanager.models.User;
 import com.example.taskmanager.services.interfaceses.UserService;
 import jakarta.persistence.EntityNotFoundException;
@@ -33,11 +34,16 @@ public class MainController {
         User finalUser = user;
         model.addAttribute("user",user);
 
-        model.addAttribute("users",userService.getAll(pageable).stream()
-                .filter(user1 -> !user1.equals(finalUser)));
+
+        model.addAttribute("users",
+                userService.getAll(pageable).stream()
+                        .filter(user1 -> !user1.equals(finalUser))
+                        .filter(user1 -> user1.getOwnGroup().isPresent())
+        );
 
         model.addAttribute("groups", user.getGroups().stream()
-                .filter(group -> ! group.getOwner().equals(finalUser)));
+                .filter(group -> ! group.getOwner().equals(finalUser))
+        );
 
         return "userPage";
     }
@@ -58,10 +64,18 @@ public class MainController {
         User user = (User) session.getAttribute("user");
 
         user = userService.getUserById(user.getId());
+        user.setRole(Role.ROLE_ADMIN);
         //Добавить обработку на null
+        System.out.println(user.getRole());
 
-        model.addAttribute("groupId",user.getOwnGroup().getId());
-        model.addAttribute("users", user.getOwnGroup().getUsers().stream().toList());
+        model.addAttribute("mode",user.getRole());
+        model.addAttribute("groupId",user.getOwnGroup()
+                .map(GroupEntity::getId).orElseThrow());
+
+        model.addAttribute("users", user.getOwnGroup()
+                .map(GroupEntity::getUsers)
+                .orElseThrow());
+
         return "home";
     }
 
@@ -74,12 +88,17 @@ public class MainController {
                 .findFirst()
                 .orElseThrow(()-> new EntityNotFoundException("Группа не найдена"));
 
-        List<User> users = user.getGroups().stream()
+        List<User> users = user.getGroups()
+                .stream()
                 .filter(group1 -> group1.getId().equals(idGroup))
                 .flatMap(group1 -> group1.getUsers().stream())
                 .toList();
 
+        user.setRole(Role.ROLE_USER);
 
+        System.out.println(user.getRole());
+
+        model.addAttribute("mode",user.getRole());
         model.addAttribute("groupId",group.getId());
         model.addAttribute("users", users);
 

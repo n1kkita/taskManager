@@ -37,6 +37,11 @@ public class User {
     private Role role;
     @OneToOne(mappedBy = "owner", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private GroupEntity ownGroup;
+
+    public Optional<GroupEntity> getOwnGroup() {
+        return Optional.ofNullable(ownGroup);
+    }
+
     public void addTask(Task task){
         tasks.add(task);
         task.setUser(this);

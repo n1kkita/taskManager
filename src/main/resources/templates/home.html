@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -68,12 +68,17 @@
                         <label for="dateOfEnd">Дата окончания:</label>
                         <input type="datetime-local" class="form-control" id="dateOfEnd" name="dateOfEnd">
                     </div>
+                    <div th:if="${mode == mode.ROLE_ADMIN}">
                     <div class="form-group">
                         <select id="user_selected" class="form-select" aria-label="Default select example">
                             <option selected disabled>Выберите пользователя</option>
                             <!-- Проходите по пользователям и заполняйте варианты выпадающего списка -->
                             <option th:each="user : ${users}" th:value="${user.id}" th:text="${user.login}"></option>
                         </select>
+                    </div>
+                    </div>
+                    <div th:unless="${mode == mode.ROLE_ADMIN}">
+                        <p>Для назначения задач другим участникам группы ваша роль должна быть: ADMIN</p>
                     </div>
                     <input type="hidden" id="selectedUserId" name="selectedUserId">
                     <div class="form-group">

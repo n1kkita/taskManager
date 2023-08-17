@@ -8,9 +8,9 @@
 <p th:text="${user.login}"></p>
 <hr>
 Ваша группа
-<div th:if="${user.getOwnGroup() != null}">
+<div th:if="${user.getOwnGroup().isPresent()}">
 <form id="openGroup" action="MyGroup" method="get">
-    <p th:text="${user.getOwnGroup().name}"></p><span>
+    <p th:text="${user.getOwnGroup().get().name}"></p><span>
         <input type="submit" value="Перейти в группу">
     </span>
 </form>
@@ -27,8 +27,8 @@
 </div>
 <hr>
 Добавить в свою группу человека:
-<div th:if="${user.getOwnGroup() != null}" th:each="addedUser : ${users}">
-    <form th:action="@{/groups/{idGroup}/{addedUserId}(idGroup=${user.getOwnGroup().id}, addedUserId=${addedUser.id})}"
+<div th:if="${user.getOwnGroup().isPresent()}" th:each="addedUser : ${users}">
+    <form th:action="@{/groups/{idGroup}/{addedUserId}(idGroup=${user.getOwnGroup().get().id}, addedUserId=${addedUser.id})}"
           th:method="PUT">
         <p th:text="${addedUser.login}"></p>
         <input type="submit" value="Добавить в группу">
