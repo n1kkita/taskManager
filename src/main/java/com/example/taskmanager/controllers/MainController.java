@@ -3,7 +3,6 @@ package com.example.taskmanager.controllers;
 import com.example.taskmanager.dto.RegistrationForm;
 import com.example.taskmanager.models.GroupEntity;
 import com.example.taskmanager.models.User;
-import com.example.taskmanager.services.interfaceses.GroupService;
 import com.example.taskmanager.services.interfaceses.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpSession;
@@ -14,12 +13,12 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import java.util.List;
+
 @Controller
 @RequiredArgsConstructor
 public class MainController {
-
     private final UserService userService;
-    private final GroupService groupService;
     @GetMapping("/home")
     public String showUserPage(HttpSession session, Model model, Pageable pageable){
 
@@ -33,7 +32,10 @@ public class MainController {
 
         User finalUser = user;
         model.addAttribute("user",user);
-        model.addAttribute("users",userService.getAll(pageable).stream().filter(user1 -> !user1.equals(finalUser)));
+
+        model.addAttribute("users",userService.getAll(pageable).stream()
+                .filter(user1 -> !user1.equals(finalUser)));
+
         model.addAttribute("groups", user.getGroups().stream()
                 .filter(group -> ! group.getOwner().equals(finalUser)));
 
@@ -72,8 +74,15 @@ public class MainController {
                 .findFirst()
                 .orElseThrow(()-> new EntityNotFoundException("Группа не найдена"));
 
+        List<User> users = user.getGroups().stream()
+                .filter(group1 -> group1.getId().equals(idGroup))
+                .flatMap(group1 -> group1.getUsers().stream())
+                .toList();
+
 
         model.addAttribute("groupId",group.getId());
+        model.addAttribute("users", users);
+
         return "home";
     }
 
