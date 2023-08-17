@@ -20,33 +20,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MainController {
     private final UserService userService;
-    @GetMapping("/home")
-    public String showUserPage(HttpSession session, Model model, Pageable pageable){
-
-        User user = (User) session.getAttribute("user");
-
-        if(user != null) {
-            user = userService.getUserById(user.getId());
-        } else {
-            return "redirect:/registration";
-        }
-
-        User finalUser = user;
-        model.addAttribute("user",user);
-
-
-        model.addAttribute("users",
-                userService.getAll(pageable).stream()
-                        .filter(user1 -> !user1.equals(finalUser))
-                        .filter(user1 -> user1.getOwnGroup().isPresent())
-        );
-
-        model.addAttribute("groups", user.getGroups().stream()
-                .filter(group -> ! group.getOwner().equals(finalUser))
-        );
-
-        return "userPage";
-    }
     @GetMapping("/registration")
     public String showRegistrationForm(Model model) {
         model.addAttribute("registrationForm", new RegistrationForm());
@@ -58,15 +31,38 @@ public class MainController {
         model.addAttribute("authenticationForm", new RegistrationForm());
         return "authentication";
     }
+    @GetMapping("/home")
+    public String showUserPage(HttpSession session, Model model, Pageable pageable){
 
+        User user = (User) session.getAttribute("user");
+        if(user != null) {
+            user = userService.getUserById(user.getId());
+        } else {
+            return "redirect:/registration";
+        }
+
+        User currentUser = user;
+        List<User> users = userService.getAll(pageable).stream()
+                .filter(userInAllStream -> !userInAllStream.equals(currentUser)) //Убираем себя
+                .filter(userInAllStream -> currentUser.getOwnGroup().stream() //Делаем фильтрацию пользователей// которых нет в группе
+                        .flatMap(group -> group.getUsers().stream())
+                        .noneMatch(userInGroup-> userInGroup.equals(userInAllStream)
+                        )).toList();
+
+        List<GroupEntity> otherGroup = user.getGroups().stream()
+                .filter(group -> ! group.getOwner().equals(currentUser)).toList();
+
+        model.addAttribute("user",user);
+        model.addAttribute("users",users);
+        model.addAttribute("groups",otherGroup);
+
+        return "userPage";
+    }
     @GetMapping("/MyGroup")
     public String showHomePage(Model model,HttpSession session){
         User user = (User) session.getAttribute("user");
-
         user = userService.getUserById(user.getId());
         user.setRole(Role.ROLE_ADMIN);
-        //Добавить обработку на null
-        System.out.println(user.getRole());
 
         model.addAttribute("mode",user.getRole());
         model.addAttribute("groupId",user.getOwnGroup()
@@ -93,10 +89,8 @@ public class MainController {
                 .filter(group1 -> group1.getId().equals(idGroup))
                 .flatMap(group1 -> group1.getUsers().stream())
                 .toList();
-
         user.setRole(Role.ROLE_USER);
 
-        System.out.println(user.getRole());
 
         model.addAttribute("mode",user.getRole());
         model.addAttribute("groupId",group.getId());
