@@ -2,6 +2,7 @@ package com.example.taskmanager.controllers.api;
 
 import com.example.taskmanager.dto.AuthenticationForm;
 import com.example.taskmanager.dto.RegistrationForm;
+import com.example.taskmanager.dto.UserDto;
 import com.example.taskmanager.models.User;
 import com.example.taskmanager.services.interfaceses.UserService;
 import jakarta.servlet.http.HttpSession;
@@ -18,7 +19,7 @@ import java.util.List;
 public class UserController {
     private final UserService userService;
     @GetMapping
-    public Page< User > getAll(Pageable pageable){
+    public Page< UserDto > getAll(Pageable pageable){
         return userService.getAll(pageable);
     }
     @GetMapping("/{id}")
@@ -27,10 +28,10 @@ public class UserController {
     }
 
     @PostMapping("/authentication")
-    public User authentication(@RequestBody AuthenticationForm form,HttpSession session){
-        User user = userService.authentication(form);
-        session.setAttribute("user", user);
-        return user;
+    public Long authentication(@RequestBody AuthenticationForm form,HttpSession session){
+        Long id = userService.authentication(form);
+        session.setAttribute("successfulUserIdFromForm", id);
+        return id;
     }
 
     @PostMapping

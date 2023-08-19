@@ -5,9 +5,10 @@ import com.example.taskmanager.models.GroupEntity;
 import com.example.taskmanager.models.User;
 import com.example.taskmanager.services.interfaceses.GroupService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
+@Controller
 @RequestMapping("/groups")
 @RequiredArgsConstructor
 public class GroupController {
@@ -19,13 +20,14 @@ public class GroupController {
     }
 
     @GetMapping("/{id}")
-    public GroupEntity getById(@PathVariable Long id){
+    public @ResponseBody GroupEntity getById(@PathVariable Long id){
         return groupService.getById(id);
     }
 
     @PutMapping("/{idGroup}/{addedUserId}")
-    public void addToGroup(@PathVariable Long idGroup, @PathVariable Long addedUserId) {
+    public String addToGroup(@PathVariable Long idGroup, @PathVariable Long addedUserId) {
         groupService.addToGroup(idGroup, addedUserId);
+        return "redirect:/home";
     }
 
 }

@@ -35,9 +35,9 @@
     })
             .then(response => response.json())
             .then(data => {
-              if (data && data.id) {
-                window.location.href = '/home';
-              }
+
+              window.location.href = '/home';
+
             })
             .catch(error => {
               console.error('Ошибка при входе:', error);

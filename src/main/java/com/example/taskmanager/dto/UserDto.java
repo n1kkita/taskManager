@@ -7,6 +7,6 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 public class UserDto {
+    private Long id;
     private String login;
-    private String ownerGroup;
 }

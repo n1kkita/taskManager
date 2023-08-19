@@ -42,6 +42,10 @@ public class User {
         return Optional.ofNullable(ownGroup);
     }
 
+    public void setOwnGroup(GroupEntity ownGroup) {
+        this.ownGroup = ownGroup;
+        ownGroup.setOwner(this);
+    }
     public void addTask(Task task){
         tasks.add(task);
         task.setUser(this);

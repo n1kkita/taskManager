@@ -3,9 +3,13 @@ package com.example.taskmanager.repositories;
 import com.example.taskmanager.models.User;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import javax.swing.text.html.parser.Entity;
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -14,7 +18,22 @@ public class CustomRepositoryImpl implements CustomRepository {
     private final EntityManager entityManager;
 
     @Override
-    public User findAllFetchGroupsAndTaskAndOwnerGroup() {
-        return null;
+    public Optional<User> findUserFetchGroupsAndTaskById(Long id) {
+
+        var user = entityManager.
+                createQuery("select u from User u left join fetch u.groups where u.id=?1", User.class)
+                .setParameter(1,id)
+                .getSingleResult();
+
+        user = entityManager.createQuery("select u from User u left join fetch u.tasks where u.id=?1", User.class)
+                .setParameter(1,id)
+                .getSingleResult();
+
+        user = entityManager.createQuery("select u from User u left join fetch u.ownGroup where u.id=?1", User.class)
+                .setParameter(1,id)
+                .getSingleResult();
+
+        return Optional.of(user);
     }
+
 }

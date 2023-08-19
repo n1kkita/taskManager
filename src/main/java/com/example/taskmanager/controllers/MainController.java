@@ -1,6 +1,7 @@
 package com.example.taskmanager.controllers;
 
 import com.example.taskmanager.dto.RegistrationForm;
+import com.example.taskmanager.dto.UserDto;
 import com.example.taskmanager.models.GroupEntity;
 import com.example.taskmanager.models.Role;
 import com.example.taskmanager.models.User;
@@ -8,6 +9,7 @@ import com.example.taskmanager.services.interfaceses.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -34,19 +36,24 @@ public class MainController {
     @GetMapping("/home")
     public String showUserPage(HttpSession session, Model model, Pageable pageable){
 
-        User user = (User) session.getAttribute("user");
-        if(user != null) {
-            user = userService.getUserById(user.getId());
+        Long userId = (Long) session.getAttribute("successfulUserIdFromForm");
+        User user;
+
+        if(userId != null) {
+            user = userService.getUserById(userId);
         } else {
             return "redirect:/registration";
         }
 
         User currentUser = user;
-        List<User> users = userService.getAll(pageable).stream()
-                .filter(userInAllStream -> !userInAllStream.equals(currentUser)) //Убираем себя
+        Page< UserDto > usersPage = userService.getAll(pageable);
+
+
+        List<UserDto> users = usersPage.stream()
+                .filter(userInAllStream -> !userInAllStream.getId().equals(currentUser.getId())) //Убираем себя
                 .filter(userInAllStream -> currentUser.getOwnGroup().stream() //Делаем фильтрацию пользователей// которых нет в группе
                         .flatMap(group -> group.getUsers().stream())
-                        .noneMatch(userInGroup-> userInGroup.equals(userInAllStream)
+                        .noneMatch(userInGroup-> userInGroup.getId().equals(userInAllStream.getId())
                         )).toList();
 
         List<GroupEntity> otherGroup = user.getGroups().stream()
@@ -60,8 +67,8 @@ public class MainController {
     }
     @GetMapping("/MyGroup")
     public String showHomePage(Model model,HttpSession session){
-        User user = (User) session.getAttribute("user");
-        user = userService.getUserById(user.getId());
+        Long id = (Long) session.getAttribute("successfulUserIdFromForm");
+        User user = userService.getUserById(id);
         user.setRole(Role.ROLE_ADMIN);
 
         model.addAttribute("mode",user.getRole());
@@ -77,7 +84,8 @@ public class MainController {
 
     @GetMapping("/otherGroups/{idGroup}")
     public String showHomePage(@PathVariable Long idGroup, Model model,HttpSession session){
-        User user = (User) session.getAttribute("user");
+        Long id = (Long) session.getAttribute("successfulUserIdFromForm");
+        User user = userService.getUserById(id);
 
         GroupEntity group = user.getGroups().stream()
                 .filter(group1 -> group1.getId().equals(idGroup))
