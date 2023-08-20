@@ -48,7 +48,6 @@ public class MainController {
         User currentUser = user;
         Page< UserDto > usersPage = userService.getAll(pageable);
 
-
         List<UserDto> users = usersPage.stream()
                 .filter(userInAllStream -> !userInAllStream.getId().equals(currentUser.getId())) //Убираем себя
                 .filter(userInAllStream -> currentUser.getOwnGroup().stream() //Делаем фильтрацию пользователей// которых нет в группе
@@ -101,6 +100,7 @@ public class MainController {
 
 
         model.addAttribute("mode",user.getRole());
+        model.addAttribute("currentUserId", user.getId());
         model.addAttribute("groupId",group.getId());
         model.addAttribute("users", users);
 

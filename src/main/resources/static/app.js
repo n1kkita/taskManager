@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let id = 0;
     const calendarEl = document.getElementById('calendar');
     const groupIdJson = document.getElementById('groupId');
+    const userRole = document.getElementById('mode').value;
     let groupId = groupIdJson.value;
     const calendar = new FullCalendar.Calendar(calendarEl, {
 
@@ -63,10 +64,13 @@ document.addEventListener('DOMContentLoaded', function() {
             const eventUser = document.getElementById('eventUser');
             const iconElement = document.getElementById('icon');
             const head = document.getElementById('head');
+            const completedButton = document.getElementById('completedButton');
+            let currentUserID = document.getElementById('currentUserId').value;
+            const editButton = document.getElementById('editButton');
+            const deleteButton = document.getElementById('deleteButton');
 
-
-            id = event.id;
             var statusName = getStatus(event.extendedProps.status);
+            id = event.id;
             const userId = info.event.extendedProps.userId;
 
             // Загрузка информации о пользователе
@@ -74,7 +78,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(response => response.json())
                 .then(user => {
                     // Отображение информации о пользователе
-                    eventUser.textContent = `Пользователь: ${user.login}`;
+                    eventUser.textContent = `@${user.login}`;
                 })
                 .catch(error => {
                     console.error('Error fetching user:', error);
@@ -85,6 +89,31 @@ document.addEventListener('DOMContentLoaded', function() {
             eventDateStart.textContent = `Начало: ${event.start.toLocaleString()}`;
             eventDateEnd.textContent = `Конец: ${event.end.toLocaleString()}`;
             eventStatus.textContent = statusName;
+
+            console.log(userRole);
+
+
+            /*if (statusName === 'Не выполнено' && userRole === 'ROLE_USER') {
+                completedButton.style.display = 'none'; // Скрыть кнопку для статуса "Не выполнено" или роли ROLE_USER
+            }*/
+            console.log(currentUserID)
+            console.log(userId)
+
+            if(userRole !== 'ROLE_ADMIN'){
+                editButton.style.display='none';
+                deleteButton.style.display='none';
+            }
+
+
+            if ((parseInt(currentUserID) === parseInt(userId) && statusName !=='Не выполнено') || userRole === 'ROLE_ADMIN') {
+                console.log('Выполнено')
+                completedButton.style.display = 'block'; // Скрыть кнопку для статуса "Не выполнено" или роли ROLE_USER
+            }
+
+            else {
+                console.log('Не Выполнено')
+                completedButton.style.display = 'none'; // Скрыть кнопку для статуса "Не выполнено" или роли ROLE_USER
+            }
 
 
             switch (statusName) {
@@ -114,12 +143,136 @@ document.addEventListener('DOMContentLoaded', function() {
                     break;
             }
 
+
             $(eventModal).modal('show');
 
-            const editButton = eventModal.querySelector('.btn');
-            editButton.addEventListener('click', editButtonClickHandler);
 
-            document.getElementById('deleteButton').addEventListener('click', function () {
+            editButton.addEventListener('click', function (){
+                const eventTitle = document.getElementById('eventTitle');
+                const eventDescription = document.getElementById('eventDescription');
+                const eventDateStart = document.getElementById('eventDateStart');
+                const eventDateEnd = document.getElementById('eventDateEnd');
+                const changeButton = document.getElementById('editButton');
+                const eventUser = document.getElementById('eventUser');
+
+
+
+                // Преобразование даты и времени в формат datetime-local
+                const startDate = new Date(eventDateStart.textContent);
+                const endDate = new Date(eventDateEnd.textContent);
+
+                const startDateFormatted = `${startDate.getFullYear()}-${('0' + (startDate.getMonth() + 1)).slice(-2)}-${('0' + startDate.getDate()).slice(-2)}T${('0' + startDate.getHours()).slice(-2)}:${('0' + startDate.getMinutes()).slice(-2)}`;
+
+                const endDateFormatted = `${endDate.getFullYear()}-${('0' + (endDate.getMonth() + 1)).slice(-2)}-${('0' + endDate.getDate()).slice(-2)}T${('0' + endDate.getHours()).slice(-2)}:${('0' + endDate.getMinutes()).slice(-2)}`;
+
+                // Создание input-полей и установка значений
+                const inputTitle = document.createElement('input');
+                inputTitle.type = 'text';
+                inputTitle.value = eventTitle.textContent;
+                inputTitle.className = 'form-control';
+
+                const inputDescription = document.createElement('textarea');
+                inputDescription.value = eventDescription.textContent;
+                inputDescription.className = 'form-control';
+
+                const inputDateStart = document.createElement('input');
+                inputDateStart.type = 'datetime-local';
+                inputDateStart.value = startDateFormatted;
+                inputDateStart.className = 'form-control';
+
+                const inputDateEnd = document.createElement('input');
+                inputDateEnd.type = 'datetime-local';
+                inputDateEnd.value = endDateFormatted;
+                inputDateEnd.className = 'form-control';
+
+                const submitButton = document.createElement('button');
+                submitButton.type = 'submit';
+                inputDateEnd.className = 'form-control';
+
+                const selectUser = document.createElement('select');
+                selectUser.id = 'change_user_selected';
+                selectUser.classList.add('form-select');
+                selectUser.setAttribute('aria-label', 'Default select example');
+
+                const firstOption = document.createElement('option');
+                eventUser.textContent=''
+                firstOption.setAttribute('selected', 'true');
+                firstOption.setAttribute('disabled', 'true');
+                firstOption.textContent = 'Выберите пользователя';
+                selectUser.appendChild(firstOption);
+
+                // Здесь используется асинхронный запрос для получения списка пользователей с сервера
+                fetch('/users') // Замените на ваш эндпоинт для получения пользователей
+                    .then(response => response.json())
+                    .then(data => {
+                        const users = data.content; // Получаем массив пользователей из JSON
+                        users.forEach(user => {
+                            const option = document.createElement('option');
+                            option.setAttribute('value', user.id);
+                            option.textContent = user.login;
+                            selectUser.appendChild(option);
+                        });
+                        eventUser.appendChild(selectUser);
+                    })
+                    .catch(error => console.error('Ошибка получения пользователей:', error));
+
+                const selectedUser = document.createElement('input');
+                inputDateEnd.className = 'form-control';
+
+                selectUser.addEventListener("change", function() {
+                    const selectedUserId = this.value;
+                    console.log('Выбран пользователь ' + selectedUserId);
+                    selectedUser.value = selectedUserId;
+                });
+
+
+                eventTitle.textContent = '';
+                eventTitle.appendChild(inputTitle);
+
+                eventDescription.textContent = '';
+                eventDescription.appendChild(inputDescription);
+
+                eventDateStart.textContent = '';
+                eventDateStart.appendChild(inputDateStart);
+
+                eventDateEnd.textContent = '';
+                eventDateEnd.appendChild(inputDateEnd);
+
+
+                changeButton.addEventListener("click", function (event) {
+                    event.preventDefault();
+
+                    const taskId = id; // замените на актуальный ID задачи
+                    const taskData = {
+                        title: inputTitle.value,
+                        description: inputDescription.value,
+                        dateOfStart: new Date(inputDateStart.value).toISOString(),
+                        dateOfEnd: new Date(inputDateEnd.value).toISOString(),
+                        userId: selectedUser.value
+                    };
+
+                    fetch(`/tasks/${taskId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(taskData)
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            // Обработка успешного ответа от сервера
+                            console.log('Task updated:', data);
+                            window.location.reload();
+                        })
+                        .catch(error => {
+                            // Обработка ошибки
+                            console.error('Error updating task:', error);
+                            window.location.reload();
+                        });
+                });
+            });
+
+            deleteButton.addEventListener('click', function () {
                 // Отправка DELETE-запроса
                 fetch(`/tasks/${id}`, {
                     method: 'DELETE',
@@ -185,90 +338,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     });
     // Ваш обработчик нажатия на кнопку изменения
-    function editButtonClickHandler() {
-        const eventTitle = document.getElementById('eventTitle');
-        const eventDescription = document.getElementById('eventDescription');
-        const eventDateStart = document.getElementById('eventDateStart');
-        const eventDateEnd = document.getElementById('eventDateEnd');
-        const changeButton = document.getElementById('editButton');
-
-
-        // Преобразование даты и времени в формат datetime-local
-        const startDate = new Date(eventDateStart.textContent);
-        const endDate = new Date(eventDateEnd.textContent);
-
-        const startDateFormatted = `${startDate.getFullYear()}-${('0' + (startDate.getMonth() + 1)).slice(-2)}-${('0' + startDate.getDate()).slice(-2)}T${('0' + startDate.getHours()).slice(-2)}:${('0' + startDate.getMinutes()).slice(-2)}`;
-
-        const endDateFormatted = `${endDate.getFullYear()}-${('0' + (endDate.getMonth() + 1)).slice(-2)}-${('0' + endDate.getDate()).slice(-2)}T${('0' + endDate.getHours()).slice(-2)}:${('0' + endDate.getMinutes()).slice(-2)}`;
-
-        // Создание input-полей и установка значений
-        const inputTitle = document.createElement('input');
-        inputTitle.type = 'text';
-        inputTitle.value = eventTitle.textContent;
-        inputTitle.className = 'form-control';
-
-        const inputDescription = document.createElement('textarea');
-        inputDescription.value = eventDescription.textContent;
-        inputDescription.className = 'form-control';
-
-        const inputDateStart = document.createElement('input');
-        inputDateStart.type = 'datetime-local';
-        inputDateStart.value = startDateFormatted;
-        inputDateStart.className = 'form-control';
-
-        const inputDateEnd = document.createElement('input');
-        inputDateEnd.type = 'datetime-local';
-        inputDateEnd.value = endDateFormatted;
-        inputDateEnd.className = 'form-control';
-
-        const submitButton = document.createElement('button');
-        submitButton.type = 'submit';
-        inputDateEnd.className = 'form-control';
-
-        eventTitle.textContent = '';
-        eventTitle.appendChild(inputTitle);
-
-        eventDescription.textContent = '';
-        eventDescription.appendChild(inputDescription);
-
-        eventDateStart.textContent = '';
-        eventDateStart.appendChild(inputDateStart);
-
-        eventDateEnd.textContent = '';
-        eventDateEnd.appendChild(inputDateEnd);
-
-
-        changeButton.addEventListener("click", function (event) {
-            event.preventDefault();
-
-            const taskId = id; // замените на актуальный ID задачи
-            const taskData = {
-                title: inputTitle.value,
-                description: inputDescription.value,
-                dateOfStart: new Date(inputDateStart.value).toISOString(),
-                dateOfEnd: new Date(inputDateEnd.value).toISOString()
-            };
-
-            fetch(`/tasks/${taskId}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(taskData)
-            })
-                .then(response => response.json())
-                .then(data => {
-                    // Обработка успешного ответа от сервера
-                    console.log('Task updated:', data);
-                    window.location.reload();
-                })
-                .catch(error => {
-                    // Обработка ошибки
-                    console.error('Error updating task:', error);
-                    window.location.reload();
-                });
-        });
-    }
 
     console.log(groupId);
     // Загрузка задач из базы данных

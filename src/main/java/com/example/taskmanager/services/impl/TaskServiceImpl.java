@@ -83,7 +83,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public Task updateTaskById(Long id, Task editTask) {
+    public Task updateTaskById(Long id, TaskDto editTask) {
         Optional<Task> taskOptional = taskRepository.findById(id);
 
         if(taskOptional.isPresent()) {
@@ -95,6 +95,7 @@ public class TaskServiceImpl implements TaskService {
             task.setDateOfStart(editTask.getDateOfStart());
             task.setDateOfEnd(editTask.getDateOfEnd());
             task.setDateOfCreate(new Date()); //Перезаписываем дату создания
+            task.setUser(userService.getUserById(editTask.getUserId()));
 
             if(currentDay.before(task.getDateOfStart())){
                 task.setStatus(Status.CREATED);

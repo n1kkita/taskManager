@@ -33,7 +33,7 @@ public class TaskController {
     }
 
     @PutMapping("/{id}")
-    public void updateTask(@PathVariable Long id,@RequestBody Task task){
+    public void updateTask(@PathVariable Long id,@RequestBody TaskDto task){
         taskService.updateTaskById(id,task);
     }
 
