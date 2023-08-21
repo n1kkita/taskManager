@@ -27,6 +27,11 @@ public class UserController {
         return userService.getUserById(id);
     }
 
+    @GetMapping("/{id}/login")
+    public String getLoginById(@PathVariable Long id){
+        return userService.getLoginById(id);
+    }
+
     @PostMapping("/authentication")
     public Long authentication(@RequestBody AuthenticationForm form,HttpSession session){
         Long id = userService.authentication(form);

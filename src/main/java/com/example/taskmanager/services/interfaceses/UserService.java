@@ -12,5 +12,7 @@ public interface UserService {
     User create(RegistrationForm form);
     User getUserById(Long id);
 
+    String getLoginById(Long id);
+
     Long authentication(AuthenticationForm form);
 }

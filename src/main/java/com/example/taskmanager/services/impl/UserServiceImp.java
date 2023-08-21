@@ -41,6 +41,12 @@ private final UserRepository userRepository;
     }
 
     @Override
+    public String getLoginById(Long id) {
+        return userRepository.findLoginById(id)
+                .orElseThrow();
+    }
+
+    @Override
     public Long authentication(AuthenticationForm form) {
         return userRepository.findUserIdByLoginAndPassword(form.getLogin(), form.getPassword())
                 .orElseThrow(()->new EntityNotFoundException("Not found"));

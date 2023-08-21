@@ -26,4 +26,6 @@ public interface UserRepository extends JpaRepository< User,Long >, CustomReposi
 
     @Query("select new com.example.taskmanager.dto.UserDto(u.id,u.login) from User u")
     Page< UserDto> findAllUserDto(Pageable pageable);
+    @Query("select u.login from User u where  u.id=?1")
+    Optional<String> findLoginById(Long id);
 }
