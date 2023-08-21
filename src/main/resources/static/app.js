@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let groupId = groupIdJson.value;
     const calendar = new FullCalendar.Calendar(calendarEl, {
 
+
         selectable: true,
         headerToolbar: {
             left: 'prev,next today',
@@ -74,15 +75,17 @@ document.addEventListener('DOMContentLoaded', function() {
             const userId = info.event.extendedProps.userId;
 
             // Загрузка информации о пользователе
-            fetch(`/users/${userId}`)
-                .then(response => response.json())
-                .then(user => {
+            fetch(`/users/${userId}/login`)
+                .then(response => response.text())
+                .then(userLogin => {
                     // Отображение информации о пользователе
-                    eventUser.textContent = `@${user.login}`;
+                    eventUser.textContent = `@${userLogin}`;
+                    console.log(userLogin); // You can also log the response to see the data
                 })
                 .catch(error => {
                     console.error('Error fetching user:', error);
                 });
+
 
             eventTitle.textContent = event.title;
             eventDescription.textContent = event.extendedProps.description;
@@ -91,11 +94,6 @@ document.addEventListener('DOMContentLoaded', function() {
             eventStatus.textContent = statusName;
 
             console.log(userRole);
-
-
-            /*if (statusName === 'Не выполнено' && userRole === 'ROLE_USER') {
-                completedButton.style.display = 'none'; // Скрыть кнопку для статуса "Не выполнено" или роли ROLE_USER
-            }*/
             console.log(currentUserID)
             console.log(userId)
 
@@ -105,26 +103,22 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
 
-            if ((parseInt(currentUserID) === parseInt(userId) && statusName !=='Не выполнено') || userRole === 'ROLE_ADMIN') {
-                console.log('Выполнено')
-                completedButton.style.display = 'block'; // Скрыть кнопку для статуса "Не выполнено" или роли ROLE_USER
-            }
-
-            else {
-                console.log('Не Выполнено')
-                completedButton.style.display = 'none'; // Скрыть кнопку для статуса "Не выполнено" или роли ROLE_USER
+            if ((parseInt(currentUserID) === parseInt(userId) && statusName !=='Выполнено' && statusName !=='Не выполнено') || userRole === 'ROLE_ADMIN') {
+                completedButton.style.display = 'block';
+            } else {
+                completedButton.style.display = 'none';
             }
 
 
             switch (statusName) {
                 case "Создан":
-                    iconElement.setAttribute('name', 'save-outline'); // Имя иконки для CREATED
+                    iconElement.setAttribute('name', 'save-outline');
                     eventStatus.style.color = '#6fb6fa'; // Изменение цвета текста
                     head.style.backgroundColor='#6fb6fa';
                     eventDateEnd.style.color = '#6fb6fa';
                     break;
                 case "В процессе":
-                    iconElement.setAttribute('name', 'construct-outline'); // Имя иконки для IN_PROCESS
+                    iconElement.setAttribute('name', 'construct-outline');
                     eventStatus.style.color = '#ff3a01';
                     head.style.backgroundColor='#ff3a01';
                     eventDateEnd.style.color = '#ff3a01';
@@ -195,10 +189,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 selectUser.setAttribute('aria-label', 'Default select example');
 
                 const firstOption = document.createElement('option');
-                eventUser.textContent=''
                 firstOption.setAttribute('selected', 'true');
                 firstOption.setAttribute('disabled', 'true');
                 firstOption.textContent = 'Выберите пользователя';
+                selectUser.textContent='';
                 selectUser.appendChild(firstOption);
 
                 // Здесь используется асинхронный запрос для получения списка пользователей с сервера
@@ -212,9 +206,11 @@ document.addEventListener('DOMContentLoaded', function() {
                             option.textContent = user.login;
                             selectUser.appendChild(option);
                         });
-                        eventUser.appendChild(selectUser);
                     })
                     .catch(error => console.error('Ошибка получения пользователей:', error));
+
+                eventUser.textContent='';
+                eventUser.appendChild(selectUser);
 
                 const selectedUser = document.createElement('input');
                 inputDateEnd.className = 'form-control';
@@ -337,6 +333,7 @@ document.addEventListener('DOMContentLoaded', function() {
         },
 
     });
+
     // Ваш обработчик нажатия на кнопку изменения
 
     console.log(groupId);
@@ -344,6 +341,28 @@ document.addEventListener('DOMContentLoaded', function() {
     fetch(`/tasks/groups/${groupId}`)
         .then(response => response.json())
         .then(tasks => {
+            calendar.setOption('eventContent', function(info) {
+                const eventElement = document.createElement('div');
+                eventElement.classList.add('p-2', 'bg-gradient-primary', 'text-white', 'rounded', 'shadow', 'd-flex', 'justify-content-between');
+
+                const titleElement = document.createElement('div');
+                titleElement.textContent = info.event.title;
+
+                const additionalInfo = document.createElement('small');
+                additionalInfo.classList.add('text-muted');
+                additionalInfo.style.fontWeight = 'bold';
+                additionalInfo.textContent = getStatus(info.event.extendedProps.status);
+
+                eventElement.appendChild(titleElement);
+                eventElement.appendChild(additionalInfo);
+
+                return {
+                    domNodes: [eventElement]
+                };
+            });
+
+
+
             tasks.forEach(task => {
                 console.log('Adding event:', task.id, task.userId, task.status, task.title, task.description, task.dateOfStart, task.dateOfEnd);
                 calendar.addEvent({
@@ -357,7 +376,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     display: 'block',
                     description: task.description,
                     backgroundColor: getBackgroundColorByStatus(task.status),
-                    borderColor: 'rgba(255,255,255,0)'
+                    borderColor: getBorderColorByStatus(task.status)
                 });
             });
             calendar.render();
@@ -365,36 +384,6 @@ document.addEventListener('DOMContentLoaded', function() {
         .catch(error => {
             console.error('Error fetching tasks:', error);
         });
-
-
-    const createTaskForm = document.getElementById('createTaskForm');
-    createTaskForm.addEventListener('submit', function(event) {
-        event.preventDefault();
-
-        const formData = new FormData(createTaskForm);
-        const task = {};
-        formData.forEach((value, key) => {
-            task[key] = value;
-        });
-
-        const startDate = new Date(task.dateOfStart); // Преобразование строки в объект Date
-        const endDate = new Date(task.dateOfEnd); // Преобразование строки в объект Date
-
-        calendar.addEvent({
-            id: task.id,
-            title: task.title,
-            start: startDate,
-            end: endDate,
-            display:'block',
-            description: task.description,
-            backgroundColor: getBackgroundColorByStatus('CREATED'),
-            borderColor: 'rgba(255,255,255,0)'
-
-        });
-
-        createTaskForm.reset();
-    });
-
 });
 function getBackgroundColorByStatus(status) {
     switch (status) {
@@ -406,6 +395,20 @@ function getBackgroundColorByStatus(status) {
             return "#5cef5c"; // Зеленый цвет для DONE
         case "NOT_DONE":
             return "#f84d4d"; // Красный цвет для NOT_DONE
+        default:
+            return "#a2a2a2"; // Серый цвет по умолчанию
+    }
+}
+function getBorderColorByStatus(status) {
+    switch (status) {
+        case "CREATED":
+            return "#006cc0"; // Синий цвет для CREATED
+        case "IN_PROCESS":
+            return "#ff3400"; // Оранжевый цвет для IN_PROCESS
+        case "DONE":
+            return "#00d900"; // Зеленый цвет для DONE
+        case "NOT_DONE":
+            return "#ff0000"; // Красный цвет для NOT_DONE
         default:
             return "#a2a2a2"; // Серый цвет по умолчанию
     }
