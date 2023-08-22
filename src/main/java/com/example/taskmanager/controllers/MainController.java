@@ -74,6 +74,11 @@ public class MainController {
         model.addAttribute("groupId",user.getOwnGroup()
                 .map(GroupEntity::getId).orElseThrow());
 
+        model.addAttribute("groupName", user.getOwnGroup()
+                .map(GroupEntity::getName));
+
+        model.addAttribute("currentUserLogin", user.getLogin());
+
         model.addAttribute("users", user.getOwnGroup()
                 .map(GroupEntity::getUsers)
                 .orElseThrow());
