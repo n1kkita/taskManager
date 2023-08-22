@@ -4,9 +4,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const groupIdJson = document.getElementById('groupId');
     const userRole = document.getElementById('mode').value;
     let groupId = groupIdJson.value;
+    console.log("Создаеться календарь...")
     const calendar = new FullCalendar.Calendar(calendarEl, {
-
-
         selectable: true,
         headerToolbar: {
             left: 'prev,next today',
@@ -472,3 +471,7 @@ document.getElementById('createTaskForm').addEventListener('submit', function(ev
             window.location.reload()
         });
 });
+
+
+
+

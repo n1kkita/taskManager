@@ -62,7 +62,7 @@ public class MainController {
         model.addAttribute("users",users);
         model.addAttribute("groups",otherGroup);
 
-        return "userPage";
+        return "home";
     }
     @GetMapping("/MyGroup")
     public String showHomePage(Model model,HttpSession session){
@@ -78,13 +78,14 @@ public class MainController {
                 .map(GroupEntity::getUsers)
                 .orElseThrow());
 
-        return "home";
+        return "calendar";
     }
 
     @GetMapping("/otherGroups/{idGroup}")
     public String showHomePage(@PathVariable Long idGroup, Model model,HttpSession session){
         Long id = (Long) session.getAttribute("successfulUserIdFromForm");
         User user = userService.getUserById(id);
+        System.out.println(idGroup);
 
         GroupEntity group = user.getGroups().stream()
                 .filter(group1 -> group1.getId().equals(idGroup))
@@ -101,10 +102,12 @@ public class MainController {
 
         model.addAttribute("mode",user.getRole());
         model.addAttribute("currentUserId", user.getId());
+        model.addAttribute("currentUserLogin", user.getLogin());
         model.addAttribute("groupId",group.getId());
+        model.addAttribute("groupName",group.getName());
         model.addAttribute("users", users);
 
-        return "home";
+        return "calendar";
     }
 
 }
