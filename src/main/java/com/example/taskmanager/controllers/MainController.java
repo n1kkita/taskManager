@@ -6,6 +6,7 @@ import com.example.taskmanager.models.GroupEntity;
 import com.example.taskmanager.models.Role;
 import com.example.taskmanager.models.User;
 import com.example.taskmanager.services.interfaceses.UserService;
+import com.example.taskmanager.utils.Util;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -34,9 +36,9 @@ public class MainController {
         return "authentication";
     }
     @GetMapping("/home")
-    public String showUserPage(HttpSession session, Model model, Pageable pageable){
+    public String showUserPage(@RequestParam Long id,HttpSession session, Model model, Pageable pageable){
 
-        Long userId = (Long) session.getAttribute("successfulUserIdFromForm");
+        Long userId = (Long) session.getAttribute(Util.replaceToUserLinkInHttpSession(id));
         User user;
 
         if(userId != null) {
@@ -65,8 +67,8 @@ public class MainController {
         return "home";
     }
     @GetMapping("/MyGroup")
-    public String showHomePage(Model model,HttpSession session){
-        Long id = (Long) session.getAttribute("successfulUserIdFromForm");
+    public String showMyGroupPage(@RequestParam Long idUser, Model model, HttpSession session){
+        Long id = (Long) session.getAttribute(Util.replaceToUserLinkInHttpSession(idUser));
         User user = userService.getUserById(id);
         user.setRole(Role.ROLE_ADMIN);
 
@@ -75,7 +77,8 @@ public class MainController {
                 .map(GroupEntity::getId).orElseThrow());
 
         model.addAttribute("groupName", user.getOwnGroup()
-                .map(GroupEntity::getName));
+                .map(GroupEntity::getName)
+                .orElseThrow());
 
         model.addAttribute("currentUserLogin", user.getLogin());
 
@@ -87,8 +90,8 @@ public class MainController {
     }
 
     @GetMapping("/otherGroups/{idGroup}")
-    public String showHomePage(@PathVariable Long idGroup, Model model,HttpSession session){
-        Long id = (Long) session.getAttribute("successfulUserIdFromForm");
+    public String showHomePage(@PathVariable Long idGroup,@RequestParam Long idUser, Model model,HttpSession session){
+        Long id = (Long) session.getAttribute(Util.replaceToUserLinkInHttpSession(idUser));
         User user = userService.getUserById(id);
         System.out.println(idGroup);
 

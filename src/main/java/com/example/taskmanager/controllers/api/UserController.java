@@ -5,6 +5,7 @@ import com.example.taskmanager.dto.RegistrationForm;
 import com.example.taskmanager.dto.UserDto;
 import com.example.taskmanager.models.User;
 import com.example.taskmanager.services.interfaceses.UserService;
+import com.example.taskmanager.utils.Util;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -35,7 +36,7 @@ public class UserController {
     @PostMapping("/authentication")
     public Long authentication(@RequestBody AuthenticationForm form,HttpSession session){
         Long id = userService.authentication(form);
-        session.setAttribute("successfulUserIdFromForm", id);
+        session.setAttribute(Util.replaceToUserLinkInHttpSession(id), id);
         return id;
     }
 

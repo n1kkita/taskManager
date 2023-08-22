@@ -91,8 +91,9 @@
     <div class="card mt-4" style="max-width: 1800px;">
       <div class="card-header">
         <div class="text-start">
-          <h4 th:text="'Группа:' + ${groupName.get()}">GroupName</h4>
-          <h4 th:text="'Вы:' + ${currentUserLogin}">UserLogin</h4>
+          <h4 th:text="'Группа:' + ${groupName}"> GroupName </h4>
+          <h4 th:text="'Вы:' + ${currentUserLogin}"> UserLogin </h4>
+          <h4 th:text="'Ваша роль:' + ${mode}"> Role </h4>
         </div>
         <h2 class="text-center">MyTaskManager</h2>
       </div>
@@ -126,6 +127,8 @@
     border-bottom: none;
   }
 </style>
+
+<div th:if="${mode == mode.ROLE_ADMIN}">
 <div class="modal fade" id="eventModalNew" tabindex="-1" role="dialog" aria-labelledby="eventModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content p-3">
@@ -148,7 +151,6 @@
             <label for="dateOfEnd">Дата окончания:</label>
             <input type="datetime-local" class="form-control" id="dateOfEnd" name="dateOfEnd">
           </div>
-          <div th:if="${mode == mode.ROLE_ADMIN}">
             <div class="form-group">
               <select id="user_selected" class="form-select" aria-label="Default select example">
                 <option selected disabled>Выберите пользователя</option>
@@ -156,10 +158,6 @@
                 <option th:each="user : ${users}" th:value="${user.id}" th:text="${user.login}"></option>
               </select>
             </div>
-          </div>
-          <div th:unless="${mode == mode.ROLE_ADMIN}">
-            <p>Для назначения задач другим участникам группы ваша роль должна быть: ADMIN</p>
-          </div>
           <input type="hidden" id="selectedUserId" name="selectedUserId">
           <div class="form-group">
             <label for="allDay">Задача на весь день:</label>
@@ -171,7 +169,7 @@
     </div>
   </div>
 </div>
-
+</div>
 <div class="modal fade" id="eventModal" tabindex="-1" role="dialog" aria-labelledby="eventModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">

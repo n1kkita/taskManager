@@ -33,11 +33,9 @@
       },
       body: JSON.stringify(formData)
     })
-            .then(response => response.json())
-            .then(data => {
-
-              window.location.href = '/home';
-
+            .then(response => response.text())
+            .then(id => {
+              window.location.href = '/home?id='+id;
             })
             .catch(error => {
               console.error('Ошибка при входе:', error);

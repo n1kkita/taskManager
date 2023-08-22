@@ -25,6 +25,12 @@ public class GroupEntity {
     @MapsId
     @OneToOne
     private User owner;
+
+    @Override
+    public String toString() {
+        return "";
+    }
+
     @OneToMany(mappedBy = "group")
     private List<Task> tasks = new ArrayList<>();
 
