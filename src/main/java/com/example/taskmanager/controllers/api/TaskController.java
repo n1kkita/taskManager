@@ -1,7 +1,6 @@
 package com.example.taskmanager.controllers.api;
 
 
-import com.example.taskmanager.dto.GroupDto;
 import com.example.taskmanager.dto.TaskDto;
 import com.example.taskmanager.models.Task;
 import com.example.taskmanager.services.interfaceses.TaskService;
@@ -36,8 +35,6 @@ public class TaskController {
     public void updateTask(@PathVariable Long id,@RequestBody TaskDto task){
         taskService.updateTaskById(id,task);
     }
-
-
     @PatchMapping("/{id}")
     public void updateTaskStatus(@PathVariable Long id){
         taskService.updateTaskStatusById(id);

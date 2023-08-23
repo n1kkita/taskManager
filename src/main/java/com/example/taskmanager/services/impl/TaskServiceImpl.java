@@ -1,6 +1,5 @@
 package com.example.taskmanager.services.impl;
 
-import com.example.taskmanager.dto.GroupDto;
 import com.example.taskmanager.dto.TaskDto;
 import com.example.taskmanager.models.GroupEntity;
 import com.example.taskmanager.models.Status;

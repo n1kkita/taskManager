@@ -3,12 +3,8 @@ package com.example.taskmanager.repositories;
 import com.example.taskmanager.models.User;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
-import javax.swing.text.html.parser.Entity;
 import java.util.Optional;
 
 @Repository
