@@ -1,8 +1,7 @@
-package com.example.taskmanager.controllers.api;
+package com.example.taskmanager.controllers;
 
 import com.example.taskmanager.dto.GroupDto;
 import com.example.taskmanager.models.GroupEntity;
-import com.example.taskmanager.models.User;
 import com.example.taskmanager.services.interfaceses.GroupService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -15,8 +14,9 @@ public class GroupController {
     private final GroupService groupService;
 
     @PostMapping
-    public void createGroup(@RequestBody GroupDto group) {
+    public String createGroup(@ModelAttribute GroupDto group) {
         groupService.create(group);
+        return "redirect:/home?id="+group.getOwnerId();
     }
 
     @GetMapping("/{id}")
@@ -27,7 +27,7 @@ public class GroupController {
     @PutMapping("/{idGroup}/{addedUserId}")
     public String addToGroup(@PathVariable Long idGroup, @PathVariable Long addedUserId) {
         groupService.addToGroup(idGroup, addedUserId);
-        return "redirect:/home";
+        return "redirect:/home?id="+idGroup;
     }
 
 }
