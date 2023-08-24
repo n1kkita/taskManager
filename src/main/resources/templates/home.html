@@ -94,13 +94,13 @@
         </div>
     </div>
     <div class="col-md-1 " style="display: none; padding: 0px; margin-left: -50px" id="groupsPanel">
-        <div class="d-flex flex-column flex-shrink-0 bg-body-tertiary shadow"  style="width: 7rem; height: 100vh">
+        <div class="d-flex flex-column flex-shrink-0 bg-body-tertiary shadow"  style="width: 175px; height: 100vh">
             <ul class="nav nav-pills nav-flush flex-column mb-auto text-center">
+                <li>
+                    <small><b>Группы</b></small>
+                    <hr>
+                </li>
                 <div th:each="group:${groups}">
-                    <li>
-                        <small><b>Группы</b></small>
-                        <hr>
-                    </li>
                     <li>
                         <form th:action="@{/otherGroups/{idGroup}(idGroup=${group.id})}">
                             <small><b>Группа</b></small>
@@ -120,7 +120,6 @@
                             <input type="submit" value="Перейти">
                         </form>
                     </div>
-                    <hr>
                 </li>
             </ul>
         </div>
@@ -147,26 +146,38 @@
                 </div>
                 <h2 class="text-center">MyTaskManager</h2>
             </div>
-            <div th:if="${user.getOwnGroup().isPresent()}">
-                <p th:text="'Вы уже создали свою группу ' + ${user.getOwnGroup().get().name}"></p>
-                <button>Удали группу</button>
+            <div class="col-md-4 mb-2 mx-3 mt-2" th:if="${user.getOwnGroup().isPresent()}">
+                <span th:text="'Вы уже создали свою группу '"></span><strong th:text="${user.getOwnGroup().get().name}"></strong>
+                <button class="btn btn-danger">Удалить группу</button>
             </div>
-            <div th:unless="${user.getOwnGroup().isPresent()}">
-                <small>Создать свою группу</small>
-                <form action="/groups" method="post">
-                    <input type="hidden" name="ownerId" th:value="${user.id}">
-                    <input type="text" name="name">
-                    <input type="submit" value="Создать">
-                </form>
+            <div class="row justify-content-start">
+                <div class="col-md-4 mb-2 mx-3" th:unless="${user.getOwnGroup().isPresent()}">
+                    <form action="/groups" method="post">
+                        <strong>Создать свою группу</strong>
+                        <div class="input-group flex-nowrap">
+                            <input type="hidden" name="ownerId" th:value="${user.id}">
+                            <span class="input-group-text" id="addon-wrapping">@</span>
+                            <input type="text"  name="name" class="form-control" placeholder="Название группы"
+                                   aria-label="Название группы" aria-describedby="addon-wrapping">
+                            <input class="form-control btn btn-warning fs-4" type="submit" value="Создать">
+                        </div>
+                    </form>
+                </div>
             </div>
-            <div th:if="${user.getOwnGroup().isPresent()}">
-                <small>Добавить человека в группу</small>
+            <div class="col-md-4 mb-2 mx-3" th:if="${user.getOwnGroup().isPresent()}">
+                <strong>Добавить человека в группу</strong>
+                <hr>
+                <div th:if="${!users.isEmpty()}">
                 <div style="display: flex" th:each="otherUser:${users}">
                     <form th:action="@{/groups/{idGroup}/{addedUserId}(idGroup=${user.getOwnGroup().get().id},addedUserId=${otherUser.id})}" th:method="PUT">
-                    <span><p th:text="${otherUser.login}"></p>
-                    <input type="submit" value="Добавить в группу">
-                    </span>
+                        <span><strong th:text="${otherUser.login}"></strong></span>
+                        <input type="submit" class="btn btn-warning" value="Добавить в группу">
+                        <hr>
                     </form>
+                    </div>
+                </div>
+                <div style="display: flex" th:unless="${!users.isEmpty()}">
+                    <span><strong>Пользователей не было найдено :(</strong></span>
                 </div>
             </div>
         </div>
