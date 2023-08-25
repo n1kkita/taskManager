@@ -17,15 +17,14 @@ public interface UserRepository extends JpaRepository< User,Long >, CustomReposi
     @Override
     @Query("select u from User u left join fetch u.groups")
     List< User > findAll();
-
-    User findByLogin(String login);
-
     @Query("select u.id from User u where u.login=?1 and u.password=?2")
     Optional<Long> findUserIdByLoginAndPassword(String login, String password);
-
-
     @Query("select new com.example.taskmanager.dto.UserDto(u.id,u.login) from User u")
     Page< UserDto> findAllUserDto(Pageable pageable);
+
+    @Query("select new com.example.taskmanager.dto.UserDto(u.id,u.login) from User u where u.login like %?1%")
+    Page<UserDto> searchAllByLogin(String login,Pageable pageable);
+
     @Query("select u.login from User u where  u.id=?1")
     Optional<String> findLoginById(Long id);
 }

@@ -7,6 +7,8 @@ import com.example.taskmanager.models.Role;
 import com.example.taskmanager.models.User;
 import com.example.taskmanager.services.interfaceses.UserService;
 import com.example.taskmanager.utils.Util;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +38,10 @@ public class MainController {
         return "authentication";
     }
     @GetMapping("/home")
-    public String showUserPage(@RequestParam Long id,HttpSession session, Model model, Pageable pageable){
+    public String showUserPage(@RequestParam Long id,
+                               HttpSession session,
+                               Model model,
+                               Pageable pageable) throws JsonProcessingException {
 
         Long userId = (Long) session.getAttribute(Util.replaceToUserLinkInHttpSession(id));
         User user;
@@ -50,9 +55,9 @@ public class MainController {
         User currentUser = user;
         Page< UserDto > usersPage = userService.getAll(pageable);
 
-        List<UserDto> users = usersPage.stream()
+        List<UserDto> userss = usersPage.stream()
                 .filter(userInAllStream -> !userInAllStream.getId().equals(currentUser.getId())) //Убираем себя
-                .filter(userInAllStream -> currentUser.getOwnGroup().stream() //Делаем фильтрацию пользователей// которых нет в группе
+                .filter(userInAllStream -> currentUser.getOwnGroup().stream() //Делаем фильтрацию пользователей которых нет в группe
                         .flatMap(group -> group.getUsers().stream())
                         .noneMatch(userInGroup-> userInGroup.getId().equals(userInAllStream.getId())
                         )).toList();
@@ -60,9 +65,14 @@ public class MainController {
         List<GroupEntity> otherGroup = user.getGroups().stream()
                 .filter(group -> ! group.getOwner().equals(currentUser)).toList();
 
-        model.addAttribute("user",user);
-        model.addAttribute("users",users);
-        model.addAttribute("groups",otherGroup);
+        ObjectMapper objectMapper = new ObjectMapper();
+        String users = objectMapper.writeValueAsString(userss);
+
+        model.addAttribute("user",user)
+                .addAttribute("users",users)
+                .addAttribute("groups",otherGroup);
+
+
 
         return "home";
     }
@@ -80,9 +90,9 @@ public class MainController {
                 .map(GroupEntity::getName)
                 .orElseThrow());
 
-        model.addAttribute("currentUserLogin", user.getLogin());
-        model.addAttribute("currentUserId", user.getId());
-        model.addAttribute("users", user.getOwnGroup()
+        model.addAttribute("currentUserLogin", user.getLogin())
+                .addAttribute("currentUserId", user.getId())
+                .addAttribute("users", user.getOwnGroup()
                 .map(GroupEntity::getUsers)
                 .orElseThrow());
 
@@ -108,12 +118,12 @@ public class MainController {
         user.setRole(Role.ROLE_USER);
 
 
-        model.addAttribute("mode",user.getRole());
-        model.addAttribute("currentUserId", user.getId());
-        model.addAttribute("currentUserLogin", user.getLogin());
-        model.addAttribute("groupId",group.getId());
-        model.addAttribute("groupName",group.getName());
-        model.addAttribute("users", users);
+        model.addAttribute("mode",user.getRole())
+                .addAttribute("currentUserId", user.getId())
+                .addAttribute("currentUserLogin", user.getLogin())
+                .addAttribute("groupId",group.getId())
+                .addAttribute("groupName",group.getName())
+                .addAttribute("users", users);
 
         return "calendar";
     }

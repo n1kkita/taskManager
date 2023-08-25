@@ -24,6 +24,13 @@ private final UserRepository userRepository;
     public Page< UserDto > getAll(Pageable pageable) {
         return userRepository.findAllUserDto(pageable);
     }
+
+    @Override
+    public Page< UserDto > searchByLogin(String login, Pageable pageable) {
+
+        return userRepository.searchAllByLogin(login,pageable);
+    }
+
     @Override
     public User create(RegistrationForm form) {
 

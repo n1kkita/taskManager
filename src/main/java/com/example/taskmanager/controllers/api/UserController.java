@@ -21,6 +21,12 @@ public class UserController {
     public Page< UserDto > getAll(Pageable pageable){
         return userService.getAll(pageable);
     }
+    @GetMapping("/search")
+    public Page< UserDto > getAll(@RequestParam String login,Pageable pageable){
+
+
+        return userService.searchByLogin(login,pageable);
+    }
     @GetMapping("/{id}")
     public User getById(@PathVariable Long id){
         return userService.getUserById(id);

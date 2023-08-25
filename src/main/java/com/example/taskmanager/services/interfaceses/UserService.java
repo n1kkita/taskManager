@@ -9,10 +9,13 @@ import org.springframework.data.domain.Pageable;
 
 public interface UserService {
     Page< UserDto > getAll(Pageable pageable);
+
+    Page< UserDto > searchByLogin(String login,Pageable pageable);
+
     User create(RegistrationForm form);
     User getUserById(Long id);
-
     String getLoginById(Long id);
-
     Long authentication(AuthenticationForm form);
+
+
 }
