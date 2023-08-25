@@ -29,7 +29,7 @@
 </head>
 <body style="background-color: #cecece;">
 <input type="hidden" th:if="${user.getOwnGroup().isPresent()}" th:value="${user.getOwnGroup().get().id}" id="groupId">
-<input type="hidden" th:value="${users}" id="usersInGroup">
+<input type="hidden" th:value="${usersJSON}" id="usersJSON">
 <svg xmlns="http://www.w3.org/2000/svg" class="d-none">
     <symbol id="check2" viewBox="0 0 16 16">
         <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"></path>
@@ -80,7 +80,7 @@
                 </li>
 
                 <li>
-                    <a class="nav-link py-3 border-bottom rounded-0" id="customer">
+                    <a class="nav-link active py-3 border-bottom rounded-0" id="customer">
                         <svg class="bi pe-none" width="24" height="24" role="img"><use xlink:href="#people-circle"></use></svg>
                     </a>
                 </li>
@@ -91,7 +91,7 @@
                     </a>
                 </li>
                 <li>
-                    <a class="nav-link active py-3 border-bottom rounded-0" id="homeLink">
+                    <a class="nav-link py-3 border-bottom rounded-0" id="homeLink">
                         <svg class="bi pe-none" width="24" height="24" role="img"><use xlink:href="#home"></use></svg>
                     </a>
                 </li>
@@ -129,7 +129,7 @@
             </ul>
         </div>
     </div>
-    <div class="col-md-10 mx-2" id="homePanel" style="display: block; color: #172940;">
+    <div class="col-md-10 mx-2" id="homePanel" style="display: none; color: #172940;">
         <div class="card mt-4" style="max-width: 1800px">
             <div class="card-header">
                 <h2 class="text-center" style="font-size: 64px">MyTaskManager</h2>
@@ -143,7 +143,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-10 mx-2" id="customerPanel" style="display: none; color: #172940;">
+    <div class="col-md-10 mx-2" id="customerPanel" style="display: block; color: #172940;">
         <div class="card mt-4" style="max-width: 1800px">
             <div class="card-header">
                 <div class="text-center">
@@ -151,9 +151,41 @@
                 </div>
                 <h2 class="text-center" style="font-size: 64px">MyTaskManager</h2>
             </div>
+            <div class="d-flex">
             <div class="col-md-4 mb-2 mx-3 mt-2" th:if="${user.getOwnGroup().isPresent()}">
                 <span style="font-size: 24px" th:text="'Вы уже создали свою группу '"></span><strong style="font-size: 24px" th:text="${user.getOwnGroup().get().name} + '   '"></strong>
                 <button class="btn btn-danger">Удалить группу</button>
+                <hr>
+                <div class="input-group flex-nowrap" th:each="user:${user.getOwnGroup().get().getUsers()}">
+                    <form th:method="DELETE" action="/">
+                        <strong th:text="${user.login}"></strong>
+                        <button class="btn" type="submit" style="background-color: #f53030;color: white;"> Удалить с группы </button>
+                        <hr>
+                    </form>
+                </div>
+            </div>
+            <div class="col-md-4 mb-2 mx-3 mt-3" th:if="${user.getOwnGroup().isPresent()}" style="color: #172940;">
+                <form action="/users/search" method="get" id="searchForm">
+                    <div class="input-group flex-nowrap">
+                        <input type="text" id="searchLogin" name="searchLogin" class="form-control" placeholder="Поиск человека"
+                               aria-label="Название группы" aria-describedby="addon-wrapping">
+                        <button class="btn" type="submit" style="background-color: #f37427;color: white;"> Поиск </button>
+                    </div>
+                </form>
+                <hr>
+                <div id="search-output">
+                    <div class="input-group flex-nowrap" th:each="addedUser:${users}">
+                        <form th:method="PUT" th:action="@{/groups/{idGroup}/{addedUserId}(idGroup=${user.getOwnGroup().get().id},addedUserId=${addedUser.id})}">
+                            <strong th:text="${addedUser.login}"></strong>
+                            <button class="btn" type="submit" style="background-color: #f37427;color: white;"> Добавить в группу </button>
+                            <hr>
+                        </form>
+                    </div>
+                </div>
+                <div style="display: flex;color: #172940;" th:unless="${!users.isEmpty()}">
+                    <span><strong>Пользователей не было найдено :(</strong></span>
+                </div>
+            </div>
             </div>
             <hr>
             <div class="row justify-content-start">
@@ -168,21 +200,6 @@
                             <button class="btn" type="submit" style="background-color: #f37427;color: white;"> Создать </button>
                         </div>
                     </form>
-                </div>
-            </div>
-            <div class="col-md-4 mb-2 mx-3" th:if="${user.getOwnGroup().isPresent()}" style="color: #172940;">
-                <form action="/users/search" method="get" id="searchForm">
-                <div class="input-group flex-nowrap">
-                    <input type="text" id="searchLogin" name="searchLogin" class="form-control" placeholder="Поиск человека"
-                           aria-label="Название группы" aria-describedby="addon-wrapping">
-                    <button class="btn" type="submit" style="background-color: #f37427;color: white;"> Поиск </button>
-                </div>
-                </form>
-                <hr>
-                <div id="search-output">
-                </div>
-                <div style="display: flex;color: #172940;" th:unless="${!users.isEmpty()}">
-                    <span><strong>Пользователей не было найдено :(</strong></span>
                 </div>
             </div>
         </div>
@@ -222,65 +239,68 @@
         ordersLink.className='nav-link active py-3 border-bottom rounded-0';
         groupsPane.style.display='block';
     })
-    document.getElementById('searchForm').addEventListener('submit', function(event) {
-        event.preventDefault(); // Предотвращаем отправку формы
 
-        const searchLogin = document.getElementById("searchLogin").value;
-        const groupId = document.getElementById('groupId').value;
-        const usersString = document.getElementById('usersInGroup').value;
-        const usersArray = JSON.parse(usersString);
 
-        fetch(`/users/search?login=${searchLogin}`)
-            .then(response => response.json())
-            .then(data => {
-                // Обновление содержимого search-output
-                const searchOutput = document.getElementById("search-output");
-                searchOutput.innerHTML = ''; // Очистка содержимого контейнера
+        document.getElementById('searchForm').addEventListener('submit', function (event) {
+            event.preventDefault(); // Предотвращаем отправку формы
 
-                data.content.forEach(user => {
-                    if (usersArray.some(u => u.id === user.id)) {
-                        const addedUserToGroupForm = document.createElement('form');
-                        addedUserToGroupForm.method = 'POST';
-                        addedUserToGroupForm.action = `/groups/${groupId}/${user.id}`;
-                        addedUserToGroupForm.style.display = 'flex'; // Гибкое расположение
-                        addedUserToGroupForm.style.alignItems = 'center'; // Выравнивание по центру по вертикали
+            const searchLogin = document.getElementById("searchLogin").value;
+            const groupId = document.getElementById('groupId').value;
+            const usersString = document.getElementById('usersJSON').value;
+            const usersArray = JSON.parse(usersString);
 
-                        const userDiv = document.createElement("div");
-                        userDiv.textContent = user.login;
+            fetch(`/users/search?login=${searchLogin}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Обновление содержимого search-output
+                    const searchOutput = document.getElementById("search-output");
+                    searchOutput.innerHTML = ''; // Очистка содержимого контейнера
 
-                        const addButton = document.createElement("button");
-                        addButton.type = "submit";
-                        addButton.textContent = "Добавить в группу";
-                        addButton.className = "btn btn-primary"; // Используйте классы Bootstrap или свои стили
+                    data.content.forEach(user => {
+                        if (usersArray.some(u => u.id === user.id)) {
+                            const addedUserToGroupForm = document.createElement('form');
+                            addedUserToGroupForm.method = 'PUT';
+                            addedUserToGroupForm.action = `/groups/${groupId}/${user.id}`;
 
-                        addedUserToGroupForm.appendChild(userDiv);
-                        addedUserToGroupForm.appendChild(addButton);
-                        searchOutput.appendChild(addedUserToGroupForm);
-                    } else {
-                        const addedUserToGroupForm = document.createElement('form');
-                        addedUserToGroupForm.method = 'DELETE';
-                        addedUserToGroupForm.action = `/groups/${groupId}/${user.id}`;
-                        addedUserToGroupForm.style.display = 'flex'; // Гибкое расположение
-                        addedUserToGroupForm.style.alignItems = 'center'; // Выравнивание по центру по вертикали
 
-                        const userDiv = document.createElement("div");
-                        userDiv.textContent = user.login;
+                            const userDiv = document.createElement("strong");
+                            userDiv.textContent = user.login;
 
-                        const addButton = document.createElement("button");
-                        addButton.type = "submit";
-                        addButton.textContent = "Удалить с группы";
-                        addButton.className = "btn btn-danger"; // Используйте классы Bootstrap или свои стили
+                            const addButton = document.createElement("button");
+                            addButton.type = "submit";
+                            addButton.textContent = "Добавить в группу";
+                            addButton.className = "btn mx-2"; // Используйте классы Bootstrap или свои стили
+                            addButton.style="background-color: #f37427;color: white;";
 
-                        addedUserToGroupForm.appendChild(userDiv);
-                        addedUserToGroupForm.appendChild(addButton);
-                        searchOutput.appendChild(addedUserToGroupForm);
-                    }
+                            addButton.addEventListener('click', (event) => {
+                                event.preventDefault();
+                                fetch(`/groups/${groupId}/${user.id}`, {
+                                    method: 'PUT',
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    }
+                                }).then(data=>{
+                                    window.location.reload()
+                                })
+                                    .catch(error => {
+                                    console.error('Ошибка при выполнении запроса:', error);
+                                });
+                            });
+
+                            addedUserToGroupForm.appendChild(userDiv);
+                            addedUserToGroupForm.appendChild(addButton);
+                            searchOutput.appendChild(addedUserToGroupForm);
+
+                            const hr = document.createElement("hr"); // Добавляем горизонтальную линию
+                            searchOutput.appendChild(hr);
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error('Ошибка при выполнении запроса:', error);
                 });
-            })
-            .catch(error => {
-                console.error('Ошибка при выполнении запроса:', error);
-            });
-    });
+        });
+
 
 
 </script>

@@ -55,7 +55,7 @@ public class MainController {
         User currentUser = user;
         Page< UserDto > usersPage = userService.getAll(pageable);
 
-        List<UserDto> userss = usersPage.stream()
+        List<UserDto> users = usersPage.stream()
                 .filter(userInAllStream -> !userInAllStream.getId().equals(currentUser.getId())) //Убираем себя
                 .filter(userInAllStream -> currentUser.getOwnGroup().stream() //Делаем фильтрацию пользователей которых нет в группe
                         .flatMap(group -> group.getUsers().stream())
@@ -66,11 +66,12 @@ public class MainController {
                 .filter(group -> ! group.getOwner().equals(currentUser)).toList();
 
         ObjectMapper objectMapper = new ObjectMapper();
-        String users = objectMapper.writeValueAsString(userss);
+        String usersJSON = objectMapper.writeValueAsString(users);
 
         model.addAttribute("user",user)
                 .addAttribute("users",users)
-                .addAttribute("groups",otherGroup);
+                .addAttribute("groups",otherGroup)
+                .addAttribute("usersJSON",usersJSON);
 
 
 
