@@ -1,49 +1,82 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Регистрация</title>
+  <meta charset="UTF-8">
+  <title>Background Image Example</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <style>
+    body {
+      background-color: rgba(250, 247, 247, 0.99);
+      background-image: url("/fon.jpg");
+      background-repeat: no-repeat;
+      color: #172940;
+    }
+
+    .custom-form {
+      scale: 150%;
+      margin-top: 325px;
+      margin-right: -50px;/* Adjust the value as per your desired distance */
+    }
+  </style>
 </head>
 <body>
-<form id="registrationForm">
-    <label for="login">Логин</label>
-    <input type="text" id="login" name="login">
-    <br>
-    <label for="password">Пароль</label>
-    <input type="password" id="password" name="password">
-    <br>
-    <input type="submit" value="Зарегистрироваться">
-</form>
-<a href="/authentication">Уже есть аккаунт?</a>
-
+<div class="container">
+  <div class="row justify-content-end custom-form">
+    <div> <!-- Added the "custom-form" class here -->
+      <strong style="font-size: 36px">Регистрация</strong>
+      <br>
+      <form id="registrationForm">
+        <div class="form-group">
+          <input type="text" class="form-control" id="login" name="login" placeholder="Логин">
+        </div>
+        <div class="form-group">
+          <input type="password" class="form-control" id="password" name="password" placeholder="Пароль" size="15px">
+        </div>
+        <button type="submit" class="btn" style="font-size: 12px; background-color: #172940;color: white">
+          <b>Зарегистрироваться</b>
+        </button>
+        <button class="btn btn-light" type="button" style="scale: 100%" id="authentication">
+          <strong>Есть аккаунт?</strong>
+        </button>
+        <br>
+        <br>
+      </form>
+    </div>
+  </div>
+</div>
+</body>
 <script>
-    document.getElementById('registrationForm').addEventListener('submit', function(event) {
-        event.preventDefault();
 
-        const form = event.target;
-        const formData = {
-            login: form.login.value,
-            password: form.password.value
-        };
+  document.getElementById('authentication').addEventListener('click',function (){
+    window.location.href='/authentication';
+  });
 
-        fetch('/users', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(formData)
-        })
+
+  document.getElementById('registrationForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const form = event.target;
+    const formData = {
+      login: form.login.value,
+      password: form.password.value
+    };
+
+    fetch('/users', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(formData)
+    })
             .then(response => response.json())
             .then(data => {
-                if (data && data.id) {
-                    window.location.href = '/home';
-                }
+              if (data && data.id) {
+                window.location.href = '/home';
+              }
             })
             .catch(error => {
-                console.error('Ошибка при создании пользователя:', error);
+              console.error('Ошибка при создании пользователя:', error);
             });
-    });
+  });
 </script>
-
-</body>
 </html>
