@@ -1,7 +1,6 @@
 package com.example.taskmanager.repositories;
 
 
-import com.example.taskmanager.dto.AuthenticationForm;
 import com.example.taskmanager.dto.UserDto;
 import com.example.taskmanager.models.User;
 import org.springframework.data.domain.Page;
@@ -23,7 +22,7 @@ public interface UserRepository extends JpaRepository< User,Long >, CustomReposi
     Page< UserDto> findAllUserDto(Pageable pageable);
 
     @Query("select new com.example.taskmanager.dto.UserDto(u.id,u.login) from User u where u.login like %?1%")
-    Page<UserDto> searchAllByLogin(String login,Pageable pageable);
+    Page< UserDto > searchAllByLogin(String login,Pageable pageable);
 
     @Query("select u.login from User u where  u.id=?1")
     Optional<String> findLoginById(Long id);

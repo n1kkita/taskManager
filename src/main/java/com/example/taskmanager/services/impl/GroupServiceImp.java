@@ -38,6 +38,7 @@ public class GroupServiceImp implements GroupService {
     }
     @Override
     public GroupEntity getById(Long id) {
-        return groupRepository.findById(id).orElseThrow(()-> new EntityNotFoundException("Not found with id:" + id));
+        return groupRepository.findById(id)
+                .orElseThrow(()-> new EntityNotFoundException("Not found with id:" + id));
     }
 }

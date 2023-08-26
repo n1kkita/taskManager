@@ -14,6 +14,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 
 @Service
 @RequiredArgsConstructor
@@ -26,8 +28,7 @@ private final UserRepository userRepository;
     }
 
     @Override
-    public Page< UserDto > searchByLogin(String login, Pageable pageable) {
-
+    public Page< UserDto > searchByLogin(String login,Pageable pageable) {
         return userRepository.searchAllByLogin(login,pageable);
     }
 
