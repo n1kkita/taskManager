@@ -19,7 +19,10 @@ import java.util.*;
 public class User {
     @Override
     public String toString() {
-        return "User{}";
+        return "User{" +
+                "id=" + id +
+                ", login='" + login + '\'' +
+                '}';
     }
 
     @Id
@@ -29,13 +32,11 @@ public class User {
     private String login;
     @Column(nullable = false)
     private String password;
+    @Transient
+    private Role role;
     @ManyToMany(mappedBy = "users")
     private List<GroupEntity> groups = new ArrayList<>();
-    @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST,CascadeType.MERGE}, orphanRemoval = true)
-    private List<Task> tasks = new ArrayList<>();
-    @Enumerated(EnumType.STRING)
-    private Role role;
-    @OneToOne(mappedBy = "owner", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "owner", cascade = CascadeType.ALL)
     private GroupEntity ownGroup;
     public Optional<GroupEntity> getOwnGroup() {
         return Optional.ofNullable(ownGroup);
