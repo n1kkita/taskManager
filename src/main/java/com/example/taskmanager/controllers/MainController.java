@@ -13,6 +13,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 @RequiredArgsConstructor
@@ -39,9 +41,10 @@ public class MainController {
     }
     @GetMapping("/home")
     public String showUserPage(@RequestParam Long id,
+                               @RequestParam(name = "page",defaultValue = "0") int page,
+                               Pageable pageable,
                                HttpSession session,
-                               Model model,
-                               Pageable pageable) throws JsonProcessingException {
+                               Model model) throws JsonProcessingException {
 
         Long userId = (Long) session.getAttribute(Util.replaceToUserLinkInHttpSession(id));
         User user;
@@ -53,14 +56,20 @@ public class MainController {
         }
 
         User currentUser = user;
-        Page< UserDto > usersPage = userService.getAll(pageable);
+        List<UserDto> users;
+        Page< UserDto > usersPage;
+        do {
+            System.out.println(page);
+            usersPage = userService.getAll(PageRequest.of(page, 10));
+            users = usersPage.stream()
+                    .filter(userInAllStream -> !userInAllStream.getId().equals(currentUser.getId())) //Убираем себя
+                    .filter(userInAllStream -> currentUser.getOwnGroup().stream() //Делаем фильтрацию пользователей которых нет в группe
+                            .flatMap(group -> group.getUsers().stream())
+                            .noneMatch(userInGroup-> userInGroup.getId().equals(userInAllStream.getId())
+                            )).toList();
+            page++;
 
-        List<UserDto> users = usersPage.stream()
-                .filter(userInAllStream -> !userInAllStream.getId().equals(currentUser.getId())) //Убираем себя
-                .filter(userInAllStream -> currentUser.getOwnGroup().stream() //Делаем фильтрацию пользователей которых нет в группe
-                        .flatMap(group -> group.getUsers().stream())
-                        .noneMatch(userInGroup-> userInGroup.getId().equals(userInAllStream.getId())
-                        )).toList();
+        } while (users.isEmpty() && page < usersPage.getTotalPages());
 
         List<GroupEntity> otherGroup = user.getGroups().stream()
                 .filter(group -> ! group.getOwner().equals(currentUser)).toList();
@@ -71,7 +80,9 @@ public class MainController {
         model.addAttribute("user",user)
                 .addAttribute("users",users)
                 .addAttribute("groups",otherGroup)
-                .addAttribute("usersJSON",usersJSON);
+                .addAttribute("usersJSON",usersJSON)
+                .addAttribute("currentPage", usersPage.getNumber())
+                .addAttribute("totalPages", usersPage.getTotalPages());
 
 
 

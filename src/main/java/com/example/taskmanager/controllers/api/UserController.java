@@ -9,8 +9,11 @@ import com.example.taskmanager.utils.Util;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/users")
@@ -22,10 +25,8 @@ public class UserController {
         return userService.getAll(pageable);
     }
     @GetMapping("/search")
-    public Page< UserDto > getAll(@RequestParam String login,Pageable pageable){
-
-
-        return userService.searchByLogin(login,pageable);
+    public Page< UserDto > getAll(@RequestParam String login){
+        return userService.searchByLogin(login, PageRequest.of(0,5));
     }
     @GetMapping("/{id}")
     public User getById(@PathVariable Long id){

@@ -4,6 +4,7 @@ import com.example.taskmanager.dto.GroupDto;
 import com.example.taskmanager.models.GroupEntity;
 import com.example.taskmanager.services.interfaceses.GroupService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 

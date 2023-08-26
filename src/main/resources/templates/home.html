@@ -156,9 +156,9 @@
                 <span style="font-size: 24px" th:text="'Вы уже создали свою группу '"></span><strong style="font-size: 24px" th:text="${user.getOwnGroup().get().name} + '   '"></strong>
                 <button class="btn btn-danger">Удалить группу</button>
                 <hr>
-                <div class="input-group flex-nowrap" th:each="user:${user.getOwnGroup().get().getUsers()}">
-                    <form th:method="DELETE" action="/">
-                        <strong th:text="${user.login}"></strong>
+                <div class="input-group flex-nowrap" th:each="deleteUser:${user.getOwnGroup().get().getUsers()}">
+                    <form th:if="${!deleteUser.id.equals(user.id)}" th:method="DELETE" action="/">
+                        <strong th:text="${deleteUser.login}"></strong>
                         <button class="btn" type="submit" style="background-color: #f53030;color: white;"> Удалить с группы </button>
                         <hr>
                     </form>
@@ -181,7 +181,23 @@
                             <hr>
                         </form>
                     </div>
+                    <span>
+                        <form action="/home" id="backFormUser" method="get" style="display: inline-block;">
+                            <div th:if="${currentPage != null and currentPage > 0}">
+                            <input id="backPageIdUser" name="page" th:value="${currentPage - 1}" type="hidden">
+                            <button id="backUser" type="submit">Back...</button>
+                            </div>
+                        </form>
+                    </span>
+                    <form action="/home" id="nextFormUser" method="get" style="display: inline-block;">
+                        <div th:if="${currentPage != null and currentPage != totalPages - 1 }" id="pagination">
+                            <input id="nextPageIdUser" name="page" th:value="${currentPage != null ? currentPage + 1 : 1}"
+                                   type="hidden">
+                            <button id="nextUser" type="submit">Next...</button>
+                        </div>
+                    </form>
                 </div>
+
                 <div style="display: flex;color: #172940;" th:unless="${!users.isEmpty()}">
                     <span><strong>Пользователей не было найдено :(</strong></span>
                 </div>
@@ -247,18 +263,18 @@
             const searchLogin = document.getElementById("searchLogin").value;
             const groupId = document.getElementById('groupId').value;
             const usersString = document.getElementById('usersJSON').value;
-            const usersArray = JSON.parse(usersString);
 
             fetch(`/users/search?login=${searchLogin}`)
                 .then(response => response.json())
                 .then(data => {
                     // Обновление содержимого search-output
+                    const pagination = document.getElementById('nextFormUser');
                     const searchOutput = document.getElementById("search-output");
                     searchOutput.innerHTML = ''; // Очистка содержимого контейнера
-
+                    console.log(data);
                     data.content.forEach(user => {
-                        if (usersArray.some(u => u.id === user.id)) {
-                            const addedUserToGroupForm = document.createElement('form');
+
+                        const addedUserToGroupForm = document.createElement('form');
                             addedUserToGroupForm.method = 'PUT';
                             addedUserToGroupForm.action = `/groups/${groupId}/${user.id}`;
 
@@ -271,6 +287,7 @@
                             addButton.textContent = "Добавить в группу";
                             addButton.className = "btn mx-2"; // Используйте классы Bootstrap или свои стили
                             addButton.style="background-color: #f37427;color: white;";
+
 
                             addButton.addEventListener('click', (event) => {
                                 event.preventDefault();
@@ -293,14 +310,84 @@
 
                             const hr = document.createElement("hr"); // Добавляем горизонтальную линию
                             searchOutput.appendChild(hr);
-                        }
                     });
+                    searchOutput.appendChild(pagination);
                 })
                 .catch(error => {
                     console.error('Ошибка при выполнении запроса:', error);
                 });
         });
 
+    document.addEventListener("submit", function (event) {
+        const groupId = document.getElementById('groupId').value;
+        const searchOutput = document.getElementById("search-output");
+        // Check if the submitted form is the search form
+        if (event.target.id === "nextFormUser") {
+            event.preventDefault(); // Prevent the form submission
+
+            const nextPageIdUser = document.getElementById("nextPageIdUser").value;
+
+            fetch(`/home?id=${groupId}&page=${encodeURIComponent(nextPageIdUser)}`)
+                .then(response => response.text())
+                .then(data => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(data, 'text/html');
+
+                    const targetDiv = doc.getElementById('search-output');
+
+                    if (targetDiv) {
+                        // Очищаем контейнер перед вставкой новых данных
+                        searchOutput.innerHTML = '';
+
+                        // Вставляем HTML-содержимое целевого <div> в контейнер
+                        searchOutput.innerHTML = targetDiv.innerHTML;
+
+                        // Отображаем контейнер
+                        searchOutput.style.display = "block";
+                    } else {
+                        console.error('Целевой <div> не найден.');
+                    }
+                })
+                .catch(error => {
+                    console.error("Error during search:", error);
+                });
+        }
+    });
+    document.addEventListener("submit", function (event) {
+        const groupId = document.getElementById('groupId').value;
+        const searchOutput = document.getElementById("search-output");
+        // Check if the submitted form is the search form
+        if (event.target.id === "backFormUser") {
+            event.preventDefault(); // Prevent the form submission
+
+            const backPageIdUser = document.getElementById("backPageIdUser").value;
+
+            fetch(`/home?id=${groupId}&page=${encodeURIComponent(backPageIdUser)}`)
+                .then(response => response.text())
+                .then(data => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(data, 'text/html');
+
+                    const targetDiv = doc.getElementById('search-output');
+
+                    if (targetDiv) {
+                        // Очищаем контейнер перед вставкой новых данных
+                        searchOutput.innerHTML = '';
+
+                        // Вставляем HTML-содержимое целевого <div> в контейнер
+                        searchOutput.innerHTML = targetDiv.innerHTML;
+
+                        // Отображаем контейнер
+                        searchOutput.style.display = "block";
+                    } else {
+                        console.error('Целевой <div> не найден.');
+                    }
+                })
+                .catch(error => {
+                    console.error("Error during search:", error);
+                });
+        }
+    });
 
 
 </script>
