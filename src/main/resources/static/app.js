@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
         headerToolbar: {
             left: 'prev,next today',
             center: 'title',
-            right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            right: 'dayGridMonth'
         },
         locale: 'ru',
 
@@ -383,6 +383,70 @@ document.addEventListener('DOMContentLoaded', function() {
         .catch(error => {
             console.error('Error fetching tasks:', error);
         });
+
+
+
+    document.getElementById('createTaskForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const title = document.getElementById('title').value;
+        const description = document.getElementById('description').value;
+        const dateOfStartInput = document.getElementById('dateOfStart');
+        const dateOfEndInput = document.getElementById('dateOfEnd');
+        const allDay = document.getElementById('allDay').checked;
+
+
+
+        const dateOfStart = new Date(dateOfStartInput.value).toISOString(); // Преобразование в стандартный ISO8601 формат
+        const dateOfEnd = new Date(dateOfEndInput.value).toISOString();
+        const groupIdJson = document.getElementById('groupId');
+        let userId = document.getElementById("selectedUserId").value;
+        let groupId = groupIdJson.value;
+
+        const taskData = {
+            title: title,
+            description: description,
+            dateOfStart: dateOfStart,
+            dateOfEnd: dateOfEnd,
+            groupId: groupId,
+            userId: userId,
+            allDay: allDay
+        };
+
+        fetch('/tasks', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(taskData)
+        })
+            .then(response => response.json())
+            .then(task => {
+                console.log('Task added:', task);
+                    console.log('Adding event:', task.id, task.userId, task.status, task.title, task.description, task.dateOfStart, task.dateOfEnd);
+                    calendar.addEvent({
+                        id: task.id,
+                        title: task.title,
+                        allDay: task.allDay,
+                        status: task.status,
+                        userId: task.userId, // Добавляем userId в объект события
+                        start: task.dateOfStart,
+                        end: task.dateOfEnd,
+                        display: 'block',
+                        description: task.description,
+                        backgroundColor: getBackgroundColorByStatus(task.status),
+                        borderColor: getBorderColorByStatus(task.status)
+                    });
+                calendar.render();
+                // Дополнительные действия после успешного добавления задачи
+            })
+            .catch(error => {
+                console.error('Error adding task:', error);
+                // Обработка ошибки, если что-то пошло не так
+
+            });
+    });
+
 });
 function getBackgroundColorByStatus(status) {
     switch (status) {
@@ -425,52 +489,7 @@ function getStatus(status) {
     }
 }
 
-document.getElementById('createTaskForm').addEventListener('submit', function(event) {
-    event.preventDefault();
 
-    const title = document.getElementById('title').value;
-    const description = document.getElementById('description').value;
-    const dateOfStartInput = document.getElementById('dateOfStart');
-    const dateOfEndInput = document.getElementById('dateOfEnd');
-    const allDay = document.getElementById('allDay').checked;
-
-
-
-    const dateOfStart = new Date(dateOfStartInput.value).toISOString(); // Преобразование в стандартный ISO8601 формат
-    const dateOfEnd = new Date(dateOfEndInput.value).toISOString();
-    const groupIdJson = document.getElementById('groupId');
-    let userId = document.getElementById("selectedUserId").value;
-    let groupId = groupIdJson.value;
-
-    const taskData = {
-        title: title,
-        description: description,
-        dateOfStart: dateOfStart,
-        dateOfEnd: dateOfEnd,
-        groupId: groupId,
-        userId: userId,
-        allDay: allDay
-    };
-
-    fetch('/tasks', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(taskData)
-    })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Task added:', data);
-            window.location.reload()
-            // Дополнительные действия после успешного добавления задачи
-        })
-        .catch(error => {
-            console.error('Error adding task:', error);
-            // Обработка ошибки, если что-то пошло не так
-            window.location.reload()
-        });
-});
 
 
 
