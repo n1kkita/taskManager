@@ -2,7 +2,6 @@ package com.example.taskmanager.controllers.api;
 
 
 import com.example.taskmanager.dto.TaskDto;
-import com.example.taskmanager.models.Task;
 import com.example.taskmanager.services.interfaceses.TaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,15 +18,9 @@ public class TaskController {
     public List< TaskDto > getAllTasksByGroupId(@PathVariable Long groupId){
         return taskService.getAllByGroupId(groupId);
     }
-
-    @GetMapping("/{id}")
-    public TaskDto getTaskById(@PathVariable Long id){
-        return taskService.getById(id);
-    }
-
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    public Task saveTask(@RequestBody TaskDto taskDto){
+    public TaskDto saveTask(@RequestBody TaskDto taskDto){
         return taskService.saveTask(taskDto);
     }
 

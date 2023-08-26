@@ -34,7 +34,7 @@ public class User {
     private String password;
     @Transient
     private Role role;
-    @ManyToMany(mappedBy = "users")
+    @ManyToMany(mappedBy = "users",fetch = FetchType.LAZY)
     private List<GroupEntity> groups = new ArrayList<>();
     @OneToOne(mappedBy = "owner", cascade = CascadeType.ALL)
     private GroupEntity ownGroup;

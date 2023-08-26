@@ -31,7 +31,7 @@ public class GroupEntity {
         return "";
     }
 
-    @OneToMany(mappedBy = "group")
+    @OneToMany(mappedBy = "group", fetch = FetchType.LAZY)
     private List<Task> tasks = new ArrayList<>();
 
     public void setOwner(User owner) {
@@ -39,11 +39,11 @@ public class GroupEntity {
         users.add(owner);
     }
 
-    @ManyToMany
+    @ManyToMany()
     @JoinTable(
             name = "user_group",
             joinColumns = @JoinColumn(name = "group_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id",unique = true)
+            inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     private List<User> users = new ArrayList<>();
 }

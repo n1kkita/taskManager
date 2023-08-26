@@ -9,6 +9,7 @@ import com.example.taskmanager.repositories.TaskRepository;
 import com.example.taskmanager.services.interfaceses.GroupService;
 import com.example.taskmanager.services.interfaceses.TaskService;
 import com.example.taskmanager.services.interfaceses.UserService;
+import com.example.taskmanager.utils.Util;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,36 +28,13 @@ public class TaskServiceImpl implements TaskService {
     private final UserService userService;
     @Override
     public List< TaskDto > getAllByGroupId(Long groupId) {
-        var currentDate = new Date();
         return taskRepository.findAllByGroupId(groupId).stream()
-                .map(task -> {
-
-            if(task.getStatus().equals(Status.CREATED) || !task.getStatus().equals(Status.DONE) ){
-                //Если текущая дата подошла к началу задания меняем статус IN_PROCESS
-                if(currentDate.after(task.getDateOfStart())) {
-                    System.out.println("Статус изменен на IN_PROCESS");
-                    task.setStatus(Status.IN_PROCESS);
-                }
-                //Если дата окончания задания прошла до текущей даты меняем статус на NOT_DONE
-                if(task.getDateOfEnd().before(currentDate)) {
-                    System.out.println("Статус изменен на NOT_DONE");
-                    task.setStatus(Status.NOT_DONE);
-                }
-
-            }
-            return new TaskDto(task.getId(),task.getTitle(),task.getDescription(),
-                    task.getStatus(),task.getDateOfEnd(),task.getDateOfStart(), task.isAllDay(),
-                    task.getGroup().getId(), task.getUser().getId());
-        }).toList();
+                .peek(task -> task.
+                        setStatus(Util.checkStatus(task.getStatus(),task.getDateOfStart(),task.getDateOfEnd()))
+                ).toList();
     }
     @Override
-    public TaskDto getById(Long id) {
-        Optional<TaskDto> taskDto = taskRepository.findTaskById(id);
-        return taskDto.orElseThrow(() -> new EntityNotFoundException("Task with id " + id + " not found"));
-    }
-
-    @Override
-    public Task saveTask(TaskDto taskDto) {
+    public TaskDto saveTask(TaskDto taskDto) {
 
         GroupEntity group = groupService.getById(taskDto.getGroupId());
         User user = userService.getUserById(taskDto.getUserId());
@@ -64,16 +42,18 @@ public class TaskServiceImpl implements TaskService {
         Task task = new Task();
 
         task.setGroup(group);
-        task.setAllDay(taskDto.isAllDay());
-        task.setStatus(taskDto.getStatus());
         task.setDescription(taskDto.getDescription());
         task.setTitle(taskDto.getTitle());
         task.setDateOfStart(taskDto.getDateOfStart());
         task.setDateOfEnd(taskDto.getDateOfEnd());
         task.setUser(user);
+        task.setStatus(Util.checkStatus(Status.CREATED,task.getDateOfStart(),task.getDateOfEnd()));
+        taskRepository.save(task);
 
+        taskDto.setId(task.getId());
+        taskDto.setStatus(task.getStatus());
 
-        return taskRepository.save(task);
+        return taskDto;
     }
 
     @Override

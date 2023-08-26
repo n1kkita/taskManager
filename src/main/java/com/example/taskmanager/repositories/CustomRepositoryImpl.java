@@ -16,12 +16,7 @@ public class CustomRepositoryImpl implements CustomRepository {
     @Override
     public Optional<User> findUserFetchGroupsAndTaskById(Long id) {
 
-        var user = entityManager.
-                createQuery("select u from User u left join fetch u.groups where u.id=?1", User.class)
-                .setParameter(1,id)
-                .getSingleResult();
-
-        user = entityManager.createQuery("select u from User u left join fetch u.ownGroup g where u.id=?1", User.class)
+        var user = entityManager.createQuery("select u from User u left join fetch u.ownGroup g where u.id=?1", User.class)
                 .setParameter(1,id)
                 .getSingleResult();
 

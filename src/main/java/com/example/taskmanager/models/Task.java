@@ -32,14 +32,12 @@ public class Task {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Status status;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private GroupEntity group;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private User user;
-    private boolean allDay;
     @PrePersist
     public void init(){
         dateOfCreate = new Date();
-        status = Status.CREATED;
     }
 }
