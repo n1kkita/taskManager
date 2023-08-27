@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const completedButton = document.getElementById('completedButton');
             let currentUserID = document.getElementById('currentUserId').value;
             const editButton = document.getElementById('editButton');
-            const deleteButton = document.getElementById('deleteButton');
+
 
             var statusName = getStatus(event.extendedProps.status);
             id = event.id;
@@ -254,9 +254,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         body: JSON.stringify(taskData)
                     })
                         .then(response => response.json())
-                        .then(data => {
+                        .then(task => {
                             // Обработка успешного ответа от сервера
-                            console.log('Task updated:', data);
+                            console.log('Task updated:', task);
                             window.location.reload();
                         })
                         .catch(error => {
@@ -266,59 +266,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         });
                 });
             });
-
-            deleteButton.addEventListener('click', function () {
-                // Отправка DELETE-запроса
-                fetch(`/tasks/${id}`, {
-                    method: 'DELETE',
-                })
-                    .then(response => {
-                        if (response.ok) {
-                            // Обработка успешного ответа от сервера
-                            console.log('Task deleted successfully');
-                            window.location.reload();
-                            // Дополнительные действия, если необходимо
-                        } else {
-                            // Обработка ошибки
-                            console.error('Error deleting task:', response.statusText);
-                            window.location.reload();
-
-                        }
-                        // Дополнительные действия, если необходимо
-                    })
-                    .catch(error => {
-                        // Обработка ошибки
-                        console.error('Error deleting task:', error);
-                        window.location.reload();
-
-                    });
-            });
-
-
-            document.getElementById('completedButton').addEventListener('click',function () {
-                fetch(`/tasks/${id}`, {
-                    method: 'PATCH',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        // Обработка успешного ответа от сервера
-                        console.log('Task updated:', data);
-                        window.location.reload();
-
-                    })
-                    .catch(error => {
-                        // Обработка ошибки
-                        console.error('Error updating task:', error);
-                        window.location.reload();
-
-
-                    });
-            });
-
-
         },
         eventDidMount: function(info) {
             // Добавление дополнительной информации о задаче при наведении
@@ -332,6 +279,71 @@ document.addEventListener('DOMContentLoaded', function() {
         },
 
     });
+
+    document.getElementById('completedButton').addEventListener('click',function () {
+        fetch(`/tasks/${id}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                // Обработка успешного ответа от сервера
+                console.log('Task updated:', data);
+                // Найти событие по айди
+                const event = calendar.getEventById(id);
+
+                console.log(event);
+                if (event) {
+                    event.setProp('backgroundColor',  getBackgroundColorByStatus('DONE'));
+                    event.setProp('borderColor', getBorderColorByStatus('DONE'));
+                }
+
+            })
+            .catch(error => {
+                // Обработка ошибки
+                console.error('Error updating task:', error);
+                const event = calendar.getEventById(id);
+
+                console.log(event);
+
+                if (event) {
+                    event.setProp('backgroundColor',  getBackgroundColorByStatus('DONE'));
+                    event.setProp('borderColor', getBorderColorByStatus('DONE'));
+                }
+
+            });
+    });
+
+    const deleteButton = document.getElementById('deleteButton');
+    deleteButton.addEventListener('click', async function () {
+        // Проверка, не был ли уже запущен процесс удаления
+
+        // Отправка DELETE-запроса
+        fetch(`/tasks/${id}`, {
+            method: 'DELETE',
+        })
+            .then(response => {
+
+                // Обработка успешного ответа от сервера
+                console.log('Task deleted successfully');
+                const event = calendar.getEventById(id);
+                if (event) {
+                    event.remove();
+                }
+
+
+            })
+            .catch(error => {
+                console.error('Error deleting task:', error);
+
+            });
+
+    });
+
+
+
 
     // Ваш обработчик нажатия на кнопку изменения
 
