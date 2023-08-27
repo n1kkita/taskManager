@@ -1,0 +1,52 @@
+.card-header {
+    display: flex;
+    justify-content: space-between;
+}
+
+.text-start {
+    display: flex;
+    flex-direction: column;
+}
+.notification {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    color: #192a41;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    font-size: 24px;
+    font-weight: bold;
+    padding: 30px 60px;
+    border-radius: 5px;
+    display: none;
+    align-items: center;
+    z-index: 1000;
+    animation: fadeInOut 4s ease-in-out;
+}
+
+.notification .notification-text {
+    margin-right: 10px;
+}
+
+.notification .notification-icon {
+    font-size: 3.5rem;
+    vertical-align: middle;
+}
+@keyframes fadeInOut {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    50% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+}
+.custom-form {
+    scale: 150%;
+    margin-top: 325px;
+    margin-right: -25px;/* Adjust the value as per your desired distance */
+}
