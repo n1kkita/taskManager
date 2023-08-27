@@ -4,18 +4,13 @@
   <meta charset="UTF-8">
   <title>Background Image Example</title>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/style.css">
   <style>
     body {
       background-color: rgba(250, 247, 247, 0.99);
       background-image: url("/fon.jpg");
       background-repeat: no-repeat;
       color: #172940;
-    }
-
-    .custom-form {
-      scale: 150%;
-      margin-top: 325px;
-      margin-right: -25px;/* Adjust the value as per your desired distance */
     }
   </style>
 </head>
@@ -44,12 +39,33 @@
     </div>
   </div>
 </div>
+<div id="notificationError" class="notification"  style="background-color: rgba(255,0,0,0.72);">
+  <span class="notification-text" id="error"></span>
+  <ion-icon name="construct-outline" class="notification-icon"></ion-icon>
+</div>
+
 </body>
 <script>
   document.getElementById('registration').addEventListener('click',function() {
     window.location.href = '/registration';
   });
 
+  document.addEventListener('DOMContentLoaded', function() {
+    if (localStorage.getItem('showNotification') === 'true') {
+      const notificationChange = document.getElementById('notificationError');
+
+      notificationChange.style.display = 'block';
+      notificationChange.classList.add('show'); // Добавляем класс для анимации
+
+      setTimeout(() => {
+        // Скрываем уведомление через 2 секунды
+        notificationChange.style.display = 'none';
+        notificationChange.classList.remove('show'); // Удаляем класс для анимации
+
+        localStorage.removeItem('showNotification'); // Удаляем флаг из localStorage
+      }, 4000);
+    }
+  });
 
   document.getElementById('authenticationForm').addEventListener('submit', function(event) {
     event.preventDefault();
@@ -67,13 +83,31 @@
       },
       body: JSON.stringify(formData)
     })
-            .then(response => response.text())
-            .then(id => {
-              window.location.href = '/home?id='+id;
+            .then(response => {
+
+              if(response.ok) {
+                response.text().then(id=>{
+                  window.location.href='/home?id='+id;
+                })
+              } else {
+                response.text().then( error => {
+                  const notificationChange = document.getElementById('notificationError');
+                  const er = document.getElementById('error');
+                  er.innerText=error;
+                  notificationChange.style.display = 'block';
+                  notificationChange.classList.add('show'); // Добавляем класс для анимации
+
+                  setTimeout(() => {
+                    // Скрываем уведомление через 2 секунды
+                    notificationChange.style.display = 'none';
+                    notificationChange.classList.remove('show'); // Удаляем класс для анимации
+
+                    localStorage.removeItem('showNotification'); // Удаляем флаг из localStorage
+                  }, 4000);
+                })
+              }
+
             })
-            .catch(error => {
-              console.error('Ошибка при входе:', error);
-            });
   });
 </script>
 </html>

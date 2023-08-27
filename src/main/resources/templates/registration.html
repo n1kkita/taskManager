@@ -4,18 +4,13 @@
   <meta charset="UTF-8">
   <title>Background Image Example</title>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/style.css">
   <style>
     body {
       background-color: rgba(250, 247, 247, 0.99);
       background-image: url("/fon.jpg");
       background-repeat: no-repeat;
       color: #172940;
-    }
-
-    .custom-form {
-      scale: 150%;
-      margin-top: 325px;
-      margin-right: -50px;/* Adjust the value as per your desired distance */
     }
   </style>
 </head>
@@ -61,18 +56,16 @@
       password: form.password.value
     };
 
-    fetch('/users', {
+    fetch('/users/registration', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(formData)
     })
-            .then(response => response.json())
-            .then(data => {
-              if (data && data.id) {
-                window.location.href = '/home';
-              }
+            .then(response => response.text())
+            .then(id => {
+              window.location.href = '/home?id='+id;
             })
             .catch(error => {
               console.error('Ошибка при создании пользователя:', error);
