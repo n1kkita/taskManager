@@ -62,12 +62,10 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public Task updateTaskById(Long id, TaskDto editTask) {
+    public void updateTaskById(Long id, TaskDto editTask) {
         Optional<Task> taskOptional = taskRepository.findById(id);
 
-        if(taskOptional.isPresent()) {
-            var currentDay = new Date();
-            Task task = taskOptional.get();
+        taskOptional.map(task -> {
 
             task.setTitle(editTask.getTitle());
             task.setDescription(editTask.getDescription());
@@ -75,19 +73,11 @@ public class TaskServiceImpl implements TaskService {
             task.setDateOfEnd(editTask.getDateOfEnd());
             task.setDateOfCreate(new Date()); //Перезаписываем дату создания
             task.setUser(userService.getUserById(editTask.getUserId()));
+            task.setStatus(Util.checkStatus(Status.CREATED,task.getDateOfStart(),task.getDateOfEnd()));
+            return task;
 
-            if(currentDay.before(task.getDateOfStart())){
-                task.setStatus(Status.CREATED);
+        }).orElseThrow(() -> new EntityNotFoundException("Ошибка при обновлении задачи"));
 
-            } else if(currentDay.after(task.getDateOfStart())){
-                task.setStatus(Status.IN_PROCESS);
-
-            } else if(task.getDateOfEnd().before(currentDay)){
-                task.setStatus(Status.NOT_DONE);
-            }
-        }
-
-        return taskOptional.orElseThrow(() -> new EntityNotFoundException("Ошибка при обновлении задачи"));
     }
 
     @Override

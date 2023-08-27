@@ -43,11 +43,11 @@ public class MainController {
                                HttpSession session,
                                Model model) throws JsonProcessingException {
 
-        Long userId = (Long) session.getAttribute(Util.replaceToUserLinkInHttpSession(id));
+        Long userId = (Long) session.getAttribute(Util.replaceToUserLinkInHttpSession(id)); //получаем id
         User user;
 
         if(userId != null) {
-            user = userService.getUserById(userId);
+            user = userService.getUserById(userId); //находим в базе
         } else {
             return "redirect:/registration";
         }
@@ -71,7 +71,7 @@ public class MainController {
                 .filter(group -> ! group.getOwner().equals(currentUser)).toList();
 
         ObjectMapper objectMapper = new ObjectMapper();
-        String usersJSON = objectMapper.writeValueAsString(users);
+        String usersJSON = objectMapper.writeValueAsString(users); //преобразуем в json
 
         model.addAttribute("user",user)
                 .addAttribute("users",users)
