@@ -14,8 +14,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 
 @Service
 @RequiredArgsConstructor
@@ -57,7 +55,7 @@ private final UserRepository userRepository;
     @Override
     public Long authentication(AuthenticationForm form) {
         return userRepository.findUserIdByLoginAndPassword(form.getLogin(), form.getPassword())
-                .orElseThrow(()->new EntityNotFoundException("Not found"));
+                .orElseThrow(()->new EntityNotFoundException("Логин или пароль не верны"));
     }
 
 

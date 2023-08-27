@@ -45,11 +45,11 @@ public class UserController {
         return id;
     }
 
-    @PostMapping
-    public User createUser(@RequestBody RegistrationForm form, HttpSession session){
+    @PostMapping("/registration")
+    public Long createUser(@RequestBody RegistrationForm form, HttpSession session){
         User user = userService.create(form);
-        session.setAttribute("user", user);
-        return user;
+        session.setAttribute(Util.replaceToUserLinkInHttpSession(user.getId()), user.getId());
+        return user.getId();
     }
 
 }
