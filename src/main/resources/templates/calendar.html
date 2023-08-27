@@ -13,6 +13,9 @@
   <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/locales/ru.js"></script>
   <style>
+    body {
+      overflow-x: hidden;
+    }
     .card-header {
       display: flex;
       justify-content: space-between;
@@ -21,6 +24,44 @@
     .text-start {
       display: flex;
       flex-direction: column;
+    }
+    .notification {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      color: #192a41;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+      font-size: 24px;
+      font-weight: bold;
+      padding: 30px 60px;
+      border-radius: 5px;
+      display: none;
+      align-items: center;
+      z-index: 1000;
+      animation: fadeInOut 4s ease-in-out;
+    }
+
+    .notification .notification-text {
+      margin-right: 10px;
+    }
+
+    .notification .notification-icon {
+      font-size: 3.5rem;
+      vertical-align: middle;
+    }
+    @keyframes fadeInOut {
+      0% {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      50% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
     }
   </style>
 </head>
@@ -70,7 +111,7 @@
 </svg>
 <div class="row">
   <div class="col-md-1">
-    <div class="d-flex flex-column flex-shrink-0 bg-body-tertiary" style="width: 7rem; height: 100%">
+    <div class="d-flex flex-column flex-shrink-0 bg-body-tertiary" style="width: 6.5rem; height: 100%">
       <ul class="nav nav-pills nav-flush flex-column mb-auto text-center">
         <li>
           <a href="/" class="d-block p-3 link-body-emphasis text-decoration-none" data-bs-toggle="tooltip" data-bs-placement="right" aria-label="Icon-only">
@@ -87,8 +128,8 @@
     </div>
   </div>
 
-  <div class="col-md-10 mx-2">
-    <div class="card mt-4" style="max-width: 1800px;">
+  <div class="col-md-10">
+    <div class="card mt-4" style="max-width: 100%;">
       <div class="card-header">
         <div class="text-start">
           <h4 th:text="'Группа:' + ${groupName}"> GroupName </h4>
@@ -159,11 +200,7 @@
               </select>
             </div>
           <input type="hidden" id="selectedUserId" name="selectedUserId">
-          <div class="form-group">
-            <label for="allDay">Задача на весь день:</label>
-            <input type="checkbox" class="form-check-input" id="allDay" name="allDay">
-          </div>
-          <input type="submit" value="Создать" id="createButton" class="btn btn-primary">
+          <input type="submit" value="Создать" id="createButton" class="btn btn-primary" data-bs-dismiss="modal">
         </form>
       </div>
     </div>
@@ -219,22 +256,54 @@
         <div class="d-flex gap-2 justify-content-left">
           <button class="btn rounded-pill px-3" type="button" style="background-color: #ff3a01;color: white;" id="editButton"> Изменить </button>
 
-          <button class="btn rounded-pill px-2" type="button" style="background-color: #65f346;color: white;" id="completedButton">
+          <button class="btn rounded-pill px-2" type="button" style="background-color: #65f346;color: white;" id="completedButton" data-bs-dismiss="modal">
             <ion-icon name="checkmark-outline" style="font-size: 1.7rem; vertical-align: middle;"></ion-icon>
           </button>
 
-          <button class="btn btn-danger rounded-pill px-2" type="button" id="deleteButton">
+          <button class="btn btn-danger rounded-pill px-2" type="button" id="deleteButton" data-bs-dismiss="modal">
             <ion-icon name="trash-outline" style="font-size: 1.7rem; vertical-align: middle;"></ion-icon>
           </button>
         </div>
       </div>
-
-
     </div>
   </div>
 </div>
 </div>
+<div id="notificationDelete" class="notification" style="background-color: rgba(57, 255, 0, 0.4);">
+  <span class="notification-text">Задача успешно удалена!</span>
+  <ion-icon name="checkmark-outline" class="notification-icon"></ion-icon>
+</div>
+
+<div id="notificationCompeted" class="notification"  style="background-color: rgba(57, 255, 0, 0.4);">
+  <span class="notification-text">Задача выполнена!</span>
+  <ion-icon name="checkmark-outline" class="notification-icon"></ion-icon>
+</div>
+
+<div id="notificationChange" class="notification"  style="background-color: rgba(255, 52, 0, 0.4);">
+  <span class="notification-text">Задача изменена!</span>
+  <ion-icon name="construct-outline" class="notification-icon"></ion-icon>
+</div>
+<div id="notificationCreate" class="notification" style="background-color: rgba(0, 108, 192, 0.4);">
+  <span class="notification-text">Задача создана!</span>
+  <ion-icon name="save-outline" class="notification-icon"></ion-icon>
+</div>
 <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    if (localStorage.getItem('showNotification') === 'true') {
+      const notificationChange = document.getElementById('notificationChange');
+
+      notificationChange.style.display = 'block';
+      notificationChange.classList.add('show'); // Добавляем класс для анимации
+
+      setTimeout(() => {
+        // Скрываем уведомление через 2 секунды
+        notificationChange.style.display = 'none';
+        notificationChange.classList.remove('show'); // Удаляем класс для анимации
+
+        localStorage.removeItem('showNotification'); // Удаляем флаг из localStorage
+      }, 4000);
+    }
+  });
   // Обработчик изменения выбранного пользователя
   document.getElementById("user_selected").addEventListener("change", function() {
     const selectedUserId = this.value;
