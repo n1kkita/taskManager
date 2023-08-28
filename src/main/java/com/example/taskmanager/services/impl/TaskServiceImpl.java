@@ -1,6 +1,7 @@
 package com.example.taskmanager.services.impl;
 
 import com.example.taskmanager.dto.TaskDto;
+import com.example.taskmanager.exception.InvalidDateException;
 import com.example.taskmanager.models.GroupEntity;
 import com.example.taskmanager.models.Status;
 import com.example.taskmanager.models.Task;
@@ -36,17 +37,19 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public TaskDto saveTask(TaskDto taskDto) {
 
+        if(taskDto.getDateOfEnd().before(taskDto.getDateOfStart()))
+            throw new InvalidDateException("Введена не корректная дата. Проверьте что бы дата окончания задачи была после даты начала");
+
         GroupEntity group = groupService.getById(taskDto.getGroupId());
         User user = userService.getUserById(taskDto.getUserId());
 
         Task task = new Task();
-
         task.setGroup(group);
         task.setDescription(taskDto.getDescription());
         task.setTitle(taskDto.getTitle());
+        task.setUser(user);
         task.setDateOfStart(taskDto.getDateOfStart());
         task.setDateOfEnd(taskDto.getDateOfEnd());
-        task.setUser(user);
         task.setStatus(Util.checkStatus(Status.CREATED,task.getDateOfStart(),task.getDateOfEnd()));
         taskRepository.save(task);
 
