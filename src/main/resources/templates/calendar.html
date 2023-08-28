@@ -222,21 +222,28 @@
   </div>
 </div>
 </div>
-<div id="notificationDelete" class="notification" style="background-color: rgba(57, 255, 0, 0.4);">
+<div id="notificationDelete" class="notification fast" style="background-color: rgba(57, 255, 0, 0.4);">
   <span class="notification-text">Задача успешно удалена!</span>
   <ion-icon name="checkmark-outline" class="notification-icon"></ion-icon>
 </div>
 
-<div id="notificationCompeted" class="notification"  style="background-color: rgba(57, 255, 0, 0.4);">
+<div id="notificationCompeted" class="notification fast" style="background-color: rgba(57, 255, 0, 0.4);">
   <span class="notification-text">Задача выполнена!</span>
   <ion-icon name="checkmark-outline" class="notification-icon"></ion-icon>
 </div>
 
-<div id="notificationChange" class="notification"  style="background-color: rgba(255, 52, 0, 0.4);">
+<div id="notificationChange" class="notification fast"  style="background-color: rgba(255, 52, 0, 0.4);">
   <span class="notification-text">Задача изменена!</span>
   <ion-icon name="construct-outline" class="notification-icon"></ion-icon>
 </div>
-<div id="notificationCreate" class="notification" style="background-color: rgba(0, 108, 192, 0.4);">
+
+<div id="notificationErrorTaskCreate" class="notification slow"  style="background-color: rgba(255,0,0,0.72);">
+  <span class="notification-text" id="errorTask"></span>
+  <ion-icon name="construct-outline" class="notification-icon"></ion-icon>
+</div>
+
+
+<div id="notificationCreate" class="notification fast" style="background-color: rgba(0, 108, 192, 0.4);">
   <span class="notification-text">Задача создана!</span>
   <ion-icon name="save-outline" class="notification-icon"></ion-icon>
 </div>

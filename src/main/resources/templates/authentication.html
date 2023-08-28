@@ -39,7 +39,7 @@
     </div>
   </div>
 </div>
-<div id="notificationError" class="notification"  style="background-color: rgba(255,0,0,0.72);">
+<div id="notificationError" class="notification slow"  style="background-color: rgba(255,0,0,0.72);">
   <span class="notification-text" id="error"></span>
   <ion-icon name="construct-outline" class="notification-icon"></ion-icon>
 </div>
@@ -50,22 +50,7 @@
     window.location.href = '/registration';
   });
 
-  document.addEventListener('DOMContentLoaded', function() {
-    if (localStorage.getItem('showNotification') === 'true') {
-      const notificationChange = document.getElementById('notificationError');
 
-      notificationChange.style.display = 'block';
-      notificationChange.classList.add('show'); // Добавляем класс для анимации
-
-      setTimeout(() => {
-        // Скрываем уведомление через 2 секунды
-        notificationChange.style.display = 'none';
-        notificationChange.classList.remove('show'); // Удаляем класс для анимации
-
-        localStorage.removeItem('showNotification'); // Удаляем флаг из localStorage
-      }, 4000);
-    }
-  });
 
   document.getElementById('authenticationForm').addEventListener('submit', function(event) {
     event.preventDefault();
@@ -103,7 +88,7 @@
                     notificationChange.classList.remove('show'); // Удаляем класс для анимации
 
                     localStorage.removeItem('showNotification'); // Удаляем флаг из localStorage
-                  }, 4000);
+                  }, 8000);
                 })
               }
 

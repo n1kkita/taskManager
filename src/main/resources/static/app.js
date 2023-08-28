@@ -456,8 +456,52 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             body: JSON.stringify(taskData)
         })
-            .then(response => response.json())
-            .then(task => {
+            .then(response => {
+                if(response.ok){
+                    response.json().then(task=>{
+                        console.log('Task added:', task);
+                        console.log('Adding event:', task.id, task.userId, task.status, task.title, task.description, task.dateOfStart, task.dateOfEnd);
+                        calendar.addEvent({
+                            id: task.id,
+                            title: task.title,
+                            status: task.status,
+                            userId: task.userId, // Добавляем userId в объект события
+                            start: task.dateOfStart,
+                            end: task.dateOfEnd,
+                            display: 'block',
+                            description: task.description,
+                            backgroundColor: getBackgroundColorByStatus(task.status),
+                            borderColor: getBorderColorByStatus(task.status)
+                        });
+                        calendar.render();
+                        // Показываем уведомление плавно
+                        notificationCreate.style.display = 'block';
+                        notificationCreate.classList.add('show'); // Добавляем класс для анимации
+                        setTimeout(() => {
+                            // Скрываем уведомление через 2 секунды
+                            notificationCreate.style.display='none'
+                            notificationCreate.classList.remove('show'); // Удаляем класс для анимации
+                        }, 4000);
+                    })
+                } else {
+                    response.text().then( error => {
+                        const notificationChange = document.getElementById('notificationErrorTaskCreate');
+                        const er = document.getElementById('errorTask');
+                        er.innerText=error;
+                        notificationChange.style.display = 'block';
+                        notificationChange.classList.add('show'); // Добавляем класс для анимации
+
+                        setTimeout(() => {
+                            // Скрываем уведомление через 2 секунды
+                            notificationChange.style.display = 'none';
+                            notificationChange.classList.remove('show'); // Удаляем класс для анимации
+
+                            localStorage.removeItem('showNotification'); // Удаляем флаг из localStorage
+                        }, 8000);
+                    })
+                }
+            })
+            /*.then(task => {
                 console.log('Task added:', task);
                     console.log('Adding event:', task.id, task.userId, task.status, task.title, task.description, task.dateOfStart, task.dateOfEnd);
                     calendar.addEvent({
@@ -487,7 +531,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.error('Error adding task:', error);
                 // Обработка ошибки, если что-то пошло не так
 
-            });
+            });*/
     });
 
 });

@@ -20,6 +20,12 @@
     display: none;
     align-items: center;
     z-index: 1000;
+}
+.notification.slow {
+    animation: fadeInOut 8s ease-in-out;
+}
+
+.notification.fast {
     animation: fadeInOut 4s ease-in-out;
 }
 
@@ -32,17 +38,17 @@
     vertical-align: middle;
 }
 @keyframes fadeInOut {
-    0% {
+    0%, 100% {
         opacity: 0;
         transform: translateY(20px);
     }
-    50% {
+    25% {
         opacity: 1;
         transform: translateY(0);
     }
-    100% {
-        opacity: 0;
-        transform: translateY(-20px);
+    75% {
+        opacity: 1;
+        transform: translateY(0);
     }
 }
 .custom-form {
@@ -50,3 +56,4 @@
     margin-top: 325px;
     margin-right: -25px;/* Adjust the value as per your desired distance */
 }
+
