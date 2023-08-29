@@ -37,8 +37,9 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public TaskDto saveTask(TaskDto taskDto) {
 
-        if(taskDto.getDateOfEnd().before(taskDto.getDateOfStart()))
-            throw new InvalidDateException("Введена не корректная дата. Проверьте что бы дата окончания задачи была после даты начала");
+        if(taskDto.getDateOfEnd().before(taskDto.getDateOfStart()) || taskDto.getDateOfEnd().equals(taskDto.getDateOfStart()))
+            throw new InvalidDateException("Введена не корректные данные." +
+                    " Проверьте заполнили ли вы все поля и правильно ли вы казали дату");
 
         GroupEntity group = groupService.getById(taskDto.getGroupId());
         User user = userService.getUserById(taskDto.getUserId());
