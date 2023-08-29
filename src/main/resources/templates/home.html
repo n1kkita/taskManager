@@ -153,9 +153,11 @@
                 <span style="font-size: 24px" th:text="'Вы уже создали свою группу '"></span><strong style="font-size: 24px" th:text="${user.getOwnGroup().get().name} + '   '"></strong>
                 <button class="btn btn-danger">Удалить группу</button>
                 <hr>
-                <div class="input-group flex-nowrap" th:each="deleteUser:${user.getOwnGroup().get().getUsers()}">
-                    <form th:if="${!deleteUser.id.equals(user.id)}" th:method="DELETE" action="/">
+                <div class="input-group flex-nowrap" th:each="deleteUser : ${user.getOwnGroup().get().getUsers()}">
+                    <form th:if="${!deleteUser.id.equals(user.id)}" th:method="DELETE" id="deleteForm">
                         <strong th:text="${deleteUser.login}"></strong>
+                        <input type="hidden" th:value="${deleteUser.id}" name="idUser">
+                        <input type="hidden" th:value="${user.getOwnGroup().get().id}" name="idGroup">
                         <button class="btn" type="submit" style="background-color: #f53030;color: white;"> Удалить с группы </button>
                         <hr>
                     </form>
@@ -172,8 +174,10 @@
                 <hr>
                 <div id="search-output">
                     <div class="input-group flex-nowrap" th:each="addedUser:${users}">
-                        <form th:method="PUT" th:action="@{/groups/{idGroup}/{addedUserId}(idGroup=${user.getOwnGroup().get().id},addedUserId=${addedUser.id})}">
-                            <strong th:text="${addedUser.login}"></strong>
+                        <form th:method="PUT" id="addedForm">
+                            <strong th:text="${addedUser.login}" th:id="'login' + ${addedUser.id}"></strong>
+                            <input type="hidden" th:value="${addedUser.id}" name="addedUserId">
+                            <input type="hidden" th:value="${user.getOwnGroup().get().id}" name="idGroup">
                             <button class="btn" type="submit" style="background-color: #f37427;color: white;"> Добавить в группу </button>
                             <hr>
                         </form>
@@ -218,6 +222,16 @@
         </div>
     </div>
 </div>
+<div id="notificationUserAdded" class="notification fast" style="background-color: rgba(57, 255, 0, 0.4);">
+    <span class="notification-text">Пользователь добавлен!</span>
+    <ion-icon name="checkmark-outline" class="notification-icon"></ion-icon>
+</div>
+
+<div id="notificationDeleteUserFromGroup" class="notification fast" style="background-color: rgba(57, 255, 0, 0.4);">
+    <span class="notification-text">Пользователь был удален!</span>
+    <ion-icon name="checkmark-outline" class="notification-icon"></ion-icon>
+</div>
+
 </div>
 
 </body>
@@ -254,7 +268,85 @@
     })
 
 
-        document.getElementById('searchForm').addEventListener('submit', function (event) {
+    document.addEventListener("DOMContentLoaded", function () {
+        const deleteForms = document.querySelectorAll("form#deleteForm");
+
+        deleteForms.forEach((form) => {
+            form.addEventListener("submit", function (event) {
+                event.preventDefault();
+
+                const idUser = form.querySelector("input[name=idUser]").value;
+                const idGroup = form.querySelector("input[name=idGroup]").value;
+
+                fetch(`/groups/${idUser}/${idGroup}`, {
+                    method: "DELETE"
+                })
+                    .then((response) => {
+                        if (response.ok) {
+                            localStorage.setItem('showNotification','true');
+                            localStorage.setItem('deleteUser','true')
+                            window.location.href="/home?id="+idGroup;
+                        }
+                    });
+            });
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        if (localStorage.getItem('showNotification') === 'true') {
+            let notification = null;
+            if(localStorage.getItem('deleteUser') !== null) {
+                notification = document.getElementById('notificationDeleteUserFromGroup');
+            } else {
+                notification = document.getElementById('notificationUserAdded');
+            }
+            notification.style.display = 'block';
+            notification.classList.add('show'); // Добавляем класс для анимации
+
+            setTimeout(() => {
+                // Скрываем уведомление через 2 секунды
+                notification.style.display = 'none';
+                notification.classList.remove('show'); // Удаляем класс для анимации
+
+                localStorage.removeItem('showNotification'); // Удаляем флаг из localStorage
+                localStorage.removeItem('deleteUser');
+                localStorage.removeItem('addedUser');
+            }, 4000);
+        }
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const addedForms = document.querySelectorAll("form#addedForm");
+
+        addedForms.forEach((form) => {
+            form.addEventListener("submit", function (event) {
+                event.preventDefault();
+
+                const addedUserId = form.querySelector("input[name=addedUserId]").value;
+                const idGroup = form.querySelector("input[name=idGroup]").value;
+                const loginUserElement = document.getElementById('login' + addedUserId);
+                const loginUser = loginUserElement.textContent;
+
+                console.log(loginUser);
+
+
+
+                fetch(`/groups/${idGroup}/${addedUserId}`, {
+                    method: "PUT"
+                })
+                    .then((response) => {
+                        if (response.ok) {
+                            localStorage.setItem('showNotification','true');
+                            localStorage.setItem('addedUser','true')
+                            window.location.href="/home?id="+idGroup;
+                        }
+                    });
+            });
+        });
+    });
+
+
+    document.getElementById('searchForm').addEventListener('submit', function (event) {
             event.preventDefault(); // Предотвращаем отправку формы
 
             const searchLogin = document.getElementById("searchLogin").value;
@@ -286,7 +378,7 @@
                             addButton.style="background-color: #f37427;color: white;";
 
 
-                            addButton.addEventListener('click', (event) => {
+                            /*addButton.addEventListener('click', (event) => {
                                 event.preventDefault();
                                 fetch(`/groups/${groupId}/${user.id}`, {
                                     method: 'PUT',
@@ -299,7 +391,7 @@
                                     .catch(error => {
                                     console.error('Ошибка при выполнении запроса:', error);
                                 });
-                            });
+                            });*/
 
                             addedUserToGroupForm.appendChild(userDiv);
                             addedUserToGroupForm.appendChild(addButton);

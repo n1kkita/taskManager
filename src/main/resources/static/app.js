@@ -204,12 +204,14 @@ document.addEventListener('DOMContentLoaded', function() {
         selectUser.textContent='';
         selectUser.appendChild(firstOption);
 
+        const idGroup = document.getElementById('groupId').value;
+        console.log('Group id ' + idGroup);
         // Здесь используется асинхронный запрос для получения списка пользователей с сервера
-        fetch('/users') // Замените на ваш эндпоинт для получения пользователей
+        fetch(`/users/groups/${idGroup}`) // Замените на ваш эндпоинт для получения пользователей
             .then(response => response.json())
             .then(data => {
-                const users = data.content; // Получаем массив пользователей из JSON
-                users.forEach(user => {
+                // Получаем массив пользователей из JSON
+                data.forEach(user => {
                     const option = document.createElement('option');
                     option.setAttribute('value', user.id);
                     option.textContent = user.login;
@@ -501,37 +503,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     })
                 }
             })
-            /*.then(task => {
-                console.log('Task added:', task);
-                    console.log('Adding event:', task.id, task.userId, task.status, task.title, task.description, task.dateOfStart, task.dateOfEnd);
-                    calendar.addEvent({
-                        id: task.id,
-                        title: task.title,
-                        status: task.status,
-                        userId: task.userId, // Добавляем userId в объект события
-                        start: task.dateOfStart,
-                        end: task.dateOfEnd,
-                        display: 'block',
-                        description: task.description,
-                        backgroundColor: getBackgroundColorByStatus(task.status),
-                        borderColor: getBorderColorByStatus(task.status)
-                    });
-                calendar.render();
-                // Показываем уведомление плавно
-                notificationCreate.style.display = 'block';
-                notificationCreate.classList.add('show'); // Добавляем класс для анимации
-                setTimeout(() => {
-                    // Скрываем уведомление через 2 секунды
-                    notificationCreate.style.display='none'
-                    notificationCreate.classList.remove('show'); // Удаляем класс для анимации
-                }, 4000);
-                // Дополнительные действия после успешного добавления задачи
-            })
-            .catch(error => {
-                console.error('Error adding task:', error);
-                // Обработка ошибки, если что-то пошло не так
 
-            });*/
     });
 
 });
