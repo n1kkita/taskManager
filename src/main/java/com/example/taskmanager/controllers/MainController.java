@@ -5,6 +5,7 @@ import com.example.taskmanager.dto.UserDto;
 import com.example.taskmanager.models.GroupEntity;
 import com.example.taskmanager.models.Role;
 import com.example.taskmanager.models.User;
+import com.example.taskmanager.services.interfaceses.GeneralServiceToUserAndGroups;
 import com.example.taskmanager.services.interfaceses.UserService;
 import com.example.taskmanager.utils.Util;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -26,6 +27,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MainController {
     private final UserService userService;
+    private final GeneralServiceToUserAndGroups serviceToUserAndGroups;
+
     @GetMapping("/registration")
     public String showRegistrationForm(Model model) {
         model.addAttribute("registrationForm", new RegistrationForm());
@@ -44,15 +47,14 @@ public class MainController {
                                Model model) throws JsonProcessingException {
 
         Long userId = (Long) session.getAttribute(Util.replaceToUserLinkInHttpSession(id)); //получаем id
-        User user;
+        User currentUser;
 
         if(userId != null) {
-            user = userService.getUserById(userId); //находим в базе
+            currentUser = userService.getUserById(userId); //находим в базе
         } else {
             return "redirect:/registration";
         }
 
-        User currentUser = user;
         List<UserDto> users;
         Page< UserDto > usersPage;
         do {
@@ -67,13 +69,13 @@ public class MainController {
 
         } while (users.isEmpty() && page < usersPage.getTotalPages());
 
-        List<GroupEntity> otherGroup = user.getGroups().stream()
+        List<GroupEntity> otherGroup = currentUser.getGroups().stream()
                 .filter(group -> ! group.getOwner().equals(currentUser)).toList();
 
         ObjectMapper objectMapper = new ObjectMapper();
         String usersJSON = objectMapper.writeValueAsString(users); //преобразуем в json
 
-        model.addAttribute("user",user)
+        model.addAttribute("user",currentUser)
                 .addAttribute("users",users)
                 .addAttribute("groups",otherGroup)
                 .addAttribute("usersJSON",usersJSON)
@@ -111,18 +113,14 @@ public class MainController {
     public String showHomePage(@PathVariable Long idGroup,@RequestParam Long idUser, Model model,HttpSession session){
         Long id = (Long) session.getAttribute(Util.replaceToUserLinkInHttpSession(idUser));
         User user = userService.getUserById(id);
+        user.setRole(Role.ROLE_USER);
 
         GroupEntity group = user.getGroups().stream()
                 .filter(group1 -> group1.getId().equals(idGroup))
                 .findFirst()
                 .orElseThrow(()-> new EntityNotFoundException("Группа не найдена"));
 
-        List<User> users = user.getGroups()
-                .stream()
-                .filter(group1 -> group1.getId().equals(idGroup))
-                .flatMap(group1 -> group1.getUsers().stream())
-                .toList();
-        user.setRole(Role.ROLE_USER);
+        List< UserDto > users = serviceToUserAndGroups.getAllUsersFromGroupById(idGroup);
 
         model.addAttribute("mode",user.getRole())
                 .addAttribute("currentUserId", user.getId())

@@ -16,7 +16,7 @@ import java.util.Optional;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class GroupServiceImp implements GroupService {
+public class GroupServiceImp implements GroupService{
     private final UserService userService;
     private final GroupRepository groupRepository;
     public GroupEntity create(GroupDto group) {
@@ -29,12 +29,6 @@ public class GroupServiceImp implements GroupService {
         groupEntity.setOwner(user);
 
         return groupRepository.save(groupEntity);
-    }
-
-    @Override
-    public void addToGroup(Long idGroup, Long addedUserId) {
-        Optional< GroupEntity > groupEntity = groupRepository.findById(idGroup);
-        groupEntity.ifPresent(group -> group.getUsers().add(userService.getUserById(addedUserId)));
     }
     @Override
     public GroupEntity getById(Long id) {
