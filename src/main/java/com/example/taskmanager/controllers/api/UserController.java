@@ -32,8 +32,8 @@ public class UserController {
         return generalServiceToUserAndGroups.getAllUsersFromGroupById(idGroup);
     }
     @GetMapping("/search")
-    public Page< UserDto > getAll(@RequestParam String login){
-        return userService.searchByLogin(login, PageRequest.of(0,5));
+    public Page< UserDto > getAll(@RequestParam String login,@RequestParam Long idGroup){
+        return userService.searchByLogin(login, idGroup, PageRequest.of(0,5));
     }
     @GetMapping("/{id}")
     public User getById(@PathVariable Long id){
