@@ -351,9 +351,9 @@
 
             const searchLogin = document.getElementById("searchLogin").value;
             const groupId = document.getElementById('groupId').value;
-            const usersString = document.getElementById('usersJSON').value;
 
-            fetch(`/users/search?login=${searchLogin}`)
+
+            fetch(`/users/search?login=${searchLogin}&idGroup=${groupId}`)
                 .then(response => response.json())
                 .then(data => {
                     // Обновление содержимого search-output
@@ -378,20 +378,20 @@
                             addButton.style="background-color: #f37427;color: white;";
 
 
-                            /*addButton.addEventListener('click', (event) => {
+                            addButton.addEventListener('click', (event) => {
                                 event.preventDefault();
                                 fetch(`/groups/${groupId}/${user.id}`, {
                                     method: 'PUT',
                                     headers: {
                                         'Content-Type': 'application/json'
                                     }
-                                }).then(data=>{
+                                }).then( data=>{
                                     window.location.reload()
                                 })
                                     .catch(error => {
                                     console.error('Ошибка при выполнении запроса:', error);
                                 });
-                            });*/
+                            });
 
                             addedUserToGroupForm.appendChild(userDiv);
                             addedUserToGroupForm.appendChild(addButton);
