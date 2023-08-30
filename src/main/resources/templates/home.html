@@ -437,6 +437,33 @@
                         console.error('Целевой <div> не найден.');
                     }
                 })
+                .then(data=>{
+                    const addedForms = document.querySelectorAll("form#addedForm");
+
+                    addedForms.forEach((form) => {
+                        form.addEventListener("submit", function (event) {
+                            event.preventDefault();
+
+                            const addedUserId = form.querySelector("input[name=addedUserId]").value;
+                            const idGroup = form.querySelector("input[name=idGroup]").value;
+                            const loginUserElement = document.getElementById('login' + addedUserId);
+                            const loginUser = loginUserElement.textContent;
+
+                            console.log(loginUser);
+
+                            fetch(`/groups/${idGroup}/${addedUserId}`, {
+                                method: "PUT"
+                            })
+                                .then((response) => {
+                                    if (response.ok) {
+                                        localStorage.setItem('showNotification','true');
+                                        localStorage.setItem('addedUser','true')
+                                        window.location.href="/home?id="+idGroup;
+                                    }
+                                });
+                        });
+                    });
+                })
                 .catch(error => {
                     console.error("Error during search:", error);
                 });
