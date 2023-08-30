@@ -17,4 +17,9 @@ public class ExceptionHandlerAdvice {
     public ResponseEntity<String> handleInvalidDateException(InvalidDateException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
+
+    @ExceptionHandler(EmptyFieldException.class)
+    public ResponseEntity<String> handleEmptyFieldException(EmptyFieldException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
 }

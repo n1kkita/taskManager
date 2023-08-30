@@ -2,7 +2,6 @@ package com.example.taskmanager.controllers.api;
 
 
 import com.example.taskmanager.dto.TaskDto;
-import com.example.taskmanager.models.Task;
 import com.example.taskmanager.services.interfaceses.TaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -29,7 +28,6 @@ public class TaskController {
     public void updateTask(@PathVariable Long id, @RequestBody TaskDto task){
         taskService.updateTaskById(id,task);
     }
-
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PatchMapping("/{id}")
     public void updateTaskStatus(@PathVariable Long id){

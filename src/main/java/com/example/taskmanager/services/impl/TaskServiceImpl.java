@@ -1,6 +1,7 @@
 package com.example.taskmanager.services.impl;
 
 import com.example.taskmanager.dto.TaskDto;
+import com.example.taskmanager.exception.EmptyFieldException;
 import com.example.taskmanager.exception.InvalidDateException;
 import com.example.taskmanager.models.GroupEntity;
 import com.example.taskmanager.models.Status;
@@ -37,21 +38,28 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public TaskDto saveTask(TaskDto taskDto) {
 
-        if(taskDto.getDateOfEnd().before(taskDto.getDateOfStart()) || taskDto.getDateOfEnd().equals(taskDto.getDateOfStart()))
+        //Проверка на корректность данных
+        if(taskDto.getDateOfEnd().before(taskDto.getDateOfStart()) ||
+                taskDto.getDateOfEnd().equals(taskDto.getDateOfStart()))
             throw new InvalidDateException("Введена не корректные данные." +
                     " Проверьте заполнили ли вы все поля и правильно ли вы казали дату");
+
+        if(taskDto.getUserId() == null || taskDto.getTitle() == null || taskDto.getDescription() == null)
+            throw new EmptyFieldException("Ошибка сохранения задания.Проверьте заполнили ли вы все поля");
+
 
         GroupEntity group = groupService.getById(taskDto.getGroupId());
         User user = userService.getUserById(taskDto.getUserId());
 
-        Task task = new Task();
-        task.setGroup(group);
-        task.setDescription(taskDto.getDescription());
-        task.setTitle(taskDto.getTitle());
-        task.setUser(user);
-        task.setDateOfStart(taskDto.getDateOfStart());
-        task.setDateOfEnd(taskDto.getDateOfEnd());
-        task.setStatus(Util.checkStatus(Status.CREATED,task.getDateOfStart(),task.getDateOfEnd()));
+        Task task = Task.builder()
+                .group(group)
+                .description(taskDto.getDescription())
+                .title(taskDto.getTitle())
+                .user(user)
+                .dateOfStart(taskDto.getDateOfStart())
+                .dateOfEnd(taskDto.getDateOfEnd())
+                .status(Util.checkStatus(Status.CREATED,taskDto.getDateOfStart(),taskDto.getDateOfEnd()))
+                .build();
         taskRepository.save(task);
 
         taskDto.setId(task.getId());
