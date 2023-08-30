@@ -92,7 +92,7 @@ MyTaskManager - це проект управління задачами, роз�
 - Maven
 - HTML
 - CSS
-- Bootsrao
+- Bootstrap
 - JS
 - FullCalendar
 
