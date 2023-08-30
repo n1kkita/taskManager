@@ -41,11 +41,11 @@ public class TaskServiceImpl implements TaskService {
         //Проверка на корректность данных
         if(taskDto.getDateOfEnd().before(taskDto.getDateOfStart()) ||
                 taskDto.getDateOfEnd().equals(taskDto.getDateOfStart()))
-            throw new InvalidDateException("Введена не корректные данные." +
-                    " Проверьте заполнили ли вы все поля и правильно ли вы казали дату");
+            throw new InvalidDateException("Введені не корректні данні." +
+                    " Перевірте чи заповнили ви всі поля і чи правильно ви вказали дату");
 
         if(taskDto.getUserId() == null || taskDto.getTitle() == null || taskDto.getDescription() == null)
-            throw new EmptyFieldException("Ошибка сохранения задания.Проверьте заполнили ли вы все поля");
+            throw new EmptyFieldException("Помилка збереження завдання. Перевірьте чи заповниили ви всі поля");
 
 
         GroupEntity group = groupService.getById(taskDto.getGroupId());

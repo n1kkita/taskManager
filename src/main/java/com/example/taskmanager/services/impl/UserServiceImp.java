@@ -57,7 +57,7 @@ public class UserServiceImp implements UserService{
     @Override
     public Long authentication(AuthenticationForm form) {
         return userRepository.findUserIdByLoginAndPassword(form.getLogin(), form.getPassword())
-                .orElseThrow(()->new EntityNotFoundException("Логин или пароль не верны"));
+                .orElseThrow(()->new EntityNotFoundException("Логін чи пароль не вірні"));
     }
 
 

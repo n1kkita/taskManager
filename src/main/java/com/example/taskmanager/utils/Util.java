@@ -1,15 +1,10 @@
 package com.example.taskmanager.utils;
 
 import com.example.taskmanager.models.Status;
-import com.example.taskmanager.services.interfaceses.UserService;
-import lombok.RequiredArgsConstructor;
 
 import java.util.Date;
 
-@RequiredArgsConstructor
 public class Util {
-    private final UserService service;
-
     public static String replaceToUserLinkInHttpSession(Long id){
         return "successfulUser"+id+"FromForm";
     }

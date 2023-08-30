@@ -25,6 +25,8 @@ public class GeneralServiceToUserAndGroupsImp implements GeneralServiceToUserAnd
                 .map(u-> new UserDto(u.getId(),u.getLogin()))
                 .toList();
     }
+
+
     @Override
     public void addToGroup(Long idGroup, Long addedUserId) {
         GroupEntity  group = groupService.getById(idGroup);

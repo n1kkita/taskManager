@@ -18,7 +18,7 @@
 <div class="container">
   <div class="row justify-content-end custom-form">
     <div> <!-- Added the "custom-form" class here -->
-      <strong style="font-size: 36px">Вход</strong>
+      <strong style="font-size: 36px">Вхід</strong>
       <br>
       <form id="authenticationForm">
         <div class="form-group">
@@ -31,7 +31,7 @@
           <b>Войти</b>
         </button>
         <button class="btn btn-light" type="button" style="scale: 100%" id="registration">
-          <strong style="color: #172940">Нету аккаунта?</strong>
+          <strong style="color: #172940">Нема аккаунту?</strong>
         </button>
         <br>
         <br>
@@ -80,14 +80,13 @@
                   const er = document.getElementById('error');
                   er.innerText=error;
                   notificationChange.style.display = 'block';
-                  notificationChange.classList.add('show'); // Добавляем класс для анимации
+                  notificationChange.classList.add('show');
 
                   setTimeout(() => {
-                    // Скрываем уведомление через 2 секунды
                     notificationChange.style.display = 'none';
-                    notificationChange.classList.remove('show'); // Удаляем класс для анимации
+                    notificationChange.classList.remove('show');
 
-                    localStorage.removeItem('showNotification'); // Удаляем флаг из localStorage
+                    localStorage.removeItem('showNotification');
                   }, 8000);
                 })
               }

@@ -25,12 +25,6 @@ public class GroupEntity {
     @MapsId
     @OneToOne
     private User owner;
-
-    @Override
-    public String toString() {
-        return "";
-    }
-
     @OneToMany(mappedBy = "group", fetch = FetchType.LAZY)
     private List<Task> tasks = new ArrayList<>();
 
@@ -46,4 +40,9 @@ public class GroupEntity {
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     private List<User> users = new ArrayList<>();
+
+    @Override
+    public String toString() {
+        return "";
+    }
 }
