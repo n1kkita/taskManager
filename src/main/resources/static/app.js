@@ -88,8 +88,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
             eventTitle.textContent = event.title;
             eventDescription.textContent = event.extendedProps.description;
-            eventDateStart.textContent = `Начало: ${event.start.toLocaleString()}`;
-            eventDateEnd.textContent = `Конец: ${event.end.toLocaleString()}`;
+            eventDateStart.textContent = `Початок : ${event.start.toLocaleString()}`;
+            eventDateEnd.textContent = `Кінець : ${event.end.toLocaleString()}`;
             eventStatus.textContent = statusName;
 
             console.log(userRole);
@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
 
-            if ((parseInt(currentUserID) === parseInt(userId) && statusName !=='Выполнено' && statusName !=='Не выполнено') || userRole === 'ROLE_ADMIN') {
+            if ((parseInt(currentUserID) === parseInt(userId) && statusName !=='Виконанно' && statusName !=='Провалено') || userRole === 'ROLE_ADMIN') {
                 completedButton.style.display = 'block';
             } else {
                 completedButton.style.display = 'none';
@@ -110,25 +110,25 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
             switch (statusName) {
-                case "Создан":
+                case "Створено":
                     iconElement.setAttribute('name', 'save-outline');
                     eventStatus.style.color = '#6fb6fa'; // Изменение цвета текста
                     head.style.backgroundColor='#6fb6fa';
                     eventDateEnd.style.color = '#6fb6fa';
                     break;
-                case "В процессе":
+                case "У процессі":
                     iconElement.setAttribute('name', 'construct-outline');
                     eventStatus.style.color = '#ff3a01';
                     head.style.backgroundColor='#ff3a01';
                     eventDateEnd.style.color = '#ff3a01';
                     break;
-                case "Выполнено":
+                case "Виконанно":
                     iconElement.setAttribute('name', 'checkmark-outline'); // Имя иконки для DONE
                     eventStatus.style.color = '#65f346';
                     head.style.backgroundColor='#65f346';
                     eventDateEnd.style.color = '#65f346';
                     break;
-                case "Не выполнено":
+                case "Провалено":
                     iconElement.setAttribute('name', 'close-circle-outline'); // Имя иконки для NOT_DONE
                     eventStatus.style.color = '#e1003b';
                     head.style.backgroundColor='#e1003b';
@@ -538,13 +538,13 @@ function getBorderColorByStatus(status) {
 function getStatus(status) {
     switch (status) {
         case "CREATED":
-            return "Создан"; // Синий цвет для CREATED
+            return "Створено"; // Синий цвет для CREATED
         case "IN_PROCESS":
-            return "В процессе"; // Оранжевый цвет для IN_PROCESS
+            return "У процессі"; // Оранжевый цвет для IN_PROCESS
         case "DONE":
-            return "Выполнено"; // Зеленый цвет для DONE
+            return "Виконанно"; // Зеленый цвет для DONE
         case "NOT_DONE":
-            return "Не выполнено"; // Красный цвет для NOT_DONE
+            return "Провалено"; // Красный цвет для NOT_DONE
     }
 }
 
