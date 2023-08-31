@@ -22,14 +22,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
-    private final GeneralServiceToUserAndGroups generalServiceToUserAndGroups;
     @GetMapping
     public Page< UserDto > getAll(Pageable pageable){
         return userService.getAll(pageable);
-    }
-    @GetMapping("/groups/{idGroup}")
-    public List< UserDto > getAllUserFromGroup(@PathVariable Long idGroup){
-        return generalServiceToUserAndGroups.getAllUsersFromGroupById(idGroup);
     }
     @GetMapping("/search")
     public Page< UserDto > getAll(@RequestParam String login,@RequestParam Long idGroup){
@@ -39,7 +34,6 @@ public class UserController {
     public User getById(@PathVariable Long id){
         return userService.getUserById(id);
     }
-
     @GetMapping("/{id}/login")
     public String getLoginById(@PathVariable Long id){
         return userService.getLoginById(id);
@@ -50,12 +44,10 @@ public class UserController {
         session.setAttribute(Util.replaceToUserLinkInHttpSession(id), id);
         return id;
     }
-
     @PostMapping("/registration")
     public Long createUser(@RequestBody RegistrationForm form, HttpSession session){
         User user = userService.create(form);
         session.setAttribute(Util.replaceToUserLinkInHttpSession(user.getId()), user.getId());
         return user.getId();
     }
-
 }
