@@ -1,8 +1,6 @@
 package com.example.taskmanager.services.impl;
 
 import com.example.taskmanager.dto.TaskDto;
-import com.example.taskmanager.exception.EmptyFieldException;
-import com.example.taskmanager.exception.InvalidDateException;
 import com.example.taskmanager.models.GroupEntity;
 import com.example.taskmanager.models.Status;
 import com.example.taskmanager.models.Task;
@@ -38,15 +36,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public TaskDto saveTask(TaskDto taskDto) {
 
-        //Проверка на корректность данных
-        if(taskDto.getDateOfEnd().before(taskDto.getDateOfStart()) ||
-                taskDto.getDateOfEnd().equals(taskDto.getDateOfStart()))
-            throw new InvalidDateException("Введені не корректні данні." +
-                    " Перевірте чи заповнили ви всі поля і чи правильно ви вказали дату");
-
-        if(taskDto.getUserId() == null || taskDto.getTitle() == null || taskDto.getDescription() == null)
-            throw new EmptyFieldException("Помилка збереження завдання. Перевірьте чи заповниили ви всі поля");
-
+        Util.validation(taskDto);
 
         GroupEntity group = groupService.getById(taskDto.getGroupId());
         User user = userService.getUserById(taskDto.getUserId());
@@ -75,6 +65,9 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public void updateTaskById(Long id, TaskDto editTask) {
+
+        Util.validation(editTask);
+
         Optional<Task> taskOptional = taskRepository.findById(id);
 
         taskOptional.map(task -> {
