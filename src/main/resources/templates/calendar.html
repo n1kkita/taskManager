@@ -91,7 +91,9 @@
           <form id="leaveTheGroup">
             <input type="hidden" name="idUser" th:value="${currentUserId}">
             <input type="hidden" name="idGroup" th:value="${idGroup}">
-            <input type="submit" value="Покинуть группу">
+            <button class="btn btn-danger rounded-pill px-2" type="submit">
+              Покинути групу
+            </button>
           </form>
         </div>
         <h2 class="text-center">MyTaskManager</h2>

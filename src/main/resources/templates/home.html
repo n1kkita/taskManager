@@ -243,6 +243,11 @@
     <ion-icon name="checkmark-outline" class="notification-icon"></ion-icon>
 </div>
 
+<div id="notificationLeaveUserFromGroup" class="notification fast" style="background-color: rgba(57, 255, 0, 0.4);">
+    <span class="notification-text">Ви вийшли з групи!</span>
+    <ion-icon name="checkmark-outline" class="notification-icon"></ion-icon>
+</div>
+
 </div>
 
 </body>
@@ -384,6 +389,7 @@
             });
         });
     });
+
 
     document.addEventListener('DOMContentLoaded', function() {
         if (localStorage.getItem('showNotification') === 'true') {
