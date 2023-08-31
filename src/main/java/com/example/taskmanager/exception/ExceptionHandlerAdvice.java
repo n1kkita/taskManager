@@ -22,4 +22,10 @@ public class ExceptionHandlerAdvice {
     public ResponseEntity<String> handleEmptyFieldException(EmptyFieldException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
+
+    @ExceptionHandler(DuplicateLoginException.class)
+    public ResponseEntity<String> handleDuplicateLoginException(DuplicateLoginException ex){
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ex.getMessage());
+    }
 }

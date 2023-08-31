@@ -263,21 +263,30 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 body: JSON.stringify(taskData)
             })
-                .then(response => response.json())
-                .then(task => {
-                    // Обработка успешного ответа от сервера
-                    console.log('Task updated:', task);
-                    localStorage.setItem('showNotification', 'true');
-                    window.location.reload();
+                .then(response =>{
+                    if(response.ok){
+                        response.json().then(task=>{
+                            console.log('Task updated:', task);
+                            localStorage.setItem('showNotification', 'true');
+                            window.location.reload();
+                        });
+                    } else {
+                        response.text().then( error => {
+                            const notificationChange = document.getElementById('notificationErrorTaskCreate');
+                            const er = document.getElementById('errorTask');
+                            er.innerText=error;
+                            notificationChange.style.display = 'block';
+                            notificationChange.classList.add('show'); // Добавляем класс для анимации
 
-                })
-                .catch(error => {
-                    // Обработка ошибки
-                    console.error('Error updating task:', error);
-                    // Записываем флаг в localStorage перед перезагрузкой страницы
-                    localStorage.setItem('showNotification', 'true');
-                    window.location.reload();
+                            setTimeout(() => {
+                                // Скрываем уведомление через 2 секунды
+                                notificationChange.style.display = 'none';
+                                notificationChange.classList.remove('show'); // Удаляем класс для анимации
 
+                                localStorage.removeItem('showNotification'); // Удаляем флаг из localStorage
+                            }, 8000);
+                        });
+                    }
                 });
         });
     });

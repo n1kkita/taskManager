@@ -3,6 +3,7 @@ package com.example.taskmanager.services.impl;
 import com.example.taskmanager.dto.AuthenticationForm;
 import com.example.taskmanager.dto.RegistrationForm;
 import com.example.taskmanager.dto.UserDto;
+import com.example.taskmanager.exception.DuplicateLoginException;
 import com.example.taskmanager.models.Role;
 import com.example.taskmanager.models.User;
 import com.example.taskmanager.repositories.UserRepository;
@@ -32,6 +33,10 @@ public class UserServiceImp implements UserService{
 
     @Override
     public User create(RegistrationForm form) {
+
+        userRepository.getLoginByCreateLogin(form.getLogin()).ifPresent(string -> {
+            throw new DuplicateLoginException("Користувач с таким логіном уже є, виберіть інший");
+        });
 
         User user = User.builder()
                 .login(form.getLogin())

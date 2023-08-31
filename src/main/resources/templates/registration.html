@@ -39,6 +39,11 @@
     </div>
   </div>
 </div>
+<div id="notificationRegError" class="notification slow"  style="background-color: rgba(255,0,0,0.72);">
+  <span class="notification-text" id="error"></span>
+  <ion-icon name="construct-outline" class="notification-icon"></ion-icon>
+</div>
+
 </body>
 <script>
 
@@ -63,13 +68,30 @@
       },
       body: JSON.stringify(formData)
     })
-            .then(response => response.text())
-            .then(id => {
-              window.location.href = '/home?id='+id;
-            })
-            .catch(error => {
-              console.error('Ошибка при создании пользователя:', error);
+            .then(response => {
+              if (response.ok) {
+                response.text().then(id => {
+                  window.location.href = '/home?id=' + id;
+                });
+              } else {
+
+                response.text().then(error=>{
+                  const notificationChange = document.getElementById('notificationRegError');
+                  const er = document.getElementById('error');
+                  er.innerText=error;
+                  notificationChange.style.display = 'block';
+                  notificationChange.classList.add('show');
+
+                  setTimeout(() => {
+                    notificationChange.style.display = 'none';
+                    notificationChange.classList.remove('show');
+
+                    localStorage.removeItem('showNotification');
+                  }, 8000);
+                })
+              }
             });
   });
+
 </script>
 </html>

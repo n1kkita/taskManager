@@ -26,4 +26,6 @@ public interface UserRepository extends JpaRepository< User,Long >, CustomReposi
 
     @Query("select u.login from User u where  u.id=?1")
     Optional<String> findLoginById(Long id);
+    @Query("select u.login from User u where u.login=?1")
+    Optional<String> getLoginByCreateLogin(String login);
 }
