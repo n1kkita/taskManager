@@ -6,11 +6,9 @@ import com.example.taskmanager.dto.UserDto;
 import com.example.taskmanager.models.Role;
 import com.example.taskmanager.models.User;
 import com.example.taskmanager.repositories.UserRepository;
-import com.example.taskmanager.services.interfaceses.GroupService;
 import com.example.taskmanager.services.interfaceses.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -44,7 +42,7 @@ public class UserServiceImp implements UserService{
     }
     @Override
     public User getUserById(Long id) {
-        return userRepository.findUserFetchGroupsAndTaskById(id)
+        return userRepository.findUserFetchOwnGroupById(id)
                 .orElseThrow(()->new EntityNotFoundException("Not found"));
     }
 

@@ -6,5 +6,6 @@ import com.example.taskmanager.models.GroupEntity;
 public interface GroupService {
     GroupEntity create(GroupDto group);
     GroupEntity getById(Long id);
+    void deleteById(Long id);
 
 }

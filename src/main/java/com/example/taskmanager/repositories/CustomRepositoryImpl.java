@@ -1,10 +1,13 @@
 package com.example.taskmanager.repositories;
 
+import com.example.taskmanager.models.GroupEntity;
+import com.example.taskmanager.models.Task;
 import com.example.taskmanager.models.User;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -14,13 +17,27 @@ public class CustomRepositoryImpl implements CustomRepository {
     private final EntityManager entityManager;
 
     @Override
-    public Optional<User> findUserFetchGroupsAndTaskById(Long id) {
+    public Optional<User> findUserFetchOwnGroupById(Long id) {
 
-        var user = entityManager.createQuery("select u from User u left join fetch u.ownGroup g where u.id=?1", User.class)
+        var user = entityManager.createQuery("select u from User u left join fetch u.ownGroup where u.id=?1", User.class)
                 .setParameter(1,id)
                 .getSingleResult();
 
         return Optional.of(user);
+    }
+
+    @Override
+    public void deleteGroupById(Long id) {
+        var group = entityManager.createQuery("select g from GroupEntity g where g.id=?1", GroupEntity.class)
+                .setParameter(1,id)
+                .getSingleResult();
+
+        group.getTasks().clear();
+        group.getUsers().clear();
+
+        entityManager.createQuery("delete from GroupEntity g where g.id=?1")
+                .setParameter(1,id)
+                .executeUpdate();
     }
 
 }

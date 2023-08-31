@@ -100,8 +100,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 editButton.style.display='none';
                 deleteButton.style.display='none';
             }
-
-
             if ((parseInt(currentUserID) === parseInt(userId) && statusName !=='Виконанно' && statusName !=='Провалено') || userRole === 'ROLE_ADMIN') {
                 completedButton.style.display = 'block';
             } else {
