@@ -25,7 +25,7 @@ public class GroupEntity {
     @MapsId
     @OneToOne
     private User owner;
-    @OneToMany(mappedBy = "group", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL,orphanRemoval = true)
     private List<Task> tasks = new ArrayList<>();
 
     public void setOwner(User owner) {
@@ -33,7 +33,7 @@ public class GroupEntity {
         users.add(owner);
     }
 
-    @ManyToMany()
+    @ManyToMany
     @JoinTable(
             name = "user_group",
             joinColumns = @JoinColumn(name = "group_id"),

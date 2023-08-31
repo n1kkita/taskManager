@@ -108,7 +108,9 @@
                             <small><b>Група</b></small>
                             <small th:text="${group.name}"></small>
                             <input type="hidden" name="idUser" th:value="${user.id}">
-                            <input type="submit" value="Перейти">
+                            <button class="btn rounded-pill px-2" type="submit" style="background-color: #0d6efd;color: white;" >
+                                <ion-icon name="arrow-forward-outline" style="font-size: 1.5rem; vertical-align: middle;"></ion-icon>
+                            </button>
                         </form>
                     </li>
                     <hr>
@@ -119,7 +121,9 @@
                             <input type="hidden" name="idUser" th:value="${user.id}">
                             <small><b>Своя група</b></small>
                             <small th:text="${user.getOwnGroup().get().name}"></small>
-                            <input type="submit" value="Перейти">
+                            <button class="btn rounded-pill px-2" type="submit" style="background-color: #0d6efd;color: white;">
+                                <ion-icon name="arrow-forward-outline" style="font-size: 1.5rem; vertical-align: middle;"></ion-icon>
+                            </button>
                         </form>
                     </div>
                 </li>
@@ -150,8 +154,11 @@
             </div>
             <div class="d-flex">
             <div class="col-md-4 mb-2 mx-3 mt-2" th:if="${user.getOwnGroup().isPresent()}">
-                <span style="font-size: 24px" th:text="'Ви вже створили свою группу: '"></span><strong style="font-size: 24px" th:text="${user.getOwnGroup().get().name} + '   '"></strong>
-                <button class="btn btn-danger">Видалити группу</button>
+                <form id="deleteMyGroup">
+                    <input type="hidden" name="idMyGroup" th:value="${user.getOwnGroup().get().id}">
+                    <span style="font-size: 24px" th:text="'Ви вже створили свою группу: '"></span><strong style="font-size: 24px" th:text="${user.getOwnGroup().get().name} + '   '"></strong>
+                    <button class="btn btn-danger" type="submit">Видалити группу</button>
+                </form>
                 <hr>
                 <div class="input-group flex-nowrap" th:each="deleteUser : ${user.getOwnGroup().get().getUsers()}">
                     <form th:if="${!deleteUser.id.equals(user.id)}" th:method="DELETE" id="deleteForm">
@@ -186,7 +193,9 @@
                         <form action="/home" id="backFormUser" method="get" style="display: inline-block;">
                             <div th:if="${currentPage != null and currentPage > 0}">
                             <input id="backPageIdUser" name="page" th:value="${currentPage - 1}" type="hidden">
-                            <button id="backUser" type="submit">Back...</button>
+                                <button class="btn rounded-pill px-2" type="submit" style="background-color: #0d6efd;color: white;">
+                                <ion-icon name="chevron-back-outline" style="font-size: 1.5rem; vertical-align: middle;"></ion-icon>
+                                 </button>
                             </div>
                         </form>
                     </span>
@@ -194,7 +203,9 @@
                         <div th:if="${currentPage != null and currentPage != totalPages - 1 }" id="pagination">
                             <input id="nextPageIdUser" name="page" th:value="${currentPage != null ? currentPage + 1 : 1}"
                                    type="hidden">
-                            <button id="nextUser" type="submit">Next...</button>
+                            <button class="btn rounded-pill px-2" type="submit" style="background-color: #0d6efd;color: white;">
+                                <ion-icon name="chevron-forward-outline" style="font-size: 1.5rem; vertical-align: middle;"></ion-icon>
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -207,7 +218,7 @@
             <hr>
             <div class="row justify-content-start">
                 <div class="col-md-4 mb-2 mx-3" th:unless="${user.getOwnGroup().isPresent()}">
-                    <form action="/groups" method="post">
+                    <form action="/groups" method="post" id="createGroup">
                         <strong style="font-size: 24px" >Створити свою групу</strong>
                         <div class="input-group flex-nowrap">
                             <input type="hidden" name="ownerId" th:value="${user.id}">
@@ -267,6 +278,37 @@
         groupsPane.style.display='block';
     })
 
+    document.addEventListener('DOMContentLoaded', function() {
+        const createGroup = document.getElementById('createGroup');
+
+        createGroup.addEventListener('submit', function (event) {
+            event.preventDefault();
+            const ownerId = createGroup.querySelector("input[name=ownerId]").value;
+            const nameGroup = createGroup.querySelector("input[name=name]").value;
+
+            const groupData = {
+                name: nameGroup,
+                ownerId: ownerId,
+
+            }
+
+            fetch(`/groups`, {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(groupData)
+            }).then(response => {
+                if (response.ok) {
+                    response.text().then(id => {
+                        window.location.href = "/home?id=" + id;
+                    })
+                }
+            });
+        });
+    });
+
+
 
     document.addEventListener("DOMContentLoaded", function () {
         const deleteForms = document.querySelectorAll("form#deleteForm");
@@ -291,28 +333,26 @@
             });
         });
     });
+    document.addEventListener("DOMContentLoaded", function () {
+        const deleteForm = document.getElementById('deleteMyGroup');
 
-    document.addEventListener('DOMContentLoaded', function() {
-        if (localStorage.getItem('showNotification') === 'true') {
-            let notification = null;
-            if(localStorage.getItem('deleteUser') !== null) {
-                notification = document.getElementById('notificationDeleteUserFromGroup');
-            } else {
-                notification = document.getElementById('notificationUserAdded');
-            }
-            notification.style.display = 'block';
-            notification.classList.add('show'); // Добавляем класс для анимации
 
-            setTimeout(() => {
-                // Скрываем уведомление через 2 секунды
-                notification.style.display = 'none';
-                notification.classList.remove('show'); // Удаляем класс для анимации
+        deleteForm.addEventListener("submit", function (event) {
+            event.preventDefault();
 
-                localStorage.removeItem('showNotification'); // Удаляем флаг из localStorage
-                localStorage.removeItem('deleteUser');
-                localStorage.removeItem('addedUser');
-            }, 4000);
-        }
+            const idGroup = deleteForm.querySelector("input[name=idMyGroup]").value;
+
+            fetch(`/groups/${idGroup}`, {
+                method: "DELETE"
+            }).then(response=>{
+                if(response.ok){
+                    response.text().then(id=>{
+                        window.location.href="/home?id="+id;
+                    })
+                }
+            })
+        });
+
     });
 
     document.addEventListener("DOMContentLoaded", function () {
@@ -343,6 +383,29 @@
                     });
             });
         });
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        if (localStorage.getItem('showNotification') === 'true') {
+            let notification = null;
+            if(localStorage.getItem('deleteUser') !== null) {
+                notification = document.getElementById('notificationDeleteUserFromGroup');
+            } else {
+                notification = document.getElementById('notificationUserAdded');
+            }
+            notification.style.display = 'block';
+            notification.classList.add('show'); // Добавляем класс для анимации
+
+            setTimeout(() => {
+                // Скрываем уведомление через 2 секунды
+                notification.style.display = 'none';
+                notification.classList.remove('show'); // Удаляем класс для анимации
+
+                localStorage.removeItem('showNotification'); // Удаляем флаг из localStorage
+                localStorage.removeItem('deleteUser');
+                localStorage.removeItem('addedUser');
+            }, 4000);
+        }
     });
 
 
