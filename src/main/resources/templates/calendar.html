@@ -88,6 +88,7 @@
           <h4 th:text="'Група:' + ${groupName}"> GroupName </h4>
           <h4 th:text="'Ви:' + ${currentUserLogin}"> UserLogin </h4>
           <h4 th:text="'Ваша роль:' + ${mode}"> Role </h4>
+          <div th:if="${mode != mode.ROLE_ADMIN}">
           <form id="leaveTheGroup">
             <input type="hidden" name="idUser" th:value="${currentUserId}">
             <input type="hidden" name="idGroup" th:value="${idGroup}">
@@ -95,6 +96,7 @@
               Покинути групу
             </button>
           </form>
+          </div>
         </div>
         <h2 class="text-center">MyTaskManager</h2>
       </div>

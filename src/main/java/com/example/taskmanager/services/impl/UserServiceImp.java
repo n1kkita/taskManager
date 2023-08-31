@@ -33,10 +33,11 @@ public class UserServiceImp implements UserService{
     @Override
     public User create(RegistrationForm form) {
 
-        User user = new User();
-        user.setLogin(form.getLogin());
-        user.setPassword(form.getPassword());
-        user.setRole(Role.ROLE_USER);
+        User user = User.builder()
+                .login(form.getLogin())
+                .password(form.getPassword())
+                .role(Role.ROLE_USER)
+                .build();
 
         return userRepository.save(user);
     }
