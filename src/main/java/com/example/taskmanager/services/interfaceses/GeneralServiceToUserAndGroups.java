@@ -11,4 +11,5 @@ public interface GeneralServiceToUserAndGroups {
 
      void deleteFromGroup(Long idUser, Long idGroup);
 
+    void leavingTheGroup(Long idGroup, Long idUser);
 }

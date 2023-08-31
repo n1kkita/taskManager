@@ -88,6 +88,11 @@
           <h4 th:text="'Група:' + ${groupName}"> GroupName </h4>
           <h4 th:text="'Ви:' + ${currentUserLogin}"> UserLogin </h4>
           <h4 th:text="'Ваша роль:' + ${mode}"> Role </h4>
+          <form id="leaveTheGroup">
+            <input type="hidden" name="idUser" th:value="${currentUserId}">
+            <input type="hidden" name="idGroup" th:value="${idGroup}">
+            <input type="submit" value="Покинуть группу">
+          </form>
         </div>
         <h2 class="text-center">MyTaskManager</h2>
       </div>
@@ -256,6 +261,29 @@
   <ion-icon name="save-outline" class="notification-icon"></ion-icon>
 </div>
 <script>
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const leaveTheGroup = document.getElementById('leaveTheGroup');
+
+
+    leaveTheGroup.addEventListener("submit", function (event) {
+      event.preventDefault();
+
+      const idUser = leaveTheGroup.querySelector("input[name=idUser]").value;
+      const idGroup = leaveTheGroup.querySelector("input[name=idGroup]").value;
+
+      fetch(`/groups/${idGroup}/${idUser}/leave`, {
+        method: "PUT"
+      }).then(response=>{
+        if(response.ok){
+          response.text().then(id=>{
+            window.location.href="/home?id="+id;
+          })
+        }
+      })
+    });
+  });
+
   document.addEventListener('DOMContentLoaded', function() {
     if (localStorage.getItem('showNotification') === 'true') {
       const notificationChange = document.getElementById('notificationChange');
@@ -278,6 +306,7 @@
     console.log('Выбран пользователь ' + selectedUserId);
     document.getElementById("selectedUserId").value = selectedUserId;
   });
+
 </script>
 <script src="/app.js"></script>
 <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
