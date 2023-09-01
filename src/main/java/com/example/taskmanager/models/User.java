@@ -14,7 +14,7 @@ import java.util.*;
 @Entity
 @Builder
 @Data
-@Table
+@Table(indexes = @Index(name = "password_index",columnList = "password"))
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")

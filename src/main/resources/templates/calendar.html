@@ -16,6 +16,12 @@
     body {
       overflow-x: hidden;
     }
+
+    .card {
+      border: none;
+      box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
   </style>
 </head>
 <body style="background-color: #cecece;">
@@ -108,25 +114,10 @@
     </div>
   </div>
 </div>
-
-
 <script src="/docs/5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
 <script src="sidebars.js"></script>
 </body>
 
-<style>
-  .card {
-    border: none;
-    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
-  }
-
-  .card-header {
-    background-color: #ff3a01;
-    color: white;
-    padding: 10px;
-    border-bottom: none;
-  }
-</style>
 
 <div th:if="${mode == mode.ROLE_ADMIN}">
 <div class="modal fade" id="eventModalNew" tabindex="-1" role="dialog" aria-labelledby="eventModalLabel" aria-hidden="true">
@@ -168,6 +159,7 @@
   </div>
 </div>
 </div>
+
 <div class="modal fade" id="eventModal" tabindex="-1" role="dialog" aria-labelledby="eventModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
@@ -229,13 +221,13 @@
           <button class="btn btn-danger rounded-pill px-2" type="button" id="deleteButton" data-bs-dismiss="modal">
             <ion-icon name="trash-outline" style="font-size: 1.7rem; vertical-align: middle;"></ion-icon>
           </button>
-
         </div>
       </div>
     </div>
   </div>
 </div>
 </div>
+
 <div id="notificationDelete" class="notification fast" style="background-color: rgba(57, 255, 0, 0.4);">
   <span class="notification-text">Завдання успішно видаленно!</span>
   <ion-icon name="checkmark-outline" class="notification-icon"></ion-icon>
@@ -256,11 +248,11 @@
   <ion-icon name="construct-outline" class="notification-icon"></ion-icon>
 </div>
 
-
 <div id="notificationCreate" class="notification fast" style="background-color: rgba(0, 108, 192, 0.4);">
   <span class="notification-text">Завдання створено!</span>
   <ion-icon name="save-outline" class="notification-icon"></ion-icon>
 </div>
+
 <script>
 
   document.addEventListener("DOMContentLoaded", function () {
@@ -301,6 +293,7 @@
       }, 4000);
     }
   });
+
   // Обработчик изменения выбранного пользователя
   document.getElementById("user_selected").addEventListener("change", function() {
     const selectedUserId = this.value;

@@ -1,0 +1,1 @@
+create index password_index on user(password);
