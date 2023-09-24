@@ -1,0 +1,23 @@
+services:
+  task-manager:
+    build: .
+    container_name: task-manager
+    ports:
+      - target: 8080
+        published: 8080
+    depends_on:
+      - db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db_mysql:3306/task-manager-db
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+
+  db:
+    image: mysql
+    container_name: db_mysql
+    environment:
+      - MYSQL_DATABASE=task-manager-db
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=root
+      - MYSQL_ROOT_PASSWORD=root
+
