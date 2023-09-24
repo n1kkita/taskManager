@@ -1,6 +1,6 @@
 services:
   task-manager:
-    build: .
+    image: n1kkita/task-manager
     container_name: task-manager
     ports:
       - target: 8080
