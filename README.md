@@ -19,7 +19,7 @@ MyTaskManager - це проект управління задачами, роз�
 - Docker & Docker Compose
 
 # Інструкція з встановлення
-Ви можете перейти на сам сайт по URL: https://probable-rabbit-production.up.railway.app/registration, або скористатись інструкцією нижче
+Ви можете перейти на сам сайт по URL: [https://probable-rabbit-production.up.railway.app/registration](https://my-task-manager.up.railway.app/registration), або скористатись інструкцією нижче
 
 1. Клонуйте репозиторій до вашого локального середовища: [https://github.com/n1kkita/taskManager](https://github.com/n1kkita/taskManager.git)
 
