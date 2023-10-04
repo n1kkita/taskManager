@@ -162,9 +162,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const startDate = new Date(eventDateStart.textContent);
         const endDate = new Date(eventDateEnd.textContent);
 
-        const startDateFormatted = `${startDate.getFullYear()}-${('0' + (startDate.getMonth() + 1)).slice(-2)}-${('0' + startDate.getDate()).slice(-2)}T${('0' + startDate.getHours()).slice(-2)}:${('0' + startDate.getMinutes()).slice(-2)}`;
+        const startDateFormatted = `${startDate.getFullYear()}-${('0' + (startDate.getDate())).slice(-2)}-${('0' + (startDate.getMonth() + 1)).slice(-2)}T${('0' + startDate.getHours()).slice(-2)}:${('0' + startDate.getMinutes()).slice(-2)}`;
 
-        const endDateFormatted = `${endDate.getFullYear()}-${('0' + (endDate.getMonth() + 1)).slice(-2)}-${('0' + endDate.getDate()).slice(-2)}T${('0' + endDate.getHours()).slice(-2)}:${('0' + endDate.getMinutes()).slice(-2)}`;
+        const endDateFormatted = `${endDate.getFullYear()}-${('0' + (endDate.getDate())).slice(-2)}-${('0' + (endDate.getMonth() + 1)).slice(-2)}T${('0' + endDate.getHours()).slice(-2)}:${('0' + endDate.getMinutes()).slice(-2)}`;
 
         // Создание input-полей и установка значений
         const inputTitle = document.createElement('input');
@@ -265,11 +265,9 @@ document.addEventListener('DOMContentLoaded', function() {
             })
                 .then(response =>{
                     if(response.ok){
-                        response.json().then(task=>{
-                            console.log('Task updated:', task);
-                            localStorage.setItem('showNotification', 'true');
-                            window.location.reload();
-                        });
+                        console.log('Task updated:');
+                        localStorage.setItem('showNotification', 'true');
+                        window.location.reload();
                     } else {
                         response.text().then( error => {
                             const notificationChange = document.getElementById('notificationErrorTaskCreate');

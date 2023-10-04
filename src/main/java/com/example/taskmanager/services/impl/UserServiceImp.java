@@ -32,6 +32,7 @@ public class UserServiceImp implements UserService{
     }
 
     @Override
+    @Transactional
     public User create(RegistrationForm form) {
 
         userRepository.getLoginByCreateLogin(form.getLogin()).ifPresent(string -> {

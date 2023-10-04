@@ -29,17 +29,20 @@ public class GeneralServiceToUserAndGroupsImp implements GeneralServiceToUserAnd
 
 
     @Override
+    @Transactional
     public void addToGroup(Long idGroup, Long addedUserId) {
         GroupEntity  group = groupService.getById(idGroup);
         group.getUsers().add(userService.getUserById(addedUserId));
     }
     @Override
+    @Transactional
     public void deleteFromGroup(Long idUser, Long idGroup) {
         groupService.getById(idGroup).getUsers()
                 .removeIf(user -> user.getId().equals(idUser));
     }
 
     @Override
+    @Transactional
     public void leavingTheGroup(Long idGroup, Long idUser) {
         GroupEntity group = groupService.getById(idGroup);
         User user = userService.getUserById(idUser);

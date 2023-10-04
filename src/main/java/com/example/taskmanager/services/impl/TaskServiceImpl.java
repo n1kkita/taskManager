@@ -34,6 +34,7 @@ public class TaskServiceImpl implements TaskService {
                 ).toList();
     }
     @Override
+    @Transactional
     public TaskDto saveTask(TaskDto taskDto) {
 
         Util.validation(taskDto);
@@ -64,22 +65,19 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    @Transactional
     public void updateTaskById(Long id, TaskDto editTask) {
-
         Util.validation(editTask);
 
-        Optional<Task> taskOptional = taskRepository.findById(id);
+        taskRepository.findById(id).map(task -> {
 
-        taskOptional.map(task -> {
-            task = Task.builder()
-                    .title(editTask.getTitle())
-                    .description(editTask.getDescription())
-                    .dateOfStart(editTask.getDateOfStart())
-                    .dateOfEnd(editTask.getDateOfEnd())
-                    .dateOfCreate(new Date()) //Перезаписываем дату создания
-                    .user(userService.getUserById(editTask.getUserId()))
-                    .status(Util.checkStatus(Status.CREATED,task.getDateOfStart(),task.getDateOfEnd()))
-                    .build();
+            task.setTitle(editTask.getTitle());
+            task.setDescription(editTask.getDescription());
+            task.setDateOfStart(editTask.getDateOfStart());
+            task.setDateOfEnd(editTask.getDateOfEnd());
+            task.setDateOfCreate(new Date()); //Перезаписываем дату создания
+            task.setUser(userService.getUserById(editTask.getUserId()));
+            task.setStatus(Util.checkStatus(Status.CREATED,task.getDateOfStart(),task.getDateOfEnd()));
 
             return task;
         }).orElseThrow(() -> new EntityNotFoundException("Ошибка при обновлении задачи"));

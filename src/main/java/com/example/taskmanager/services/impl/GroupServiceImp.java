@@ -17,6 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class GroupServiceImp implements GroupService{
     private final UserService userService;
     private final GroupRepository groupRepository;
+    @Override
+    @Transactional
     public GroupEntity create(GroupDto group) {
         User user = userService.getUserById(group.getOwnerId());
         String groupName = group.getName();
