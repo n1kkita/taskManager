@@ -12,8 +12,16 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashSet;
+import java.util.Set;
+
+import static com.example.taskmanager.utils.Util.validation;
 
 
 @Service
@@ -21,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class UserServiceImp implements UserService{
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
     @Override
     public Page< UserDto > getAll(Pageable pageable) {
         return userRepository.findAllUserDto(pageable);
@@ -34,16 +43,17 @@ public class UserServiceImp implements UserService{
     @Override
     @Transactional
     public User create(RegistrationForm form) {
-
-        userRepository.getLoginByCreateLogin(form.getLogin()).ifPresent(string -> {
+        validation(form);
+        userRepository.getLoginByCreateLogin(form.getEmail()).ifPresent(string -> {
             throw new DuplicateLoginException("Користувач с таким логіном уже є, виберіть інший");
         });
 
-        User user = User.builder()
-                .login(form.getLogin())
-                .password(form.getPassword())
-                .role(Role.ROLE_USER)
-                .build();
+        User user = new User();
+
+        user.setEmail(form.getEmail());
+        user.setName(form.getName());
+        user.setPassword(passwordEncoder.encode(form.getPassword()));
+        user.getRoles().add(Role.ROLE_USER);
 
         return userRepository.save(user);
     }
@@ -52,17 +62,14 @@ public class UserServiceImp implements UserService{
         return userRepository.findUserFetchOwnGroupById(id)
                 .orElseThrow(()->new EntityNotFoundException("Not found"));
     }
-
     @Override
     public String getLoginById(Long id) {
         return userRepository.findLoginById(id)
                 .orElseThrow();
     }
-
     @Override
-    public Long authentication(AuthenticationForm form) {
-        return userRepository.findUserIdByLoginAndPassword(form.getLogin(), form.getPassword())
-                .orElseThrow(()->new EntityNotFoundException("Логін чи пароль не вірні"));
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return userRepository.findByEmail(username).orElseThrow();
     }
 
 

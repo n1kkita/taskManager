@@ -1,12 +1,8 @@
 package com.example.taskmanager.controllers.api;
 
-import com.example.taskmanager.dto.AuthenticationForm;
-import com.example.taskmanager.dto.RegistrationForm;
 import com.example.taskmanager.dto.UserDto;
 import com.example.taskmanager.models.User;
 import com.example.taskmanager.services.interfaceses.UserService;
-import com.example.taskmanager.utils.Util;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -33,17 +29,5 @@ public class UserController {
     @GetMapping("/{id}/login")
     public String getLoginById(@PathVariable Long id){
         return userService.getLoginById(id);
-    }
-    @PostMapping("/authentication")
-    public Long authentication(@RequestBody AuthenticationForm form,HttpSession session){
-        Long id = userService.authentication(form);
-        session.setAttribute(Util.replaceToUserLinkInHttpSession(id), id);
-        return id;
-    }
-    @PostMapping("/registration")
-    public Long createUser(@RequestBody RegistrationForm form, HttpSession session){
-        User user = userService.create(form);
-        session.setAttribute(Util.replaceToUserLinkInHttpSession(user.getId()), user.getId());
-        return user.getId();
     }
 }

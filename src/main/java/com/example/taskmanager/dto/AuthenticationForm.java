@@ -4,8 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
-@AllArgsConstructor
 public class AuthenticationForm {
-    private String login;
+    private String email;
     private String password;
 }

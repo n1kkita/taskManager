@@ -23,7 +23,7 @@ public class GeneralServiceToUserAndGroupsImp implements GeneralServiceToUserAnd
         return groupService.getById(idGroup)
                 .getUsers()
                 .stream()
-                .map(u-> new UserDto(u.getId(),u.getLogin()))
+                .map(u-> new UserDto(u.getId(),u.getEmail()))
                 .toList();
     }
 

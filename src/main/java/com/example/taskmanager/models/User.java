@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 
 import java.util.*;
@@ -14,33 +16,62 @@ import java.util.*;
 @Entity
 @Builder
 @Data
-@Table(indexes = @Index(name = "password_index",columnList = "password"))
+@Table
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-public class User {
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", login='" + login + '\'' +
-                '}';
-    }
-
+public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(nullable = false)
+    private String name;
     @Column(nullable = false,unique = true)
-    private String login;
+    private String email;
     @Column(nullable = false)
     private String password;
-    @Transient
-    private Role role;
+    @ElementCollection(targetClass = Role.class, fetch = FetchType.EAGER)
+    @CollectionTable
+            (name = "users_role",
+            joinColumns = @JoinColumn(name = "user_id"))
+    @Enumerated(EnumType.STRING)
+    private Set<Role> roles = new HashSet<>();
     @ManyToMany(mappedBy = "users")
     private List<GroupEntity> groups = new ArrayList<>();
-    @OneToOne(mappedBy = "owner", cascade = CascadeType.ALL)
-    private GroupEntity ownGroup;
-    public Optional<GroupEntity> getOwnGroup() {
-        return Optional.ofNullable(ownGroup);
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
+    private List<GroupEntity> ownGroups = new ArrayList<>();
+    public void addGroupToOwn(GroupEntity groupEntity){
+        ownGroups.add(groupEntity);
+        groupEntity.setOwner(this);
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return roles;
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }

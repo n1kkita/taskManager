@@ -24,7 +24,6 @@
     </style>
 </head>
 <body style="background-color: #cecece;">
-<input type="hidden" th:if="${user.getOwnGroup().isPresent()}" th:value="${user.getOwnGroup().get().id}" id="groupId">
 <input type="hidden" th:value="${usersJSON}" id="usersJSON">
 <svg xmlns="http://www.w3.org/2000/svg" class="d-none">
     <symbol id="check2" viewBox="0 0 16 16">
@@ -61,9 +60,9 @@
     </symbol>
 </svg>
 
-<div class="row">
+<div class="row" style="height: 100vh">
     <div class="col-md-1" style="padding: 0px; margin: 0px; color: #172940;">
-        <div class="d-flex flex-column flex-shrink-0 bg-body-tertiary shadow"  style="width: 7rem; height: 100%;">
+        <div class="d-flex flex-column flex-shrink-0 bg-body-tertiary shadow"  style="width: 7rem; height: 100vh;">
             <ul class="nav nav-pills nav-flush flex-column mb-auto text-center">
                 <li>
                     <a class="d-block p-3 link-body-emphasis text-decoration-none" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Icon-only">
@@ -100,7 +99,7 @@
                 </li>
                 <div th:each="group:${groups}">
                     <li>
-                        <form th:action="@{/otherGroups/{idGroup}(idGroup=${group.id})}">
+                        <form th:action="@{/{username}/otherGroups/{idGroup}(idGroup=${group.id},username=${user.email})}">
                             <small><b>Група</b></small>
                             <small th:text="${group.name}"></small>
                             <input type="hidden" name="idUser" th:value="${user.id}">
@@ -112,21 +111,23 @@
                     <hr>
                 </div>
                 <li>
-                    <div th:if="${user.getOwnGroup().isPresent()}">
-                        <form id="openGroup" action="/MyGroup" method="get">
+                    <div th:if="${!user.getOwnGroups().isEmpty()}">
+                        <div th:each="group:${user.getOwnGroups()}">
+                        <form id="openGroup" th:action="@{/{username}/MyGroups/{idGroup}(idGroup=${group.id},username=${user.email})}" method="get">
                             <input type="hidden" name="idUser" th:value="${user.id}">
                             <small><b>Своя група</b></small>
-                            <small th:text="${user.getOwnGroup().get().name}"></small>
+                            <small th:text="${group.name}"></small>
                             <button class="btn rounded-pill px-2" type="submit" style="background-color: #0d6efd;color: white;">
                                 <ion-icon name="arrow-forward-outline" style="font-size: 1.5rem; vertical-align: middle;"></ion-icon>
                             </button>
                         </form>
+                        </div>
                     </div>
                 </li>
             </ul>
         </div>
     </div>
-    <div class="col-md-10 mx-2" id="homePanel" style="display: none; color: #172940;">
+    <div class="col-md-10 mx-2" id="homePanel" style="display: none; color: #172940; height: 100vh">
         <div class="card mt-4" style="max-width: 1800px">
             <div class="card-header">
                 <h2 class="text-center" style="font-size: 64px">MyTaskManager</h2>
@@ -140,33 +141,31 @@
             </div>
         </div>
     </div>
-    <div class="col-md-10 mx-2" id="customerPanel" style="display: block; color: #172940;">
+    <div class="col-md-10 mx-2" id="customerPanel" style="display: block; color: #172940; height: 100vh">
         <div class="card mt-4" style="max-width: 1800px">
             <div class="card-header">
                 <div class="text-center">
-                    <h4 th:text="${user.login} " style="font-size: 64px">Login</h4>
+                    <h4 th:text="${user.name} " style="font-size: 64px">Name</h4>
                 </div>
                 <h2 class="text-center" style="font-size: 64px">MyTaskManager</h2>
             </div>
-            <div class="d-flex">
-            <div class="col-md-4 mb-2 mx-3 mt-2" th:if="${user.getOwnGroup().isPresent()}">
-                <form id="deleteMyGroup">
-                    <input type="hidden" name="idMyGroup" th:value="${user.getOwnGroup().get().id}">
-                    <span style="font-size: 24px" th:text="'Ви вже створили свою группу: '"></span><strong style="font-size: 24px" th:text="${user.getOwnGroup().get().name} + '   '"></strong>
-                    <button class="btn btn-danger" type="submit">Видалити группу</button>
-                </form>
-                <hr>
-                <div class="input-group flex-nowrap" th:each="deleteUser : ${user.getOwnGroup().get().getUsers()}">
-                    <form th:if="${!deleteUser.id.equals(user.id)}" th:method="DELETE" id="deleteForm">
-                        <strong th:text="${deleteUser.login}"></strong>
-                        <input type="hidden" th:value="${deleteUser.id}" name="idUser">
-                        <input type="hidden" th:value="${user.getOwnGroup().get().id}" name="idGroup">
-                        <button class="btn" type="submit" style="background-color: #f53030;color: white;"> Видалити с групи </button>
-                        <hr>
+            <div class="row justify-content-start">
+                <div class="col-md-4 mb-2 mx-3">
+                    <form action="/groups" method="post" id="createGroup">
+                        <strong style="font-size: 24px" >Створити свою групу</strong>
+                        <div class="input-group flex-nowrap">
+                            <input type="hidden" name="ownerId" th:value="${user.id}">
+                            <span class="input-group-text" id="addon-wrapping">@</span>
+                            <input type="text"  name="name" class="form-control" placeholder="Назва групи"
+                                   aria-label="Назва групи" aria-describedby="addon-wrapping">
+                            <button class="btn" type="submit" style="background-color: #f37427;color: white;"> Створити </button>
+                        </div>
                     </form>
                 </div>
             </div>
-            <div class="col-md-4 mb-2 mx-3 mt-3" th:if="${user.getOwnGroup().isPresent()}" style="color: #172940;">
+            <div class="d-flex">
+
+           <!-- <div class="col-md-4 mb-2 mx-3 mt-3" style="color: #172940;">
                 <form action="/users/search" method="get" id="searchForm">
                     <div class="input-group flex-nowrap">
                         <input type="text" id="searchLogin" name="searchLogin" class="form-control" placeholder="Пошук користувача"
@@ -210,22 +209,7 @@
                     <span><strong>Користувачів не було найдено:(</strong></span>
                 </div>
             </div>
-            </div>
-            <hr>
-            <div class="row justify-content-start">
-                <div class="col-md-4 mb-2 mx-3" th:unless="${user.getOwnGroup().isPresent()}">
-                    <form action="/groups" method="post" id="createGroup">
-                        <strong style="font-size: 24px" >Створити свою групу</strong>
-                        <div class="input-group flex-nowrap">
-                            <input type="hidden" name="ownerId" th:value="${user.id}">
-                            <span class="input-group-text" id="addon-wrapping">@</span>
-                            <input type="text"  name="name" class="form-control" placeholder="Назва групи"
-                                   aria-label="Назва групи" aria-describedby="addon-wrapping">
-                            <button class="btn" type="submit" style="background-color: #f37427;color: white;"> Створити </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
+            </div>-->
         </div>
     </div>
 </div>
@@ -313,29 +297,6 @@
 
 
     document.addEventListener("DOMContentLoaded", function () {
-        const deleteForms = document.querySelectorAll("form#deleteForm");
-
-        deleteForms.forEach((form) => {
-            form.addEventListener("submit", function (event) {
-                event.preventDefault();
-
-                const idUser = form.querySelector("input[name=idUser]").value;
-                const idGroup = form.querySelector("input[name=idGroup]").value;
-
-                fetch(`/groups/${idUser}/${idGroup}`, {
-                    method: "DELETE"
-                })
-                    .then((response) => {
-                        if (response.ok) {
-                            localStorage.setItem('showNotification','true');
-                            localStorage.setItem('deleteUser','true')
-                            window.location.href="/home?id="+idGroup;
-                        }
-                    });
-            });
-        });
-    });
-    document.addEventListener("DOMContentLoaded", function () {
         const deleteForm = document.getElementById('deleteMyGroup');
 
 
@@ -410,168 +371,6 @@
             }, 4000);
         }
     });
-
-
-    document.getElementById('searchForm').addEventListener('submit', function (event) {
-            event.preventDefault(); // Предотвращаем отправку формы
-
-            const searchLogin = document.getElementById("searchLogin").value;
-            const groupId = document.getElementById('groupId').value;
-
-
-            fetch(`/users/search?login=${searchLogin}&idGroup=${groupId}`)
-                .then(response => response.json())
-                .then(data => {
-                    // Обновление содержимого search-output
-                    const pagination = document.getElementById('nextFormUser');
-                    const searchOutput = document.getElementById("search-output");
-                    searchOutput.innerHTML = ''; // Очистка содержимого контейнера
-                    console.log(data);
-                    data.content.forEach(user => {
-
-                        const addedUserToGroupForm = document.createElement('form');
-                            addedUserToGroupForm.method = 'PUT';
-                            addedUserToGroupForm.action = `/groups/${groupId}/${user.id}`;
-
-
-                            const userDiv = document.createElement("strong");
-                            userDiv.textContent = user.login;
-
-                            const addButton = document.createElement("button");
-                            addButton.type = "submit";
-                            addButton.textContent = "Добавить в группу";
-                            addButton.className = "btn mx-2"; // Используйте классы Bootstrap или свои стили
-                            addButton.style="background-color: #f37427;color: white;";
-
-
-                            addButton.addEventListener('click', (event) => {
-                                event.preventDefault();
-                                fetch(`/groups/${groupId}/${user.id}`, {
-                                    method: 'PUT',
-                                    headers: {
-                                        'Content-Type': 'application/json'
-                                    }
-                                }).then( data=>{
-                                    window.location.reload()
-                                })
-                                    .catch(error => {
-                                    console.error('Ошибка при выполнении запроса:', error);
-                                });
-                            });
-
-                            addedUserToGroupForm.appendChild(userDiv);
-                            addedUserToGroupForm.appendChild(addButton);
-                            searchOutput.appendChild(addedUserToGroupForm);
-
-                            const hr = document.createElement("hr"); // Добавляем горизонтальную линию
-                            searchOutput.appendChild(hr);
-                    });
-                    searchOutput.appendChild(pagination);
-                })
-                .catch(error => {
-                    console.error('Ошибка при выполнении запроса:', error);
-                });
-        });
-
-    document.addEventListener("submit", function (event) {
-        const groupId = document.getElementById('groupId').value;
-        const searchOutput = document.getElementById("search-output");
-        // Check if the submitted form is the search form
-        if (event.target.id === "nextFormUser") {
-            event.preventDefault(); // Prevent the form submission
-
-            const nextPageIdUser = document.getElementById("nextPageIdUser").value;
-
-            fetch(`/home?id=${groupId}&page=${encodeURIComponent(nextPageIdUser)}`)
-                .then(response => response.text())
-                .then(data => {
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(data, 'text/html');
-
-                    const targetDiv = doc.getElementById('search-output');
-
-                    if (targetDiv) {
-                        // Очищаем контейнер перед вставкой новых данных
-                        searchOutput.innerHTML = '';
-
-                        // Вставляем HTML-содержимое целевого <div> в контейнер
-                        searchOutput.innerHTML = targetDiv.innerHTML;
-
-                        // Отображаем контейнер
-                        searchOutput.style.display = "block";
-                    } else {
-                        console.error('Целевой <div> не найден.');
-                    }
-                })
-                .then(data=>{
-                    const addedForms = document.querySelectorAll("form#addedForm");
-
-                    addedForms.forEach((form) => {
-                        form.addEventListener("submit", function (event) {
-                            event.preventDefault();
-
-                            const addedUserId = form.querySelector("input[name=addedUserId]").value;
-                            const idGroup = form.querySelector("input[name=idGroup]").value;
-                            const loginUserElement = document.getElementById('login' + addedUserId);
-                            const loginUser = loginUserElement.textContent;
-
-                            console.log(loginUser);
-
-                            fetch(`/groups/${idGroup}/${addedUserId}`, {
-                                method: "PUT"
-                            })
-                                .then((response) => {
-                                    if (response.ok) {
-                                        localStorage.setItem('showNotification','true');
-                                        localStorage.setItem('addedUser','true')
-                                        window.location.href="/home?id="+idGroup;
-                                    }
-                                });
-                        });
-                    });
-                })
-                .catch(error => {
-                    console.error("Error during search:", error);
-                });
-        }
-    });
-    document.addEventListener("submit", function (event) {
-        const groupId = document.getElementById('groupId').value;
-        const searchOutput = document.getElementById("search-output");
-        // Check if the submitted form is the search form
-        if (event.target.id === "backFormUser") {
-            event.preventDefault(); // Prevent the form submission
-
-            const backPageIdUser = document.getElementById("backPageIdUser").value;
-
-            fetch(`/home?id=${groupId}&page=${encodeURIComponent(backPageIdUser)}`)
-                .then(response => response.text())
-                .then(data => {
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(data, 'text/html');
-
-                    const targetDiv = doc.getElementById('search-output');
-
-                    if (targetDiv) {
-                        // Очищаем контейнер перед вставкой новых данных
-                        searchOutput.innerHTML = '';
-
-                        // Вставляем HTML-содержимое целевого <div> в контейнер
-                        searchOutput.innerHTML = targetDiv.innerHTML;
-
-                        // Отображаем контейнер
-                        searchOutput.style.display = "block";
-                    } else {
-                        console.error('Целевой <div> не найден.');
-                    }
-                })
-                .catch(error => {
-                    console.error("Error during search:", error);
-                });
-        }
-    });
-
-
 </script>
 <script src="/docs/5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
 <script src="sidebars.js"></script>

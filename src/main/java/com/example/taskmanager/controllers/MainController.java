@@ -7,12 +7,10 @@ import com.example.taskmanager.models.Role;
 import com.example.taskmanager.models.User;
 import com.example.taskmanager.services.interfaceses.GeneralServiceToUserAndGroups;
 import com.example.taskmanager.services.interfaceses.UserService;
-import com.example.taskmanager.utils.Util;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
@@ -28,108 +26,105 @@ import java.util.List;
 public class MainController {
     private final UserService userService;
     private final GeneralServiceToUserAndGroups serviceToUserAndGroups;
-
     @GetMapping("/registration")
     public String showRegistrationForm(Model model) {
         model.addAttribute("registrationForm", new RegistrationForm());
         return "registration";
     }
-
     @GetMapping("/authentication")
     public String showAuthenticationForm(Model model) {
         model.addAttribute("authenticationForm", new RegistrationForm());
         return "authentication";
     }
-    @GetMapping("/home")
-    public String showUserPage(@RequestParam Long id,
-                               @RequestParam(name = "page",defaultValue = "0") int page,
-                               HttpSession session,
-                               Model model) throws JsonProcessingException {
+    @GetMapping("/home/{username}")
+    public String showUserPage(@PathVariable String username,Model model,HttpSession session) {
+        if(session.getAttribute(username) != null) {
+            User user = (User) userService.loadUserByUsername(username);
+            List<GroupEntity> otherGroup =
+                    user.getGroups().stream()
+                            .filter(group -> !group.getOwner().equals(user))
+                            .toList();
 
-        Long userId = (Long) session.getAttribute(Util.replaceToUserLinkInHttpSession(id)); //получаем id
-        User currentUser;
-
-        if(userId != null) {
-            currentUser = userService.getUserById(userId); //находим в базе
+            model.addAttribute("user",user)
+                    .addAttribute("groups",otherGroup);
+            return "home";
         } else {
             return "redirect:/registration";
         }
-
-        List<UserDto> users;
-        Page< UserDto > usersPage;
-        do {
-            usersPage = userService.getAll(PageRequest.of(page, 10));
-            users = usersPage.stream()
-                    .filter(userInAllStream -> !userInAllStream.getId().equals(currentUser.getId())) //Убираем себя
-                    .filter(userInAllStream -> currentUser.getOwnGroup().stream() //Делаем фильтрацию пользователей которых нет в группe
-                            .flatMap(group -> group.getUsers().stream())
-                            .noneMatch(userInGroup-> userInGroup.getId().equals(userInAllStream.getId())
-                            )).toList();
-            page++;
-
-        } while (users.isEmpty() && page < usersPage.getTotalPages());
-
-        List<GroupEntity> otherGroup = currentUser.getGroups().stream()
-                .filter(group -> ! group.getOwner().equals(currentUser)).toList();
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        String usersJSON = objectMapper.writeValueAsString(users); //преобразуем в json
-
-        model.addAttribute("user",currentUser)
-                .addAttribute("users",users)
-                .addAttribute("groups",otherGroup)
-                .addAttribute("usersJSON",usersJSON)
-                .addAttribute("currentPage", usersPage.getNumber())
-                .addAttribute("totalPages", usersPage.getTotalPages());
-
-
-
-        return "home";
     }
-    @GetMapping("/MyGroup")
-    public String showMyGroupPage(@RequestParam Long idUser, Model model, HttpSession session){
-        Long id = (Long) session.getAttribute(Util.replaceToUserLinkInHttpSession(idUser));
-        User user = userService.getUserById(id);
-        user.setRole(Role.ROLE_ADMIN);
+    @GetMapping("/{username}/MyGroups/{idGroup}")
+    @SneakyThrows
+    public String showMyGroupPage(@PathVariable Long idGroup,
+                                  @PathVariable String username,
+                                  @RequestParam(name = "page",defaultValue = "0") int page,
+                                  HttpSession session,
+                                  Model model){
 
-        model.addAttribute("mode",user.getRole());
-        model.addAttribute("groupId",user.getOwnGroup()
-                .map(GroupEntity::getId).orElseThrow());
+        if(session.getAttribute(username) != null) {
+            User user = (User) userService.loadUserByUsername(username);
 
-        model.addAttribute("groupName", user.getOwnGroup()
-                .map(GroupEntity::getName)
-                .orElseThrow());
+            GroupEntity groupEntity = user.getOwnGroups()
+                    .stream()
+                    .filter(group -> group.getId().equals(idGroup))
+                    .findAny().orElseThrow();
 
-        model.addAttribute("currentUserLogin", user.getLogin())
-                .addAttribute("currentUserId", user.getId())
-                .addAttribute("users", user.getOwnGroup()
-                .map(GroupEntity::getUsers)
-                .orElseThrow());
 
-        return "calendar";
+            List<UserDto> users;
+            Page<UserDto> usersPage;
+            do {
+                usersPage = userService.getAll(PageRequest.of(page, 5));
+                users = usersPage.stream()
+                        .filter(userInAllStream -> !userInAllStream.getId().equals(user.getId())) //Убираем себя
+                        .filter(userInAllStream -> user.getOwnGroups().stream() //Делаем фильтрацию пользователей которых нет в группe
+                                .flatMap(group -> group.getUsers().stream())
+                                .noneMatch(userInGroup -> userInGroup.getId().equals(userInAllStream.getId())
+                                )).toList();
+                page++;
+
+            } while (users.isEmpty() && page < usersPage.getTotalPages());
+
+            model.addAttribute("mode", Role.ROLE_ADMIN);
+            model.addAttribute("groupId", idGroup);
+            model.addAttribute("group", groupEntity);
+
+            model.addAttribute("groupName", groupEntity.getName());
+            model.addAttribute("users", users);
+            model.addAttribute("currentPage", usersPage.getNumber());
+            model.addAttribute("totalPages", usersPage.getTotalPages());
+
+            model.addAttribute("username", user.getEmail())
+                    .addAttribute("currentUserId", user.getId())
+                    .addAttribute("usersInGroup", groupEntity.getUsers());
+
+            return "calendar";
+        } else {
+            throw new RuntimeException("");
+        }
     }
 
-    @GetMapping("/otherGroups/{idGroup}")
-    public String showHomePage(@PathVariable Long idGroup,@RequestParam Long idUser, Model model,HttpSession session){
-        Long id = (Long) session.getAttribute(Util.replaceToUserLinkInHttpSession(idUser));
-        User user = userService.getUserById(id);
-        user.setRole(Role.ROLE_USER);
+    @GetMapping("/{username}/otherGroups/{idGroup}")
+    public String showHomePage(@PathVariable String username,@PathVariable Long idGroup,Model model,HttpSession session){
+        if(session.getAttribute(username) != null) {
+            User user = (User) userService.loadUserByUsername(username);
 
-        GroupEntity group = user.getGroups().stream()
-                .filter(group1 -> group1.getId().equals(idGroup))
-                .findFirst()
-                .orElseThrow(()-> new EntityNotFoundException("Группа не найдена"));
+            GroupEntity group = user.getGroups().stream()
+                    .filter(group1 -> group1.getId().equals(idGroup))
+                    .findFirst()
+                    .orElseThrow(() -> new EntityNotFoundException("Группа не найдена"));
 
-        List< UserDto > users = serviceToUserAndGroups.getAllUsersFromGroupById(idGroup);
+            List<UserDto> users = serviceToUserAndGroups.getAllUsersFromGroupById(idGroup);
 
-        model.addAttribute("mode",user.getRole())
-                .addAttribute("currentUserId", user.getId())
-                .addAttribute("currentUserLogin", user.getLogin())
-                .addAttribute("groupId",group.getId())
-                .addAttribute("groupName",group.getName())
-                .addAttribute("users", users);
+            model.addAttribute("mode", Role.ROLE_USER)
+                    .addAttribute("currentUserId", user.getId())
+                    .addAttribute("username", user.getEmail())
+                    .addAttribute("groupId", group.getId())
+                    .addAttribute("groupName", group.getName())
+                    .addAttribute("users", users);
 
-        return "calendar";
+            return "calendar";
+        } else {
+            throw new RuntimeException("");
+        }
     }
 
 }

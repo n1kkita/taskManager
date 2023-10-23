@@ -24,10 +24,13 @@
       <br>
       <form id="registrationForm">
         <div class="form-group">
-          <input type="text" class="form-control" id="login" name="login" placeholder="Логин">
+          <input type="text" class="form-control" id="name" name="name" placeholder="Name">
         </div>
         <div class="form-group">
-          <input type="password" class="form-control" id="password" name="password" placeholder="Пароль" size="15px">
+          <input type="text" class="form-control" id="email" name="email" placeholder="Email">
+        </div>
+        <div class="form-group">
+          <input type="password" class="form-control" id="password" name="password" placeholder="Password" size="15px">
         </div>
         <button type="submit" class="btn" style="font-size: 12px; background-color: #172940;color: white">
           <b>Зареєструватись</b>
@@ -53,17 +56,17 @@
     window.location.href='/authentication';
   });
 
-
   document.getElementById('registrationForm').addEventListener('submit', function(event) {
     event.preventDefault();
 
     const form = event.target;
     const formData = {
-      login: form.login.value,
+      name: form.name.value,
+      email: form.email.value,
       password: form.password.value
     };
 
-    fetch('/users/registration', {
+    fetch('/registration', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -72,11 +75,8 @@
     })
             .then(response => {
               if (response.ok) {
-                response.text().then(id => {
-                  window.location.href = '/home?id=' + id;
-                });
+                  window.location.href = '/authentication';
               } else {
-
                 response.text().then(error=>{
                   const notificationChange = document.getElementById('notificationRegError');
                   const er = document.getElementById('error');

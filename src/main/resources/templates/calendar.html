@@ -1,6 +1,6 @@
 
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html" lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -76,9 +76,14 @@
           </a>
         </li>
         <li>
-          <a th:href="@{/home(id=${currentUserId})}" class="nav-link py-3 border-bottom rounded-0">
+          <a th:href="@{/home/{username}(username=${username})}" class="nav-link py-3 border-bottom rounded-0">
             <svg class="bi pe-none" width="24" height="24" role="img"><use xlink:href="#home"></use></svg>
           </a>
+        </li>
+        <li>
+          <button class="btn rounded-pill px-2" id="addedSearchDeleteUsers">
+            <ion-icon name="body-outline" style="font-size: 1.5rem; vertical-align: middle;"></ion-icon>
+          </button>
         </li>
       </ul>
     </div>
@@ -86,7 +91,7 @@
 
   <div class="col-md-10">
     <div class="card mt-4" style="max-width: 100%;">
-      <div class="card-header">
+      <div class="card-header" style="background-color: #faf7f7">
         <div class="text-start">
           <h4 th:text="'Група:' + ${groupName}"> GroupName </h4>
           <h4 th:text="'Ви:' + ${currentUserLogin}"> UserLogin </h4>
@@ -103,7 +108,6 @@
         </div>
         <h2 class="text-center">MyTaskManager</h2>
       </div>
-
       <div class="card-body">
         <div class="row justify-content-end">
           <div class="col-md-12 mb-2">
@@ -147,7 +151,7 @@
               <select id="user_selected" class="form-select" aria-label="Default select example">
                 <option selected disabled>Выберите пользователя</option>
                 &lt;!&ndash; Проходите по пользователям и заполняйте варианты выпадающего списка &ndash;&gt;
-                <option th:each="user : ${users}" th:value="${user.id}" th:text="${user.login}"></option>
+                <option th:each="user : ${usersInGroup}" th:value="${user.id}" th:text="${user.name}"></option>
               </select>
             </div>
           <br>
@@ -226,7 +230,77 @@
     </div>
   </div>
 </div>
+<div th:if="${mode == mode.ROLE_ADMIN}">
+  <div class="modal fade" id="eventModalForUsers" tabindex="-1" role="dialog" aria-labelledby="eventModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+      <div class="modal-content p-3">
+        <div class="row">
+          <div style="display: flex">
+            <div class="col-md-4" style="display: block;margin-right: 50px">
+              <div th:if="${usersInGroup.size() == 1}">
+                <strong>В группі не має інших людей</strong>
+              </div>
+              <div class="input-group flex-nowrap" th:unless="${usersInGroup.size() == 1}" th:each="deleteUser : ${usersInGroup}">
+                <form th:if="${!deleteUser.id.equals(currentUserId)}" th:method="DELETE" id="deleteForm">
+                  <strong th:text="${deleteUser.name}"></strong>
+                  <input type="hidden" th:value="${deleteUser.id}" name="idUser">
+                  <input type="hidden" th:value="${groupId}" name="idGroup">
+                  <button class="btn" type="submit" style="background-color: #f53030;color: white;"> Видалити с групи </button>
+                  <hr>
+                </form>
+              </div>
+            </div>
+            <div class="col-md-7">
+              <div style="color: #172940; display: block">
+                <form action="/users/search" method="get" id="searchForm">
+                  <div class="input-group flex-nowrap">
+                    <input type="text" id="searchLogin" name="searchLogin" class="form-control" placeholder="Пошук користувача"
+                           aria-label="Название группы" aria-describedby="addon-wrapping">
+                    <button class="btn" type="submit" style="background-color: #f37427;color: white;"> Пошук </button>
+                  </div>
+                </form>
+                <hr>
+                <div id="search-output">
+                  <div class="input-group flex-nowrap" th:each="addedUser:${users}">
+                    <form th:method="PUT" id="addedForm">
+                      <strong th:text="${addedUser.login}" th:id="'login' + ${addedUser.id}"></strong>
+                      <input type="hidden" th:value="${addedUser.id}" name="addedUserId">
+                      <input type="hidden" th:value="${groupId}" name="idGroup">
+                      <button class="btn" type="submit" style="background-color: #f37427;color: white;"> Додати в группу </button>
+                      <hr>
+                    </form>
+                  </div>
+                  <span>
+              <form action="/home" id="backFormUser" method="get" style="display: inline-block;">
+                <div th:if="${currentPage != null and currentPage > 0}">
+                  <input id="backPageIdUser" name="page" th:value="${currentPage - 1}" type="hidden">
+                  <button class="btn rounded-pill px-2" type="submit" style="background-color: #0d6efd;color: white;">
+                    <ion-icon name="chevron-back-outline" style="font-size: 1.5rem; vertical-align: middle;"></ion-icon>
+                  </button>
+                </div>
+              </form>
+            </span>
+                  <form action="/home" id="nextFormUser" method="get" style="display: inline-block;">
+                    <div th:if="${currentPage != null and currentPage != totalPages - 1 }" id="pagination">
+                      <input id="nextPageIdUser" name="page" th:value="${currentPage != null ? currentPage + 1 : 1}"
+                             type="hidden">
+                      <button class="btn rounded-pill px-2" type="submit" style="background-color: #0d6efd;color: white;">
+                        <ion-icon name="chevron-forward-outline" style="font-size: 1.5rem; vertical-align: middle;"></ion-icon>
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
+</div>
+
+
 
 <div id="notificationDelete" class="notification fast" style="background-color: rgba(57, 255, 0, 0.4);">
   <span class="notification-text">Завдання успішно видаленно!</span>
@@ -277,7 +351,7 @@
     });
   });
 
-  document.addEventListener('DOMContentLoaded', function() {
+  /*document.addEventListener('DOMContentLoaded', function() {
     if (localStorage.getItem('showNotification') === 'true') {
       const notificationChange = document.getElementById('notificationChange');
 
@@ -292,13 +366,262 @@
         localStorage.removeItem('showNotification');
       }, 4000);
     }
-  });
+  });*/
 
   // Обработчик изменения выбранного пользователя
   document.getElementById("user_selected").addEventListener("change", function() {
     const selectedUserId = this.value;
     console.log('Выбран пользователь ' + selectedUserId);
     document.getElementById("selectedUserId").value = selectedUserId;
+  });
+  document.addEventListener("DOMContentLoaded", function () {
+    const deleteForms = document.querySelectorAll("form#deleteForm");
+
+    deleteForms.forEach((form) => {
+      form.addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        const idUser = form.querySelector("input[name=idUser]").value;
+        const idGroup = form.querySelector("input[name=idGroup]").value;
+
+        fetch(`/groups/${idUser}/${idGroup}`, {
+          method: "DELETE"
+        })
+                .then((response) => {
+                  if (response.ok) {
+                    localStorage.setItem('showModal','true');
+                    window.location.reload();
+                  }
+                });
+      });
+    });
+  });
+  document.getElementById('searchForm').addEventListener('submit', function (event) {
+    event.preventDefault(); // Предотвращаем отправку формы
+
+    const searchLogin = document.getElementById("searchLogin").value;
+    const groupId = document.getElementById('groupId').value;
+
+
+    fetch(`/users/search?login=${searchLogin}&idGroup=${groupId}`)
+            .then(response => response.json())
+            .then(data => {
+              // Обновление содержимого search-output
+              const pagination = document.getElementById('nextFormUser');
+              const searchOutput = document.getElementById("search-output");
+              searchOutput.innerHTML = ''; // Очистка содержимого контейнера
+              console.log(data);
+              data.content.forEach(user => {
+
+                const addedUserToGroupForm = document.createElement('form');
+                addedUserToGroupForm.method = 'PUT';
+                addedUserToGroupForm.action = `/groups/${groupId}/${user.id}`;
+
+
+                const userDiv = document.createElement("strong");
+                userDiv.textContent = user.login;
+
+                const addButton = document.createElement("button");
+                addButton.type = "submit";
+                addButton.textContent = "Добавить в группу";
+                addButton.className = "btn mx-2"; // Используйте классы Bootstrap или свои стили
+                addButton.style="background-color: #f37427;color: white;";
+
+
+                addButton.addEventListener('click', (event) => {
+                  event.preventDefault();
+                  fetch(`/groups/${groupId}/${user.id}`, {
+                    method: 'PUT',
+                    headers: {
+                      'Content-Type': 'application/json'
+                    }
+                  }).then( response=>{
+                    if(response.ok){
+                      localStorage.setItem("showModal","true");
+                      window.location.reload();
+                    }
+                  })
+                          .catch(error => {
+                            console.error('Ошибка при выполнении запроса:', error);
+                          });
+                });
+
+                addedUserToGroupForm.appendChild(userDiv);
+                addedUserToGroupForm.appendChild(addButton);
+                searchOutput.appendChild(addedUserToGroupForm);
+
+                const hr = document.createElement("hr"); // Добавляем горизонтальную линию
+                searchOutput.appendChild(hr);
+              });
+              searchOutput.appendChild(pagination);
+            })
+            .catch(error => {
+              console.error('Ошибка при выполнении запроса:', error);
+            });
+  });
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const addedForms = document.querySelectorAll("form#addedForm");
+
+    addedForms.forEach((form) => {
+      form.addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        const addedUserId = form.querySelector("input[name=addedUserId]").value;
+        const idGroup = form.querySelector("input[name=idGroup]").value;
+        const loginUserElement = document.getElementById('login' + addedUserId);
+        const loginUser = loginUserElement.textContent;
+
+        console.log(loginUser);
+
+
+
+        fetch(`/groups/${idGroup}/${addedUserId}`, {
+          method: "PUT"
+        }).then((response) => {
+          if (response.ok) {
+            localStorage.setItem('showModal','true');
+            window.location.reload();
+          }
+        });
+      });
+    });
+  });
+  document.addEventListener("submit", function (event) {
+    const groupId = document.getElementById('groupId').value;
+    const idUser  =document.getElementById('currentUserId').value;
+    const searchOutput = document.getElementById("search-output");
+    // Check if the submitted form is the search form
+    if (event.target.id === "nextFormUser") {
+      event.preventDefault(); // Prevent the form submission
+
+      const nextPageIdUser = document.getElementById("nextPageIdUser").value;
+
+      fetch(`/MyGroups/${groupId}?idUser=${idUser}&page=${encodeURIComponent(nextPageIdUser)}`)
+              .then(response => response.text())
+              .then(data => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(data, 'text/html');
+
+                const targetDiv = doc.getElementById('search-output');
+
+                if (targetDiv) {
+                  // Очищаем контейнер перед вставкой новых данных
+                  searchOutput.innerHTML = '';
+
+                  // Вставляем HTML-содержимое целевого <div> в контейнер
+                  searchOutput.innerHTML = targetDiv.innerHTML;
+
+                  // Отображаем контейнер
+                  searchOutput.style.display = "block";
+                } else {
+                  console.error('Целевой <div> не найден.');
+                }
+              })
+              .then(data=>{
+                const addedForms = document.querySelectorAll("form#addedForm");
+
+                addedForms.forEach((form) => {
+                  form.addEventListener("submit", function (event) {
+                    event.preventDefault();
+
+                    const addedUserId = form.querySelector("input[name=addedUserId]").value;
+                    const idGroup = form.querySelector("input[name=idGroup]").value;
+                    const loginUserElement = document.getElementById('login' + addedUserId);
+                    const loginUser = loginUserElement.textContent;
+
+                    console.log("User id:" + addedUserId);
+
+                    fetch(`/groups/${idGroup}/${addedUserId}`, {
+                      method: "PUT"
+                    })
+                            .then((response) => {
+                              if (response.ok) {
+                                localStorage.setItem('showModal','true');
+                                window.location.reload();
+                              }
+                            });
+                  });
+                });
+              })
+              .catch(error => {
+                console.error("Error during search:", error);
+              });
+    }
+  });
+  document.addEventListener("submit", function (event) {
+    const groupId = document.getElementById('groupId').value;
+    const idUser  =document.getElementById('currentUserId').value;
+    const searchOutput = document.getElementById("search-output");
+    // Check if the submitted form is the search form
+    if (event.target.id === "backFormUser") {
+      event.preventDefault(); // Prevent the form submission
+
+      const backPageIdUser = document.getElementById("backPageIdUser").value;
+
+      fetch(`/MyGroups/${groupId}?idUser=${idUser}&page=${encodeURIComponent(backPageIdUser)}`)
+              .then(response => response.text())
+              .then(data => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(data, 'text/html');
+
+                const targetDiv = doc.getElementById('search-output');
+
+                if (targetDiv) {
+                  // Очищаем контейнер перед вставкой новых данных
+                  searchOutput.innerHTML = '';
+
+                  // Вставляем HTML-содержимое целевого <div> в контейнер
+                  searchOutput.innerHTML = targetDiv.innerHTML;
+
+                  // Отображаем контейнер
+                  searchOutput.style.display = "block";
+                } else {
+                  console.error('Целевой <div> не найден.');
+                }
+              })
+              .then(data=>{
+                const addedForms = document.querySelectorAll("form#addedForm");
+
+                addedForms.forEach((form) => {
+                  form.addEventListener("submit", function (event) {
+                    event.preventDefault();
+
+                    const addedUserId = form.querySelector("input[name=addedUserId]").value;
+                    const idGroup = form.querySelector("input[name=idGroup]").value;
+                    const loginUserElement = document.getElementById('login' + addedUserId);
+                    const loginUser = loginUserElement.textContent;
+
+                    console.log("User id:" + addedUserId);
+
+                    fetch(`/groups/${idGroup}/${addedUserId}`, {
+                      method: "PUT"
+                    })
+                            .then((response) => {
+                              if (response.ok) {
+                                localStorage.setItem('showModal','true');
+                                window.location.reload();
+                              }
+                            });
+                  });
+                });
+              })
+              .catch(error => {
+                console.error("Error during search:", error);
+              });
+    }
+  });
+  document.getElementById("addedSearchDeleteUsers").addEventListener("click",function (){
+    const eventModal = document.getElementById('eventModalForUsers');
+    $(eventModal).modal('show');
+  });
+
+  document.addEventListener('DOMContentLoaded', function() {
+    if (localStorage.getItem('showModal') === 'true') {
+      const eventModal = document.getElementById('eventModalForUsers');
+      $(eventModal).modal('show');
+      localStorage.removeItem("showModal");
+    }
   });
 
 </script>

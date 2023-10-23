@@ -19,7 +19,7 @@ public class CustomRepositoryImpl implements CustomRepository {
     @Override
     public Optional<User> findUserFetchOwnGroupById(Long id) {
 
-        var user = entityManager.createQuery("select u from User u left join fetch u.ownGroup where u.id=?1", User.class)
+        var user = entityManager.createQuery("select u from User u left join fetch u.ownGroups where u.id=?1", User.class)
                 .setParameter(1,id)
                 .getSingleResult();
 

@@ -243,7 +243,7 @@ document.addEventListener('DOMContentLoaded', function() {
         eventDateEnd.textContent = '';
         eventDateEnd.appendChild(inputDateEnd);
 
-        const notificationChange = document.getElementById('notificationChange');
+        document.getElementById('notificationChange');
         changeButton.addEventListener("click", function (event) {
             event.preventDefault();
 
@@ -380,7 +380,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Ваш обработчик нажатия на кнопку изменения
 
-    console.log(groupId);
+    console.log("Group id" + groupId);
     // Загрузка задач из базы данных
     fetch(`/tasks/groups/${groupId}`)
         .then(response => response.json())

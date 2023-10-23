@@ -22,13 +22,10 @@
       <br>
       <strong style="font-size: 36px">Вхід</strong>
       <br>
-      <form id="authenticationForm">
-        <div class="form-group">
-          <input type="text" class="form-control" id="login" name="login" placeholder="Логин">
-        </div>
-        <div class="form-group">
-          <input type="password" class="form-control" id="password" name="password" placeholder="Пароль" size="15px">
-        </div>
+      <form id="authenticationForm" th:action="@{/authentication}" method="post">
+        <input name="username" class="form-control" placeholder="Email" required autofocus="autofocus"/>
+        <br>
+        <input name="password"  class="form-control" type="password" placeholder="Password" required autofocus="autofocus" />
         <button type="submit" class="btn" style="font-size: 12px; background-color: #172940;color: white">
           <b>Войти</b>
         </button>
@@ -51,19 +48,16 @@
   document.getElementById('registration').addEventListener('click',function() {
     window.location.href = '/registration';
   });
-
-
-
-  document.getElementById('authenticationForm').addEventListener('submit', function(event) {
+  /*document.getElementById('authenticationForm').addEventListener('submit', function(event) {
     event.preventDefault();
 
     const form = event.target;
     const formData = {
-      login: form.login.value,
+      username: form.email.value,
       password: form.password.value
     };
 
-    fetch('/users/authentication', {
+    fetch('/authentication', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -71,12 +65,7 @@
       body: JSON.stringify(formData)
     })
             .then(response => {
-
-              if(response.ok) {
-                response.text().then(id=>{
-                  window.location.href='/home?id='+id;
-                })
-              } else {
+               if(!response.ok) {
                 response.text().then( error => {
                   const notificationChange = document.getElementById('notificationError');
                   const er = document.getElementById('error');
@@ -94,7 +83,7 @@
               }
 
             })
-  });
+  });*/
 </script>
 </html>
 

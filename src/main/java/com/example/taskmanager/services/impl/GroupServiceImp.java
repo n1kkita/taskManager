@@ -25,10 +25,10 @@ public class GroupServiceImp implements GroupService{
 
         GroupEntity groupEntity = new GroupEntity();
         groupEntity.setName(groupName);
+        user.addGroupToOwn(groupEntity);
+        groupRepository.save(groupEntity);
 
-        groupEntity.setOwner(user);
-
-        return groupRepository.save(groupEntity);
+        return groupEntity;
     }
     @Override
     public GroupEntity getById(Long id) {
