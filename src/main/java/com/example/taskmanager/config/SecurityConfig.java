@@ -15,6 +15,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final SuccessHandler successHandler;
+    private final FailureHandler failureHandler;
     @Bean
     BCryptPasswordEncoder bCryptPasswordEncoder(){
         return new BCryptPasswordEncoder();
@@ -23,17 +24,21 @@ public class SecurityConfig {
     @SneakyThrows
     SecurityFilterChain securityFilterChain(HttpSecurity http){
         return http.authorizeHttpRequests(request -> {
-            request
-                    .requestMatchers("/registration", "/authentication").permitAll()
-                    .requestMatchers("/home/**", "/calendar/**").authenticated();
+                    request
+                            .requestMatchers("/registration", "/authentication").permitAll()
+                            .requestMatchers("/home/**", "/calendar/**").authenticated();
 
-            // Разрешить доступ ко всем остальным URL
-            request.anyRequest().permitAll();
-        }).formLogin(form -> {
-            form.loginPage("/authentication");
-            form.successHandler(successHandler);
-        }).csrf(AbstractHttpConfigurer::disable).build();
+                    request.anyRequest().permitAll();
+                }).formLogin(form -> {
+                    form.loginPage("/authentication");
+                    form.successHandler(successHandler);
+                }).logout(logout-> logout.logoutSuccessUrl("/logout").logoutSuccessUrl("/authentication"))
+
+                .oauth2Login(oauth->{
+                    oauth.loginPage("/login");
+                    oauth.successHandler(successHandler);
+                    oauth.failureHandler(failureHandler);
+                })
+                .csrf(AbstractHttpConfigurer::disable).build();
     }
-
-
 }

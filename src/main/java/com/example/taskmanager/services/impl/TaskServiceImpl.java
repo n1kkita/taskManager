@@ -1,6 +1,8 @@
 package com.example.taskmanager.services.impl;
 
 import com.example.taskmanager.dto.TaskDto;
+import com.example.taskmanager.events.CreateTaskEvent;
+import com.example.taskmanager.events.publisher.EventPublisher;
 import com.example.taskmanager.models.GroupEntity;
 import com.example.taskmanager.models.Status;
 import com.example.taskmanager.models.Task;
@@ -17,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +27,7 @@ public class TaskServiceImpl implements TaskService {
     private final TaskRepository taskRepository;
     private final GroupService groupService;
     private final UserService userService;
+    private final EventPublisher eventPublisher;
     @Override
     public List< TaskDto > getAllByGroupId(Long groupId) {
         return taskRepository.findAllByGroupId(groupId).stream()
@@ -52,6 +54,7 @@ public class TaskServiceImpl implements TaskService {
                 .status(Util.checkStatus(Status.CREATED,taskDto.getDateOfStart(),taskDto.getDateOfEnd()))
                 .build();
         taskRepository.save(task);
+        eventPublisher.publish(new CreateTaskEvent(task));
 
         taskDto.setId(task.getId());
         taskDto.setStatus(task.getStatus());

@@ -27,22 +27,25 @@ public class MainController {
     private final UserService userService;
     private final GeneralServiceToUserAndGroups serviceToUserAndGroups;
     @GetMapping("/registration")
-    public String showRegistrationForm(Model model) {
-        model.addAttribute("registrationForm", new RegistrationForm());
+    public String showRegistrationForm(@RequestParam(required = false) String oauthEmail,Model model) {
+        model.addAttribute("registrationForm", new RegistrationForm())
+                .addAttribute("email",oauthEmail);
         return "registration";
     }
     @GetMapping("/authentication")
     public String showAuthenticationForm(Model model) {
         model.addAttribute("authenticationForm", new RegistrationForm());
+        model.addAttribute("errorEmail","Email is incorrect!");
+        model.addAttribute("errorPassword","Password is incorrect!");
         return "authentication";
     }
     @GetMapping("/home/{username}")
     public String showUserPage(@PathVariable String username,Model model,HttpSession session) {
         if(session.getAttribute(username) != null) {
             User user = (User) userService.loadUserByUsername(username);
-            List<GroupEntity> otherGroup =
-                    user.getGroups().stream()
-                            .filter(group -> !group.getOwner().equals(user))
+            List<GroupEntity> otherGroup = user
+                            .getGroups().stream()
+                            .filter(group -> !group.getOwners().contains(user))
                             .toList();
 
             model.addAttribute("user",user)
@@ -59,44 +62,35 @@ public class MainController {
                                   @RequestParam(name = "page",defaultValue = "0") int page,
                                   HttpSession session,
                                   Model model){
-
         if(session.getAttribute(username) != null) {
             User user = (User) userService.loadUserByUsername(username);
 
-            GroupEntity groupEntity = user.getOwnGroups()
+            GroupEntity group =
+                     user.getOwnGroups()
                     .stream()
-                    .filter(group -> group.getId().equals(idGroup))
+                    .filter(group1 -> group1.getId().equals(idGroup))
                     .findAny().orElseThrow();
 
+            List<User> owners = group.getOwners();
+            List<User> usersWithoutOwners = group.getUsers().stream().filter(u->!owners.contains(u)).toList();
+            Page<UserDto> pages =  userService.searchByLogin("", idGroup, PageRequest.of(page,5));
+            List<UserDto> users = pages.getContent();
 
-            List<UserDto> users;
-            Page<UserDto> usersPage;
-            do {
-                usersPage = userService.getAll(PageRequest.of(page, 5));
-                users = usersPage.stream()
-                        .filter(userInAllStream -> !userInAllStream.getId().equals(user.getId())) //Убираем себя
-                        .filter(userInAllStream -> user.getOwnGroups().stream() //Делаем фильтрацию пользователей которых нет в группe
-                                .flatMap(group -> group.getUsers().stream())
-                                .noneMatch(userInGroup -> userInGroup.getId().equals(userInAllStream.getId())
-                                )).toList();
-                page++;
 
-            } while (users.isEmpty() && page < usersPage.getTotalPages());
-
-            model.addAttribute("mode", Role.ROLE_ADMIN);
-            model.addAttribute("groupId", idGroup);
-            model.addAttribute("group", groupEntity);
-
-            model.addAttribute("groupName", groupEntity.getName());
-            model.addAttribute("users", users);
-            model.addAttribute("currentPage", usersPage.getNumber());
-            model.addAttribute("totalPages", usersPage.getTotalPages());
-
-            model.addAttribute("username", user.getEmail())
+            model.addAttribute("mode", Role.ROLE_ADMIN)
+                    .addAttribute("groupId", idGroup)
+                    .addAttribute("group", group)
+                    .addAttribute("groupName", group.getName())
+                    .addAttribute("users", users)
+                    .addAttribute("currentPage", pages.getNumber())
+                    .addAttribute("totalPages", pages.getTotalPages())
+                    .addAttribute("username", user.getEmail())
                     .addAttribute("currentUserId", user.getId())
-                    .addAttribute("usersInGroup", groupEntity.getUsers());
+                    .addAttribute("usersInGroupWithoutOwners", usersWithoutOwners)
+                    .addAttribute("usersInGroup", group.getUsers());
 
             return "calendar";
+
         } else {
             throw new RuntimeException("");
         }

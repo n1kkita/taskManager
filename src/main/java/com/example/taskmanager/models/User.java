@@ -38,13 +38,8 @@ public class User implements UserDetails {
     private Set<Role> roles = new HashSet<>();
     @ManyToMany(mappedBy = "users")
     private List<GroupEntity> groups = new ArrayList<>();
-    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
+    @ManyToMany(mappedBy = "owners")
     private List<GroupEntity> ownGroups = new ArrayList<>();
-    public void addGroupToOwn(GroupEntity groupEntity){
-        ownGroups.add(groupEntity);
-        groupEntity.setOwner(this);
-    }
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles;

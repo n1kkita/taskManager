@@ -31,8 +31,16 @@ public class GeneralController {
         return ResponseEntity.ok()
                 .body("User with id=" + addedUserId + " has added to group with id="+idGroup);
     }
-    @GetMapping("/users/groups/{idGroup}")
+    @GetMapping("groups/{idGroup}/users")
     public List< UserDto > getAllUserFromGroup(@PathVariable Long idGroup){
         return serviceToUserAndGroups.getAllUsersFromGroupById(idGroup);
     }
+    @PostMapping("/groups/{idGroup}/{ownerId}/add_new_owner/{newOwnerId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void addToGroup(@PathVariable Long idGroup,
+                                             @PathVariable Long ownerId,
+                                             @PathVariable Long newOwnerId) {
+        serviceToUserAndGroups.addOwnerToGroup(idGroup,ownerId,newOwnerId);
+    }
+
 }

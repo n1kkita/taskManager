@@ -2,6 +2,7 @@ package com.example.taskmanager.controllers.api;
 
 import com.example.taskmanager.dto.UserDto;
 import com.example.taskmanager.models.User;
+import com.example.taskmanager.repositories.UserRepository;
 import com.example.taskmanager.services.interfaceses.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+    private final UserRepository userRepository;
     @GetMapping
     public Page< UserDto > getAll(Pageable pageable){
         return userService.getAll(pageable);
@@ -24,10 +26,10 @@ public class UserController {
     }
     @GetMapping("/{id}")
     public User getById(@PathVariable Long id){
-        return userService.getUserById(id);
+        return userRepository.findUserByIdFetchOwnGroups(id);
     }
-    @GetMapping("/{id}/login")
-    public String getLoginById(@PathVariable Long id){
-        return userService.getLoginById(id);
+    @GetMapping("/{id}/dto")
+    public UserDto getDtoById(@PathVariable Long id){
+        return userService.getDtoById(id);
     }
 }

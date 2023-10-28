@@ -1,6 +1,5 @@
 package com.example.taskmanager.services.impl;
 
-import com.example.taskmanager.dto.AuthenticationForm;
 import com.example.taskmanager.dto.RegistrationForm;
 import com.example.taskmanager.dto.UserDto;
 import com.example.taskmanager.exception.DuplicateLoginException;
@@ -17,9 +16,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.HashSet;
-import java.util.Set;
 
 import static com.example.taskmanager.utils.Util.validation;
 
@@ -63,8 +59,8 @@ public class UserServiceImp implements UserService{
                 .orElseThrow(()->new EntityNotFoundException("Not found"));
     }
     @Override
-    public String getLoginById(Long id) {
-        return userRepository.findLoginById(id)
+    public UserDto getDtoById(Long id) {
+        return userRepository.findUserById(id)
                 .orElseThrow();
     }
     @Override

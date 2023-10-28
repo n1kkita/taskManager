@@ -15,7 +15,7 @@ public interface UserService extends UserDetailsService {
     Page< UserDto > searchByLogin(String login,Long idGroup,Pageable pageable);
     User create(RegistrationForm form);
     User getUserById(Long id);
-    String getLoginById(Long id);
+    UserDto getDtoById(Long id);
     @Override
     UserDetails loadUserByUsername(String username) throws UsernameNotFoundException;
 }

@@ -23,14 +23,14 @@ public class GroupEntity {
     private Long id;
     @Column(nullable = false)
     private String name;
-    @ManyToOne
-    private User owner;
+    @ManyToMany
+    private List<User> owners = new ArrayList<>();
     @OneToMany(mappedBy = "group", cascade = CascadeType.ALL,orphanRemoval = true)
     private List<Task> tasks = new ArrayList<>();
 
-    public void setOwner(User owner) {
-        this.owner = owner;
-        users.add(owner);
+    public void addOwnerToGroup(User user){
+        owners.add(user);
+        user.getOwnGroups().add(this);
     }
 
     @ManyToMany

@@ -25,7 +25,9 @@ public class GroupServiceImp implements GroupService{
 
         GroupEntity groupEntity = new GroupEntity();
         groupEntity.setName(groupName);
-        user.addGroupToOwn(groupEntity);
+        groupEntity.addOwnerToGroup(user);
+        groupEntity.getUsers().add(user);
+        user.getGroups().add(groupEntity);
         groupRepository.save(groupEntity);
 
         return groupEntity;

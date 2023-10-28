@@ -74,12 +74,14 @@ document.addEventListener('DOMContentLoaded', function() {
             const userId = info.event.extendedProps.userId;
 
             // Загрузка информации о пользователе
-            fetch(`/users/${userId}/login`)
-                .then(response => response.text())
-                .then(userLogin => {
+            fetch(`/users/${userId}/dto`)
+                .then(response => response.json())
+                .then(user => {
                     // Отображение информации о пользователе
-                    eventUser.textContent = `@${userLogin}`;
-                    console.log(userLogin); // You can also log the response to see the data
+                    console.log(user.name);
+                    console.log(user.email);
+                    eventUser.innerHTML = `${user.name} <br> ${user.email}`;
+                    //console.log(userLogin); // You can also log the response to see the data
                 })
                 .catch(error => {
                     console.error('Error fetching user:', error);
@@ -205,20 +207,20 @@ document.addEventListener('DOMContentLoaded', function() {
         const idGroup = document.getElementById('groupId').value;
         console.log('Group id ' + idGroup);
         // Здесь используется асинхронный запрос для получения списка пользователей с сервера
-        fetch(`/users/groups/${idGroup}`) // Замените на ваш эндпоинт для получения пользователей
+        fetch(`/groups/${idGroup}/users`) // Замените на ваш эндпоинт для получения пользователей
             .then(response => response.json())
             .then(data => {
                 // Получаем массив пользователей из JSON
                 data.forEach(user => {
                     const option = document.createElement('option');
                     option.setAttribute('value', user.id);
-                    option.textContent = user.login;
+                    option.textContent = user.name + "(" + user.email + ")";
                     selectUser.appendChild(option);
                 });
             })
             .catch(error => console.error('Ошибка получения пользователей:', error));
 
-        eventUser.textContent='';
+        eventUser.innerHTML='';
         eventUser.appendChild(selectUser);
 
         const selectedUser = document.createElement('input');

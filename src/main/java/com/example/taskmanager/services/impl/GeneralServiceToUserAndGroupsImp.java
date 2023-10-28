@@ -23,7 +23,7 @@ public class GeneralServiceToUserAndGroupsImp implements GeneralServiceToUserAnd
         return groupService.getById(idGroup)
                 .getUsers()
                 .stream()
-                .map(u-> new UserDto(u.getId(),u.getEmail()))
+                .map(u-> new UserDto(u.getId(),u.getEmail(),u.getName()))
                 .toList();
     }
 
@@ -34,6 +34,8 @@ public class GeneralServiceToUserAndGroupsImp implements GeneralServiceToUserAnd
         GroupEntity  group = groupService.getById(idGroup);
         group.getUsers().add(userService.getUserById(addedUserId));
     }
+
+
     @Override
     @Transactional
     public void deleteFromGroup(Long idUser, Long idGroup) {
@@ -48,6 +50,18 @@ public class GeneralServiceToUserAndGroupsImp implements GeneralServiceToUserAnd
         User user = userService.getUserById(idUser);
 
         group.getUsers().remove(user);
+    }
 
+    @Override
+    @Transactional
+    public void addOwnerToGroup(Long idGroup, Long ownerId, Long newOwnerId) {
+        User currentOwner = userService.getUserById(ownerId);
+        User newOwner = userService.getUserById(newOwnerId);
+        GroupEntity group = currentOwner
+                .getOwnGroups()
+                .stream()
+                .filter(g -> g.getId().equals(idGroup)).findAny().orElseThrow();
+
+        group.addOwnerToGroup(newOwner);
     }
 }
