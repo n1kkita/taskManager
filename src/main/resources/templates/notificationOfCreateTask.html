@@ -47,21 +47,45 @@
 </head>
 <body>
 <div class="container">
-    <img src="/avatar.png" width="100" height="100">
-    <h1>Your Task Saved</h1>
+    <input type="hidden" id ="status" th:value="${task.getStatus()}">
+
+    <h1>Your Task has been updated</h1>
     <div>
-        <p class="lead" th:text="'Hi, ' + ${user.name} + '.'">Hi, Никита.</p>
-        <p class="lead" style="display: inline;">Your task &laquo;</p>
-        <span class="lead" th:text="${task.getTitle()} + '&raquo; saved at: ' + ${currentTime} + '.'" style="display: inline;">
+        <p class="lead" th:text="'Hi, ' + ${user_email} + '.'">Hi, Никита.</p>
+        <p class="lead" style="display: inline;">Your task</p>
+        <span class="lead" th:text="'&laquo;' + ${task.getTitle()} + '&raquo; status has been updated: ' + ${currentTime} + '.'" style="display: inline;">
         Your task &laquo;Рутина&raquo; saved at: 28.10.2023 15:30.
         </span>
         <br><br>
         <p class="lead fw-bold text-primary" th:text="'Date start: ' + ${dateStart} + '.'">Date start: 28.10.2023 16:30.</p>
         <p class="lead fw-bold text-primary" th:text="'Date end: ' + ${dateEnd} + '.'">Date end: 28.10.2023 20:30.</p>
         <p class="lead" style="display: inline;">Current task status: </p>
-        <span class="lead fw-bold text-primary" th:text="${task.getStatus()} + '.'"></span>
+        <span class="lead fw-bold" th:style="'color: ' + ${statusColor} + ';'" id="statusText" th:text="${task.getStatus()} + '.'"></span>
     </div>
 </div>
 </body>
+<script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const status = document.getElementById("status").value;
+        const statusText = document.getElementById("statusText");
+        statusText.style.color = getBackgroundColorByStatus(status);
+    });
+
+    function getBackgroundColorByStatus(status) {
+        switch (status) {
+            case "CREATED":
+                return "#6fb6fa"; // Синий цвет для CREATED
+            case "IN_PROCESS":
+                return "#f67452"; // Оранжевый цвет для IN_PROCESS
+            case "DONE":
+                return "#5cef5c"; // Зеленый цвет для DONE
+            case "NOT_DONE":
+                return "#f84d4d"; // Красный цвет для NOT_DONE
+            default:
+                return "#a2a2a2"; // Серый цвет по умолчанию
+        }
+    }
+</script>
 </html>
 

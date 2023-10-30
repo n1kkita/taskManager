@@ -1,8 +1,6 @@
 package com.example.taskmanager.services.impl;
 
 import com.example.taskmanager.dto.TaskDto;
-import com.example.taskmanager.events.CreateTaskEvent;
-import com.example.taskmanager.events.publisher.EventPublisher;
 import com.example.taskmanager.models.GroupEntity;
 import com.example.taskmanager.models.Status;
 import com.example.taskmanager.models.Task;
@@ -27,12 +25,11 @@ public class TaskServiceImpl implements TaskService {
     private final TaskRepository taskRepository;
     private final GroupService groupService;
     private final UserService userService;
-    private final EventPublisher eventPublisher;
+    private final Util util;
     @Override
     public List< TaskDto > getAllByGroupId(Long groupId) {
         return taskRepository.findAllByGroupId(groupId).stream()
-                .peek(task -> task.
-                        setStatus(Util.checkStatus(task.getStatus(),task.getDateOfStart(),task.getDateOfEnd()))
+                .peek(task -> util.checkStatus(task.getStatus(),task.getDateOfStart(),task.getDateOfEnd(),task.getId())
                 ).toList();
     }
     @Override
@@ -51,10 +48,11 @@ public class TaskServiceImpl implements TaskService {
                 .user(user)
                 .dateOfStart(taskDto.getDateOfStart())
                 .dateOfEnd(taskDto.getDateOfEnd())
-                .status(Util.checkStatus(Status.CREATED,taskDto.getDateOfStart(),taskDto.getDateOfEnd()))
+                .status(Status.CREATED)
                 .build();
         taskRepository.save(task);
-        eventPublisher.publish(new CreateTaskEvent(task));
+        util.checkStatus(task.getStatus(),task.getDateOfStart(),task.getDateOfEnd(),task.getId());
+
 
         taskDto.setId(task.getId());
         taskDto.setStatus(task.getStatus());
@@ -80,7 +78,7 @@ public class TaskServiceImpl implements TaskService {
             task.setDateOfEnd(editTask.getDateOfEnd());
             task.setDateOfCreate(new Date()); //Перезаписываем дату создания
             task.setUser(userService.getUserById(editTask.getUserId()));
-            task.setStatus(Util.checkStatus(Status.CREATED,task.getDateOfStart(),task.getDateOfEnd()));
+            util.checkStatus(Status.CREATED,task.getDateOfStart(),task.getDateOfEnd(),task.getId());
 
             return task;
         }).orElseThrow(() -> new EntityNotFoundException("Ошибка при обновлении задачи"));

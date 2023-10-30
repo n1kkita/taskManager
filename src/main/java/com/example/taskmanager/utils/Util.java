@@ -5,13 +5,17 @@ import com.example.taskmanager.dto.TaskDto;
 import com.example.taskmanager.exception.EmptyFieldException;
 import com.example.taskmanager.exception.InvalidDateException;
 import com.example.taskmanager.models.Status;
+import com.example.taskmanager.models.Task;
+import com.example.taskmanager.repositories.TaskRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
-
+@Component
+@RequiredArgsConstructor
 public class Util {
-    public static String replaceToUserLinkInHttpSession(Long id){
-        return "successfulUser"+id+"FromForm";
-    }
+    private final TaskRepository taskRepository;
 
     public static void validation(TaskDto taskDto){
         //Проверка на корректность данных
@@ -30,18 +34,24 @@ public class Util {
             throw new EmptyFieldException("Мінімальна кількість знаків для email і паролю 4 символи");
         }
     }
-    public static Status checkStatus(Status status,Date dateOfStart,Date dateOfEnd){
+    @Transactional
+    public Status checkStatus(Status status,Date dateOfStart,Date dateOfEnd,Long id){
         var currentDate = new Date();
+        Task task = taskRepository.findById(id).orElseThrow();
 
         if(status.equals(Status.CREATED) || !status.equals(Status.DONE) ){
-            //Если текущая дата подошла к началу задания меняем статус IN_PROCESS
-            if(currentDate.after(dateOfStart)) {
-                status = Status.IN_PROCESS;
-            }
+
             //Если дата окончания задания прошла до текущей даты меняем статус на NOT_DONE
             if(dateOfEnd.before(currentDate)) {
-                status =  Status.NOT_DONE;
+                task.setStatus(Status.NOT_DONE);
+                return task.getStatus();
             }
+            //Если текущая дата подошла к началу задания меняем статус IN_PROCESS
+            if(currentDate.after(dateOfStart)) {
+                task.setStatus(Status.IN_PROCESS);
+                return task.getStatus();
+            }
+
         }
         return status;
     }
