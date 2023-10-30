@@ -99,7 +99,10 @@ MyTaskManager - це проект управління задачами, роз�
 - Java
 - Spring Boot
 - Spring Data
-- Strping Web
+- Srping Web
+- Spring Security
+- Oauth2.0
+- Java Mail Sender
 - Thymeleaf
 - MySql
 - Lombok
