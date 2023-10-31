@@ -19,4 +19,5 @@ public class TaskDto {
     private Long groupId;
     private Long userId;
     private String email;
+    private Long ownerId;
 }

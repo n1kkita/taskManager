@@ -4,6 +4,7 @@ import com.example.taskmanager.dto.GroupDto;
 import com.example.taskmanager.models.GroupEntity;
 import com.example.taskmanager.models.User;
 import com.example.taskmanager.repositories.GroupRepository;
+import com.example.taskmanager.services.interfaceses.GroupHistoryService;
 import com.example.taskmanager.services.interfaceses.GroupService;
 import com.example.taskmanager.services.interfaceses.UserService;
 import jakarta.persistence.EntityNotFoundException;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class GroupServiceImp implements GroupService{
     private final UserService userService;
     private final GroupRepository groupRepository;
+    private final GroupHistoryService groupHistoryService;
     @Override
     @Transactional
     public GroupEntity create(GroupDto group) {

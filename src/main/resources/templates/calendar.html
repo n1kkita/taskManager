@@ -68,32 +68,45 @@
 </svg>
 <div class="row">
   <div class="col-md-1">
-    <div class="d-flex flex-column flex-shrink-0 bg-body-tertiary" style="width: 6.5rem; height: 100%">
+    <div class="d-flex flex-column flex-shrink-0 bg-body-tertiary" style="width: 7.0rem; height: 100%">
       <ul class="nav nav-pills nav-flush flex-column mb-auto text-center">
         <li>
           <a href="/" class="d-block p-3 link-body-emphasis text-decoration-none" data-bs-toggle="tooltip" data-bs-placement="right" aria-label="Icon-only">
             <img  width="80" height="50" src="/logo.svg">
             <span class="visually-hidden">Icon-only</span>
           </a>
+          <hr>
         </li>
         <li>
-          <a th:href="@{/home/{username}(username=${username})}" class="nav-link py-3 border-bottom rounded-0">
+          <a th:href="@{/home/{username}(username=${username})}">
             <svg class="bi pe-none" width="24" height="24" role="img"><use xlink:href="#home"></use></svg>
           </a>
+          <hr>
         </li>
+        <div th:if="${mode == mode.ROLE_ADMIN}">
         <li>
           <button class="btn rounded-pill px-2" id="addedSearchDeleteUsers">
             <ion-icon name="body-outline" style="font-size: 1.5rem; vertical-align: middle;"></ion-icon>
           </button>
+          <hr>
         </li>
         <li>
           <button class="btn rounded-pill px-2" id="addedNewOwner">
             <ion-icon name="person-add-outline" style="font-size: 1.5rem; vertical-align: middle;"></ion-icon>
           </button>
+          <hr>
         </li>
+        <li>
+          <button class="btn rounded-pill px-2" id="historyGroup">
+            <ion-icon name="file-tray-full-outline" style="font-size: 1.5rem; vertical-align: middle;"></ion-icon>
+          </button>
+          <hr>
+        </li>
+        </div>
       </ul>
     </div>
   </div>
+
 
   <div class="col-md-10">
     <div class="card mt-4" style="max-width: 100%;">
@@ -349,6 +362,26 @@
       </div>
     </div>
   </div>
+</div>
+<div th:if="${mode == mode.ROLE_ADMIN}">
+<div class="modal fade" id="historyModal" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content p-3">
+      <h3>History</h3>
+      <div class="list-group list-group-flush border-bottom scrollarea">
+        <div th:each="history : ${group.getHistories()}">
+          <a href="#" class="list-group-item list-group-item-action py-3 lh-sm">
+            <div class="d-flex w-100 align-items-center justify-content-end">
+              <!-- Форматирование даты и времени с использованием Thymeleaf -->
+              <small class="fw-bold" th:text="${#temporals.format(history.getSaveAt(), 'yyyy-MM-dd HH:mm:ss')}"></small>
+            </div>
+            <div class="col-10 small" th:text="${history.getText()}">Text</div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 </div>
 
 
@@ -654,6 +687,10 @@
     const eventModal = document.getElementById('eventModalForUsers');
     $(eventModal).modal('show');
   });
+  document.getElementById("historyGroup").addEventListener("click",function (){
+    const eventModal = document.getElementById('historyModal');
+    $(eventModal).modal('show');
+  });
 
   document.getElementById("addedNewOwner").addEventListener("click",function (){
     const eventModal = document.getElementById('eventModalAddNewOwner');
@@ -667,6 +704,7 @@
       localStorage.removeItem("showModal");
     }
   });
+
   document.getElementById('addNewOwnerForm').addEventListener('submit', function() {
     let ownerId = parseInt(document.getElementById("currentUserId").value, 10);
     let newOwnerId = parseInt(document.getElementById("selectedOwnerId").value, 10);

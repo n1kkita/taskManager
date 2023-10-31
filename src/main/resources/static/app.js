@@ -248,14 +248,15 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('notificationChange');
         changeButton.addEventListener("click", function (event) {
             event.preventDefault();
-
+            const ownerId = document.getElementById("currentUserId").value;
             const taskId = id; // замените на актуальный ID задачи
             const taskData = {
                 title: inputTitle.value,
                 description: inputDescription.value,
                 dateOfStart: new Date(inputDateStart.value).toISOString(),
                 dateOfEnd: new Date(inputDateEnd.value).toISOString(),
-                userId: selectedUser.value
+                userId: selectedUser.value,
+                ownerId: ownerId
             };
 
             fetch(`/tasks/${taskId}`, {
@@ -441,6 +442,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const dateOfStartInput = document.getElementById('dateOfStart');
         const dateOfEndInput = document.getElementById('dateOfEnd');
         const notificationCreate = document.getElementById('notificationCreate');
+        const ownerId = document.getElementById('currentUserId').value;
 
 
         const dateOfStart = new Date(dateOfStartInput.value).toISOString(); // Преобразование в стандартный ISO8601 формат
@@ -456,6 +458,7 @@ document.addEventListener('DOMContentLoaded', function() {
             dateOfEnd: dateOfEnd,
             groupId: groupId,
             userId: userId,
+            ownerId: ownerId
         };
 
         fetch('/tasks', {

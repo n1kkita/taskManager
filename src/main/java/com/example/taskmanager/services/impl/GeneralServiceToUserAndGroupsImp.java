@@ -4,6 +4,7 @@ import com.example.taskmanager.dto.UserDto;
 import com.example.taskmanager.models.GroupEntity;
 import com.example.taskmanager.models.User;
 import com.example.taskmanager.services.interfaceses.GeneralServiceToUserAndGroups;
+import com.example.taskmanager.services.interfaceses.GroupHistoryService;
 import com.example.taskmanager.services.interfaceses.GroupService;
 import com.example.taskmanager.services.interfaceses.UserService;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import java.util.List;
 public class GeneralServiceToUserAndGroupsImp implements GeneralServiceToUserAndGroups {
     private final UserService userService;
     private final GroupService groupService;
+    private final GroupHistoryService groupHistoryService;
     @Override
     public List< UserDto > getAllUsersFromGroupById(Long idGroup){
         return groupService.getById(idGroup)
