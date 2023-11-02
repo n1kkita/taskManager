@@ -293,36 +293,44 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     const notificationCompeted = document.getElementById('notificationCompeted');
-    document.getElementById('completedButton').addEventListener('click',function () {
+    document.getElementById('completedButton').addEventListener('click', function () {
+        const fileInput = document.getElementById('fileInput');
+        const uploadForm = document.getElementById('uploadForm');
+        const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+        loadingModal.show();
+        // Создаем новый объект FormData и добавляем в него файл
+        const formData = new FormData();
+        formData.append('file', fileInput.files[0]);
+
+        // Выполняем запрос с использованием Fetch API
         fetch(`/tasks/${id}`, {
             method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json'
-            }
+            body: formData, // Отправляем FormData, содержащий файл
         })
             .then(response => response.json())
             .then(data => {
+                loadingModal.hide();
                 // Обработка успешного ответа от сервера
                 console.log('Task updated:', data);
-                // Найти событие по айди
                 const event = calendar.getEventById(id);
 
                 console.log(event);
                 if (event) {
-                    event.setProp('backgroundColor',  getBackgroundColorByStatus('DONE'));
+
+                    event.setProp('backgroundColor', getBackgroundColorByStatus('DONE'));
                     event.setProp('borderColor', getBorderColorByStatus('DONE'));
 
                     notificationCompeted.style.display = 'block';
-                    notificationCompeted.classList.add('show'); // Добавляем класс для анимации
+                    notificationCompeted.classList.add('show');
                     setTimeout(() => {
-                        // Скрываем уведомление через 2 секунды
-                        notificationCompeted.style.display='none'
-                        notificationCompeted.classList.remove('show'); // Удаляем класс для анимации
+                        notificationCompeted.style.display = 'none';
+                        notificationCompeted.classList.remove('show');
                     }, 4000);
                 }
-
             })
             .catch(error => {
+                loadingModal.hide();
+
                 // Обработка ошибки
                 console.error('Error updating task:', error);
                 const event = calendar.getEventById(id);
@@ -330,19 +338,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log(event);
 
                 if (event) {
-                    event.setProp('backgroundColor',  getBackgroundColorByStatus('DONE'));
+                    event.setProp('backgroundColor', getBackgroundColorByStatus('DONE'));
                     event.setProp('borderColor', getBorderColorByStatus('DONE'));
                     notificationCompeted.style.display = 'block';
-                    notificationCompeted.classList.add('show'); // Добавляем класс для анимации
+                    notificationCompeted.classList.add('show');
                     setTimeout(() => {
-                        // Скрываем уведомление через 2 секунды
-                        notificationCompeted.style.display='none'
-                        notificationCompeted.classList.remove('show'); // Удаляем класс для анимации
+                        notificationCompeted.style.display = 'none';
+                        notificationCompeted.classList.remove('show');
                     }, 4000);
                 }
-
             });
+
+        // Предотвращаем отправку формы по умолчанию
+        e.preventDefault();
     });
+
 
     const deleteButton = document.getElementById('deleteButton');
     const notification = document.getElementById('notificationDelete');

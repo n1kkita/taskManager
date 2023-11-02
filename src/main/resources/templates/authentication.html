@@ -44,6 +44,11 @@
       </a>
       </div>
       <br>
+      <div th:if="${param.errorNoAuthenticationUser}">
+        <div class="alert alert-danger">
+          Please log in
+        </div>
+      </div>
       <div th:if="${param.error}">
         <div class="alert alert-danger">
           Either password or <nav></nav>

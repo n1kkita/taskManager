@@ -246,6 +246,11 @@
             <ion-icon name="checkmark-outline" style="font-size: 1.7rem; vertical-align: middle;"></ion-icon>
           </button>
 
+          <form method="POST" enctype="multipart/form-data" id="uploadForm">
+            <input type="file" name="file" id="fileInput">
+            <input type="submit" value="Загрузить файл">
+          </form>
+
           <button class="btn btn-danger rounded-pill px-2" type="button" id="deleteButton" data-bs-dismiss="modal">
             <ion-icon name="trash-outline" style="font-size: 1.7rem; vertical-align: middle;"></ion-icon>
           </button>
@@ -384,7 +389,6 @@
 </div>
 </div>
 
-
 <div id="notificationDelete" class="notification fast" style="background-color: rgba(57, 255, 0, 0.4);">
   <span class="notification-text">Завдання успішно видаленно!</span>
   <ion-icon name="checkmark-outline" class="notification-icon"></ion-icon>
@@ -409,9 +413,24 @@
   <span class="notification-text">Завдання створено!</span>
   <ion-icon name="save-outline" class="notification-icon"></ion-icon>
 </div>
+<button id="test">Button</button>
+
+
+<div class="modal fade" id="loadingModal" tabindex="-1" role="dialog"  aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-body text-center">
+        <div class="spinner-border text-primary m-2" style="width: 3rem; height: 3rem;" role="status">
+          <span class="sr-only"></span>
+        </div>
+        <p class="mt-2">Йде обробка запиту...</p>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 <script>
-
   document.addEventListener("DOMContentLoaded", function () {
     const leaveTheGroup = document.getElementById('leaveTheGroup');
 
@@ -442,6 +461,10 @@
   });
   document.getElementById("owner_selected").addEventListener("change", function() {
     document.getElementById("selectedOwnerId").value = this.value;
+  });
+  document.getElementById("test").addEventListener("click", function() {
+    const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+    loadingModal.show();
   });
 
   document.addEventListener("DOMContentLoaded", function () {

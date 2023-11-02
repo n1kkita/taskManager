@@ -1,10 +1,13 @@
 package com.example.taskmanager.events.listiners;
 
 import com.example.taskmanager.dto.TaskDto;
+import com.example.taskmanager.events.PerformingTaskWithSendingFile;
 import com.example.taskmanager.events.UpdateTaskStatusEvent;
 import com.example.taskmanager.models.Status;
 import com.example.taskmanager.services.impl.email.EmailSenderService;
+import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Component;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -39,6 +42,10 @@ public class EventListener {
 
         String htmlContent = templateEngine.process("notificationOfCreateTask", context);
         emailSenderService.send(htmlContent, task.getEmail(), "Task status update :)");
+    }
+    @org.springframework.context.event.EventListener
+    public void event(PerformingTaskWithSendingFile event) {
+        emailSenderService.sendWithFile("Task was completed",event.getFile());
     }
 
     public String getColorByStatus(Status status) {

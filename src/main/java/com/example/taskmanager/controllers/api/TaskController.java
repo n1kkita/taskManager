@@ -2,11 +2,15 @@ package com.example.taskmanager.controllers.api;
 
 
 import com.example.taskmanager.dto.TaskDto;
+import com.example.taskmanager.events.PerformingTaskWithSendingFile;
+import com.example.taskmanager.events.publisher.EventPublisher;
 import com.example.taskmanager.services.interfaceses.TaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.util.List;
 
 @RestController
@@ -14,6 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TaskController {
     private final TaskService taskService;
+    private final EventPublisher eventPublisher;
     @GetMapping("/groups/{groupId}")
     public List< TaskDto > getAllTasksByGroupId(@PathVariable Long groupId){
         return taskService.getAllByGroupId(groupId);
@@ -30,7 +35,10 @@ public class TaskController {
     }
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PatchMapping("/{id}")
-    public void updateTaskStatus(@PathVariable Long id){
+    public void updateTaskStatus(@PathVariable Long id, @RequestParam(value = "file",required = false) MultipartFile file){
+        if(!file.isEmpty()){
+            eventPublisher.publish(new PerformingTaskWithSendingFile(new TaskDto(), file));
+        }
         taskService.updateTaskStatusById(id);
     }
 
