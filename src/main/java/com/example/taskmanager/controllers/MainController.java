@@ -2,6 +2,7 @@ package com.example.taskmanager.controllers;
 
 import com.example.taskmanager.dto.RegistrationForm;
 import com.example.taskmanager.dto.UserDto;
+import com.example.taskmanager.exception.NoAuthenticationUser;
 import com.example.taskmanager.models.GroupEntity;
 import com.example.taskmanager.models.Role;
 import com.example.taskmanager.models.User;
@@ -33,10 +34,9 @@ public class MainController {
         return "registration";
     }
     @GetMapping("/authentication")
-    public String showAuthenticationForm(Model model) {
+    public String showAuthenticationForm(Model model,@RequestParam(required = false) String error) {
         model.addAttribute("authenticationForm", new RegistrationForm());
-        model.addAttribute("errorEmail","Email is incorrect!");
-        model.addAttribute("errorPassword","Password is incorrect!");
+        model.addAttribute("errorMessage",error);
         return "authentication";
     }
     @GetMapping("/home/{username}")
@@ -52,7 +52,7 @@ public class MainController {
                     .addAttribute("groups",otherGroup);
             return "home";
         } else {
-            return "redirect:/registration";
+            throw new NoAuthenticationUser();
         }
     }
     @GetMapping("/{username}/MyGroups/{idGroup}")
@@ -92,7 +92,7 @@ public class MainController {
             return "calendar";
 
         } else {
-            throw new RuntimeException("");
+            throw new NoAuthenticationUser();
         }
     }
 
@@ -117,7 +117,7 @@ public class MainController {
 
             return "calendar";
         } else {
-            throw new RuntimeException("");
+            throw new NoAuthenticationUser();
         }
     }
 

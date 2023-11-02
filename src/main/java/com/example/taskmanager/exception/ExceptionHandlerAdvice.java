@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @ControllerAdvice
 public class ExceptionHandlerAdvice {
@@ -28,4 +29,13 @@ public class ExceptionHandlerAdvice {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(ex.getMessage());
     }
+
+    @ExceptionHandler(NoAuthenticationUser.class)
+    public String handleDuplicateNoAuthenticationUser(NoAuthenticationUser ex, RedirectAttributes redirectAttributes){
+        redirectAttributes.addAttribute("errorNoAuthenticationUser",ex.getMessage());
+
+        return "redirect:/authentication";
+    }
+
+
 }
