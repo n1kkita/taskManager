@@ -28,7 +28,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public List< TaskDto > getAllByGroupId(Long groupId) {
         return taskRepository.findAllByGroupId(groupId).stream()
-                .peek(task -> util.checkStatus(task.getStatus(),task.getDateOfStart(),task.getDateOfEnd(),task.getId())
+                .peek(task -> task.setStatus(util.checkStatus(task.getStatus(),task.getDateOfStart(),task.getDateOfEnd(),task.getId()))
                 ).toList();
     }
     @Override
@@ -51,7 +51,8 @@ public class TaskServiceImpl implements TaskService {
                 .status(Status.CREATED)
                 .build();
         taskRepository.save(task);
-        util.checkStatus(task.getStatus(),task.getDateOfStart(),task.getDateOfEnd(),task.getId());
+        Status status = util.checkStatus(task.getStatus(), task.getDateOfStart(), task.getDateOfEnd(), task.getId());
+        task.setStatus(status);
 
         String text = String.format("%s, назнавич задачу '%s', %s",owner.getEmail(),task.getTitle(),user.getEmail());
         groupHistoryService.save(group,text);
@@ -88,7 +89,10 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public void updateTaskStatusById(Long id) {
+    public void updateTaskStatusToCompletedById(Long id) {
         taskRepository.findById(id).ifPresent(task -> task.setStatus(Status.DONE));
+    }
+    public void updateTaskStatusById(Long id,Status status) {
+        taskRepository.findById(id).ifPresent(task -> task.setStatus(status));
     }
 }

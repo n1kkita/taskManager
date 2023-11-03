@@ -9,6 +9,6 @@ public interface TaskService {
     TaskDto saveTask(TaskDto taskDto);
     void deleteById(Long id);
     void updateTaskById(Long id, TaskDto task);
-    void updateTaskStatusById(Long id);
+    void updateTaskStatusToCompletedById(Long id);
 
 }

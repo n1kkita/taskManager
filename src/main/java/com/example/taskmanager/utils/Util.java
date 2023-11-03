@@ -37,19 +37,15 @@ public class Util {
     @Transactional
     public Status checkStatus(Status status,Date dateOfStart,Date dateOfEnd,Long id){
         var currentDate = new Date();
-        Task task = taskRepository.findById(id).orElseThrow();
-
         if(status.equals(Status.CREATED) || !status.equals(Status.DONE) ){
 
             //Если дата окончания задания прошла до текущей даты меняем статус на NOT_DONE
             if(dateOfEnd.before(currentDate)) {
-                task.setStatus(Status.NOT_DONE);
-                return task.getStatus();
+                return Status.NOT_DONE;
             }
             //Если текущая дата подошла к началу задания меняем статус IN_PROCESS
             if(currentDate.after(dateOfStart)) {
-                task.setStatus(Status.IN_PROCESS);
-                return task.getStatus();
+                return Status.IN_PROCESS;
             }
 
         }

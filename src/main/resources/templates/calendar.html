@@ -193,10 +193,10 @@
     <div class="modal-content">
       <div id="head" class="card-header">
         <div class="d-flex align-items-center">
-          <h5 class="modal-title m-3 me-2" id="eventModalLabel" style="font-size: 24px">Інформация про завдання</h5>
+          <h5 class="modal-title m-3 me-2" id="eventModalLabel" style="font-size: 24px">Інформація про завдання</h5>
           <ion-icon class="fs-1" name="clipboard-outline" style="margin-left: auto;"></ion-icon>
         </div>
-        <div class="d-flex align-items-center">
+        <div class="d-flex align-items-center" style="margin-right: 10px;">
           <button class="btn rounded-pill px-2" type="button" style="background-color: #f55a40;color: white;" data-bs-dismiss="modal">
             <ion-icon name="close" style="font-size: 1.7rem; vertical-align: middle;"></ion-icon>
           </button>
@@ -246,14 +246,17 @@
             <ion-icon name="checkmark-outline" style="font-size: 1.7rem; vertical-align: middle;"></ion-icon>
           </button>
 
-          <form method="POST" enctype="multipart/form-data" id="uploadForm">
-            <input type="file" name="file" id="fileInput">
-            <input type="submit" value="Загрузить файл">
-          </form>
-
           <button class="btn btn-danger rounded-pill px-2" type="button" id="deleteButton" data-bs-dismiss="modal">
             <ion-icon name="trash-outline" style="font-size: 1.7rem; vertical-align: middle;"></ion-icon>
           </button>
+        </div>
+        <hr>
+        <div id="drop-zone" class="hoverable">
+          <span id="text">Кликните или перетащите файлы сюда</span>
+        </div>
+        <hr>
+        <div id="selected-files-info">
+
         </div>
       </div>
     </div>
@@ -369,20 +372,25 @@
   </div>
 </div>
 <div th:if="${mode == mode.ROLE_ADMIN}">
-<div class="modal fade" id="historyModal" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content p-3">
-      <h3>History</h3>
-      <div class="list-group list-group-flush border-bottom scrollarea">
-        <div th:each="history : ${group.getHistories()}">
-          <a href="#" class="list-group-item list-group-item-action py-3 lh-sm">
-            <div class="d-flex w-100 align-items-center justify-content-end">
-              <!-- Форматирование даты и времени с использованием Thymeleaf -->
-              <small class="fw-bold" th:text="${#temporals.format(history.getSaveAt(), 'yyyy-MM-dd HH:mm:ss')}"></small>
+<div class="modal fade" id="historyModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="exampleModalScrollableTitle">History</h3>
+        <button class="btn rounded-pill px-2" type="button" style="background-color: #f55a40;color: white;" data-bs-dismiss="modal">
+          <ion-icon name="close" style="font-size: 1.7rem; vertical-align: middle;"></ion-icon>
+        </button>
+      </div>
+      <div class="modal-body">
+          <div class="list-group list-group-flush border-bottom scrollarea">
+            <div th:each="history : ${group.getHistories()}">
+              <a href="#" class="list-group-item list-group-item-action py-3 lh-sm">
+                <div class="d-flex w-100 align-items-center justify-content-end">
+                  <small class="fw-bold" th:text="${#temporals.format(history.getSaveAt(), 'yyyy-MM-dd HH:mm:ss')}"></small>
+                </div>
+                <div class="col-10 small" th:text="${history.getText()}">Text</div>
+              </a>
             </div>
-            <div class="col-10 small" th:text="${history.getText()}">Text</div>
-          </a>
-        </div>
       </div>
     </div>
   </div>
@@ -750,6 +758,6 @@
 <script src="/app.js"></script>
 <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
 <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
-</body>
+</div>
 </html>
 

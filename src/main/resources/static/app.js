@@ -291,6 +291,96 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
         });
     });
+    var dropZone = document.getElementById('drop-zone');
+    const selectedfiles = document.getElementById("selected-files-info");
+    var files = [];
+
+    // Обработчик события перетаскивания
+    dropZone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        dropZone.classList.add('drag-over');
+    });
+
+    dropZone.addEventListener('click', function() {
+        var fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.multiple = true; // Разрешить выбор нескольких файлов
+        fileInput.style.display = 'none';
+
+        fileInput.addEventListener('change', function() {
+            var newSelectedFiles = Array.from(fileInput.files);
+            files = files.concat(newSelectedFiles);
+            handleDroppedFiles(files);
+        });
+
+        document.body.appendChild(fileInput);
+        fileInput.click();
+        document.body.removeChild(fileInput);
+    });
+
+    // Обработчик события отпускания файлов
+    dropZone.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        dropZone.classList.remove('drag-over');
+    });
+
+    // Обработчик события бросания файлов
+    dropZone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        dropZone.classList.remove('drag-over');
+        var newSelectedFiles = Array.from( e.dataTransfer.files);
+        files = files.concat(newSelectedFiles);
+        handleDroppedFiles(files);
+    });
+
+    // Функция для обработки перетащенных файлов
+    function handleDroppedFiles(files) {
+        console.log(files);
+        selectedfiles.innerText="";
+        for (var i = 0; i < files.length; i++) {
+            var file = files[i];
+
+            // Создаем элемент для отображения информации о файле
+            var fileInfo = document.createElement('p');
+
+            // Создаем элемент span с крестиком для удаления файла
+            var removeButton = document.createElement('span');
+            removeButton.textContent = '✖️';
+            removeButton.style.cursor = 'pointer';
+            removeButton.style.marginRight = '10px';
+
+            // Добавляем обработчик события для удаления файла
+            removeButton.addEventListener('click', createRemoveHandler(file, fileInfo));
+
+            // Создаем текстовое содержание для файла
+            var fileNameText = document.createElement('span');
+            fileNameText.textContent = file.name;
+
+            // Добавляем элементы в элемент fileInfo
+            fileInfo.appendChild(removeButton);
+            fileInfo.appendChild(fileNameText);
+
+            // Добавляем элемент fileInfo в зону selected-files-info
+            selectedfiles.appendChild(fileInfo);
+
+            // Здесь можно выполнить необходимую обработку файлов, например, загрузить их на сервер
+        }
+
+        // Функция для создания обработчика события удаления файла
+        function createRemoveHandler(file, fileInfo) {
+            return function() {
+                var index = files.indexOf(file);
+                if (index !== -1) {
+                    files.splice(index, 1);
+                    selectedfiles.removeChild(fileInfo);
+                }
+                console.log(files);
+            };
+        }
+    }
+
+
+
 
     const notificationCompeted = document.getElementById('notificationCompeted');
     document.getElementById('completedButton').addEventListener('click', function () {
@@ -300,9 +390,11 @@ document.addEventListener('DOMContentLoaded', function() {
         loadingModal.show();
         // Создаем новый объект FormData и добавляем в него файл
         const formData = new FormData();
-        formData.append('file', fileInput.files[0]);
+        formData.append('file', files[0]);
 
-        // Выполняем запрос с использованием Fetch API
+        console.log(files)
+
+        /*// Выполняем запрос с использованием Fetch API
         fetch(`/tasks/${id}`, {
             method: 'PATCH',
             body: formData, // Отправляем FormData, содержащий файл
@@ -350,7 +442,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
         // Предотвращаем отправку формы по умолчанию
-        e.preventDefault();
+        e.preventDefault();*/
     });
 
 
