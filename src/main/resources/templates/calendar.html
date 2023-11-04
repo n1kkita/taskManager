@@ -66,6 +66,7 @@
     <path d="M1 2.5A1.5 1.5 0 0 1 2.5 1h3A1.5 1.5 0 0 1 7 2.5v3A1.5 1.5 0 0 1 5.5 7h-3A1.5 1.5 0 0 1 1 5.5v-3zM2.5 2a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zm6.5.5A1.5 1.5 0 0 1 10.5 1h3A1.5 1.5 0 0 1 15 2.5v3A1.5 1.5 0 0 1 13.5 7h-3A1.5 1.5 0 0 1 9 5.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zM1 10.5A1.5 1.5 0 0 1 2.5 9h3A1.5 1.5 0 0 1 7 10.5v3A1.5 1.5 0 0 1 5.5 15h-3A1.5 1.5 0 0 1 1 13.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zm6.5.5A1.5 1.5 0 0 1 10.5 9h3a1.5 1.5 0 0 1 1.5 1.5v3a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 13.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3z"></path>
   </symbol>
 </svg>
+
 <div class="row">
   <div class="col-md-1">
     <div class="d-flex flex-column flex-shrink-0 bg-body-tertiary" style="width: 7.0rem; height: 100%">
@@ -96,18 +97,16 @@
           </button>
           <hr>
         </li>
+        </div>
         <li>
           <button class="btn rounded-pill px-2" id="historyGroup">
             <ion-icon name="file-tray-full-outline" style="font-size: 1.5rem; vertical-align: middle;"></ion-icon>
           </button>
           <hr>
         </li>
-        </div>
       </ul>
     </div>
   </div>
-
-
   <div class="col-md-10">
     <div class="card mt-4" style="max-width: 100%;">
       <div class="card-header" style="background-color: #faf7f7">
@@ -116,13 +115,13 @@
           <h4 th:text="'Ви:' + ${username}"> UserLogin </h4>
           <h4 th:text="'Ваша роль:' + ${mode}"> Role </h4>
           <div th:if="${mode != mode.ROLE_ADMIN}">
-          <form id="leaveTheGroup">
-            <input type="hidden" name="idUser" th:value="${currentUserId}">
-            <input type="hidden" name="idGroup" th:value="${idGroup}">
-            <button class="btn btn-danger rounded-pill px-2" type="submit">
-              Покинути групу
-            </button>
-          </form>
+            <form id="leaveTheGroup">
+              <input type="hidden" name="idUser" th:value="${currentUserId}">
+              <input type="hidden" name="idGroup" th:value="${idGroup}">
+              <button class="btn btn-danger rounded-pill px-2" type="submit">
+                Покинути групу
+              </button>
+            </form>
           </div>
         </div>
         <h2 class="text-center">MyTaskManager</h2>
@@ -137,10 +136,10 @@
     </div>
   </div>
 </div>
+
 <script src="/docs/5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
 <script src="sidebars.js"></script>
 </body>
-
 
 <div th:if="${mode == mode.ROLE_ADMIN}">
 <div class="modal fade" id="eventModalNew" tabindex="-1" role="dialog" aria-labelledby="eventModalLabel" aria-hidden="true">
@@ -213,7 +212,6 @@
           <p class="modal-title m-0" id="eventDescription" style="align-self: center;">Опис</p>
         </div>
         <hr>
-
         <div class="d-flex align-items-center">
           <ion-icon class="fs-1 me-2" name="document-text-outline"></ion-icon>
           <div style="display: flex; flex-direction: column;">
@@ -221,7 +219,6 @@
             <p class="modal-title m-0" id="eventUser" style="align-self: left; font-size: 18px; font-weight: bold;"></p>
           </div>
         </div>
-
         <hr>
         <div class="d-flex align-items-center">
           <ion-icon class="fs-1 me-2" name="calendar-number-outline"></ion-icon>
@@ -256,12 +253,12 @@
         </div>
         <hr>
         <div id="selected-files-info">
-
         </div>
       </div>
     </div>
   </div>
 </div>
+
 <div th:if="${mode == mode.ROLE_ADMIN}">
   <div class="modal fade" id="eventModalForUsers" tabindex="-1" role="dialog" aria-labelledby="eventModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
@@ -273,24 +270,24 @@
                 <strong>В группі не має інших людей</strong>
               </div>
               <div th:unless="${usersInGroupWithoutOwners.isEmpty()}" th:each="deleteUser : ${usersInGroupWithoutOwners}" style="display: flex">
-              <div class="input-group flex-nowrap" style="display: block;">
-              <form th:method="DELETE" id="deleteForm">
-                  <input type="hidden" name="_method" value="DELETE">
-                  <div class="row">
-                    <div class="col-md-4" >
-                      <small th:text="${deleteUser.name}"></small><nav></nav>
-                      <strong th:text="${deleteUser.username}"></strong>
-                    </div><div class="col-md-2"></div>
-                    <input type="hidden" th:value="${deleteUser.id}" name="idUser">
-                    <input type="hidden" th:value="${groupId}" name="idGroup">
-                    <div class="col-md-6">
-                      <button class="btn" type="submit" style="background-color: #f53030;color: white;"> Видалити с групи </button>
+                <div class="input-group flex-nowrap" style="display: block;">
+                  <form th:method="DELETE" id="deleteForm">
+                    <input type="hidden" name="_method" value="DELETE">
+                    <div class="row">
+                      <div class="col-md-4" >
+                        <small th:text="${deleteUser.name}"></small><nav></nav>
+                        <strong th:text="${deleteUser.username}"></strong>
+                      </div><div class="col-md-2"></div>
+                      <input type="hidden" th:value="${deleteUser.id}" name="idUser">
+                      <input type="hidden" th:value="${groupId}" name="idGroup">
+                      <div class="col-md-6">
+                        <button class="btn" type="submit" style="background-color: #f53030;color: white;"> Видалити с групи </button>
+                      </div>
                     </div>
-                  </div>
-                  <hr>
-                </form>
+                    <hr>
+                  </form>
+                </div>
               </div>
-            </div>
             </div>
             <div class="col-md-4">
               <div style="color: #172940; display: block">
@@ -340,38 +337,37 @@
     </div>
   </div>
 </div>
-</div>
 
-<div>
-  <div th:if="${mode == mode.ROLE_ADMIN}">
-    <div class="modal fade" id="eventModalAddNewOwner" tabindex="-1" role="dialog" aria-labelledby="eventModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content p-3">
-          <div style="display: block;">
-            <h3 class="mb-3">Додати нового власника до групи</h3>
-            <form id="addNewOwnerForm">
-              <div class="form-group">
-                <select id="owner_selected" class="form-select" aria-label="Default select example">
-                  <option selected disabled>Выберите пользователя</option>
-                  <option th:each="user : ${usersInGroupWithoutOwners}" th:value="${user.id}">
+
+<div th:if="${mode == mode.ROLE_ADMIN}">
+  <div class="modal fade" id="eventModalAddNewOwner" tabindex="-1" role="dialog" aria-labelledby="eventModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content p-3">
+        <div style="display: block;">
+          <h3 class="mb-3">Додати нового власника до групи</h3>
+          <form id="addNewOwnerForm">
+            <div class="form-group">
+              <select id="owner_selected" class="form-select" aria-label="Default select example">
+                <option selected disabled>Выберите пользователя</option>
+                <option th:each="user : ${usersInGroupWithoutOwners}" th:value="${user.id}">
                   <span>
                   <strong th:text="${user.name}"></strong>
                   <small th:text="'('+${user.username}+')'"></small>
                 </span>
-                  </option>
-                </select>
-              </div>
-              <br>
-              <input type="hidden" id="selectedOwnerId" name="selectedUserId">
-              <input type="submit" value="Додати" id="addNewOwnerButton" class="btn btn-primary" data-bs-dismiss="modal">
-            </form>
-          </div>
+                </option>
+              </select>
+            </div>
+            <br>
+            <input type="hidden" id="selectedOwnerId" name="selectedUserId">
+            <input type="submit" value="Додати" id="addNewOwnerButton" class="btn btn-primary" data-bs-dismiss="modal">
+          </form>
         </div>
       </div>
     </div>
   </div>
 </div>
-<div th:if="${mode == mode.ROLE_ADMIN}">
+
+
 <div class="modal fade" id="historyModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true">
   <div class="modal-dialog modal-dialog-scrollable" role="document">
     <div class="modal-content">
@@ -382,20 +378,21 @@
         </button>
       </div>
       <div class="modal-body">
-          <div class="list-group list-group-flush border-bottom scrollarea">
-            <div th:each="history : ${group.getHistories()}">
-              <a href="#" class="list-group-item list-group-item-action py-3 lh-sm">
-                <div class="d-flex w-100 align-items-center justify-content-end">
-                  <small class="fw-bold" th:text="${#temporals.format(history.getSaveAt(), 'yyyy-MM-dd HH:mm:ss')}"></small>
-                </div>
-                <div class="col-10 small" th:text="${history.getText()}">Text</div>
-              </a>
-            </div>
+        <div class="list-group list-group-flush border-bottom scrollarea">
+          <div th:each="history : ${group.getHistories()}">
+            <a href="#" class="list-group-item list-group-item-action py-3 lh-sm">
+              <div class="d-flex w-100 align-items-center justify-content-end">
+                <small class="fw-bold" th:text="${#temporals.format(history.getSaveAt(), 'yyyy-MM-dd HH:mm:ss')}"></small>
+              </div>
+              <div class="col-10 small" th:text="${history.getText()}">Text</div>
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </div>
-</div>
+
 
 <div id="notificationDelete" class="notification fast" style="background-color: rgba(57, 255, 0, 0.4);">
   <span class="notification-text">Завдання успішно видаленно!</span>
@@ -421,7 +418,6 @@
   <span class="notification-text">Завдання створено!</span>
   <ion-icon name="save-outline" class="notification-icon"></ion-icon>
 </div>
-<button id="test">Button</button>
 
 
 <div class="modal fade" id="loadingModal" tabindex="-1" role="dialog"  aria-hidden="true">
@@ -460,6 +456,10 @@
       })
     });
   });
+  document.getElementById("historyGroup").addEventListener("click",function (){
+    const eventModal = document.getElementById('historyModal');
+    $(eventModal).modal('show');
+  });
 
   // Обработчик изменения выбранного пользователя
   document.getElementById("user_selected").addEventListener("change", function() {
@@ -470,10 +470,25 @@
   document.getElementById("owner_selected").addEventListener("change", function() {
     document.getElementById("selectedOwnerId").value = this.value;
   });
-  document.getElementById("test").addEventListener("click", function() {
-    const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
-    loadingModal.show();
+
+  document.getElementById("addedSearchDeleteUsers").addEventListener("click",function (){
+    const eventModal = document.getElementById('eventModalForUsers');
+    $(eventModal).modal('show');
   });
+
+  document.getElementById("addedNewOwner").addEventListener("click",function (){
+    const eventModal = document.getElementById('eventModalAddNewOwner');
+    $(eventModal).modal('show');
+  });
+
+  document.addEventListener('DOMContentLoaded', function() {
+    if (localStorage.getItem('showModal') === 'true') {
+      const eventModal = document.getElementById('eventModalForUsers');
+      $(eventModal).modal('show');
+      localStorage.removeItem("showModal");
+    }
+  });
+
 
   document.addEventListener("DOMContentLoaded", function () {
     const deleteForms = document.querySelectorAll("form#deleteForm");
@@ -711,28 +726,6 @@
               .catch(error => {
                 console.error("Error during search:", error);
               });
-    }
-  });
-
-  document.getElementById("addedSearchDeleteUsers").addEventListener("click",function (){
-    const eventModal = document.getElementById('eventModalForUsers');
-    $(eventModal).modal('show');
-  });
-  document.getElementById("historyGroup").addEventListener("click",function (){
-    const eventModal = document.getElementById('historyModal');
-    $(eventModal).modal('show');
-  });
-
-  document.getElementById("addedNewOwner").addEventListener("click",function (){
-    const eventModal = document.getElementById('eventModalAddNewOwner');
-    $(eventModal).modal('show');
-  });
-
-  document.addEventListener('DOMContentLoaded', function() {
-    if (localStorage.getItem('showModal') === 'true') {
-      const eventModal = document.getElementById('eventModalForUsers');
-      $(eventModal).modal('show');
-      localStorage.removeItem("showModal");
     }
   });
 

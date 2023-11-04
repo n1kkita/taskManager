@@ -18,6 +18,6 @@ public class TaskDto {
     private Date dateOfStart;
     private Long groupId;
     private Long userId;
-    private String email;
-    private Long ownerId;
+    private String appointedUserEmail;
+    private String creatorEmail;
 }

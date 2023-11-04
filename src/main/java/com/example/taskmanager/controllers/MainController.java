@@ -40,7 +40,7 @@ public class MainController {
         return "authentication";
     }
     @GetMapping("/home/{username}")
-    public String showUserPage(@PathVariable String username,Model model,HttpSession session) {
+    public String home(@PathVariable String username,Model model,HttpSession session) {
         if(session.getAttribute(username) != null) {
             User user = (User) userService.loadUserByUsername(username);
             List<GroupEntity> otherGroup = user
@@ -57,7 +57,7 @@ public class MainController {
     }
     @GetMapping("/{username}/MyGroups/{idGroup}")
     @SneakyThrows
-    public String showMyGroupPage(@PathVariable Long idGroup,
+    public String MyGroup(@PathVariable Long idGroup,
                                   @PathVariable String username,
                                   @RequestParam(name = "page",defaultValue = "0") int page,
                                   HttpSession session,
@@ -97,7 +97,7 @@ public class MainController {
     }
 
     @GetMapping("/{username}/otherGroups/{idGroup}")
-    public String showHomePage(@PathVariable String username,@PathVariable Long idGroup,Model model,HttpSession session){
+    public String otherGroup(@PathVariable Long idGroup, @PathVariable String username,Model model,HttpSession session){
         if(session.getAttribute(username) != null) {
             User user = (User) userService.loadUserByUsername(username);
 
@@ -111,9 +111,10 @@ public class MainController {
             model.addAttribute("mode", Role.ROLE_USER)
                     .addAttribute("currentUserId", user.getId())
                     .addAttribute("username", user.getEmail())
-                    .addAttribute("groupId", group.getId())
+                    .addAttribute("groupId", idGroup)
                     .addAttribute("groupName", group.getName())
-                    .addAttribute("users", users);
+                    .addAttribute("users", users)
+                    .addAttribute("group",group);
 
             return "calendar";
         } else {

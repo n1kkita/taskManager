@@ -16,6 +16,7 @@ create table if not exists tasks (
     description varchar(255) not null,
     status enum ('CREATED','DONE','IN_PROCESS','NOT_DONE') not null,
     title varchar(255) not null, group_id bigint,
+    creator_email varchar(255) not null,
     user_id bigint, primary key (id)
 );
 create table if not exists user (

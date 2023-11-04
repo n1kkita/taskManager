@@ -3,10 +3,7 @@ package com.example.taskmanager.models;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.Date;
 
@@ -34,6 +31,8 @@ public class Task {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Status status;
+    @Column(nullable = false)
+    private String creatorEmail;
     @ManyToOne(fetch = FetchType.LAZY)
     private GroupEntity group;
     @ManyToOne(fetch = FetchType.LAZY)

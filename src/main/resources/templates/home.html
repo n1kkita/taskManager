@@ -102,7 +102,6 @@
                         <form th:action="@{/{username}/otherGroups/{idGroup}(idGroup=${group.id},username=${user.email})}">
                             <small><b>Група</b></small>
                             <small th:text="${group.name}"></small>
-                            <input type="hidden" name="idUser" th:value="${user.id}">
                             <button class="btn rounded-pill px-2" type="submit" style="background-color: #0d6efd;color: white;" >
                                 <ion-icon name="arrow-forward-outline" style="font-size: 1.5rem; vertical-align: middle;"></ion-icon>
                             </button>

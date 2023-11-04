@@ -3,6 +3,7 @@ package com.example.taskmanager.controllers.api;
 
 import com.example.taskmanager.dto.TaskDto;
 import com.example.taskmanager.events.PerformingTaskWithSendingFile;
+import com.example.taskmanager.events.UpdateTaskStatusEvent;
 import com.example.taskmanager.events.publisher.EventPublisher;
 import com.example.taskmanager.services.interfaceses.TaskService;
 import lombok.RequiredArgsConstructor;
@@ -34,11 +35,13 @@ public class TaskController {
     }
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PatchMapping("/{id}")
-    public void updateTaskStatus(@PathVariable Long id, @RequestParam(value = "file",required = false) MultipartFile file){
-        if(!file.isEmpty()){
-            eventPublisher.publish(new PerformingTaskWithSendingFile(new TaskDto(), file));
+    public void updateTaskStatus(@PathVariable Long id, @RequestParam(value = "files",required = false) MultipartFile[] files){
+        TaskDto taskDto = taskService.updateTaskStatusToCompletedById(id);
+        if(files !=null){
+            eventPublisher.publish(new PerformingTaskWithSendingFile(taskDto, files));
+        } else {
+            eventPublisher.publish(new UpdateTaskStatusEvent(taskDto)); //on a first time
         }
-        taskService.updateTaskStatusToCompletedById(id);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)

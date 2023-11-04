@@ -39,7 +39,6 @@ public class TaskServiceImpl implements TaskService {
 
         GroupEntity group = groupService.getById(taskDto.getGroupId());
         User user = userService.getUserById(taskDto.getUserId());
-        User owner = userService.getUserById(taskDto.getOwnerId());
 
         Task task = Task.builder()
                 .group(group)
@@ -49,12 +48,13 @@ public class TaskServiceImpl implements TaskService {
                 .dateOfStart(taskDto.getDateOfStart())
                 .dateOfEnd(taskDto.getDateOfEnd())
                 .status(Status.CREATED)
+                .creatorEmail(taskDto.getCreatorEmail())
                 .build();
         taskRepository.save(task);
         Status status = util.checkStatus(task.getStatus(), task.getDateOfStart(), task.getDateOfEnd(), task.getId());
         task.setStatus(status);
 
-        String text = String.format("%s, назнавич задачу '%s', %s",owner.getEmail(),task.getTitle(),user.getEmail());
+        String text = String.format("%s, назнавич задачу '%s', %s",taskDto.getCreatorEmail(),task.getTitle(),user.getEmail());
         groupHistoryService.save(group,text);
 
         taskDto.setId(task.getId());
@@ -72,25 +72,29 @@ public class TaskServiceImpl implements TaskService {
     @Transactional
     public void updateTaskById(Long id, TaskDto editTask) {
         Util.validation(editTask);
-        User owner = userService.getUserById(editTask.getOwnerId());
 
         taskRepository.findById(id).map(task -> {
-            String text = String.format("%s, редагував задачу задачу '%s' на '%s'",owner.getEmail(), task.getTitle(), editTask.getTitle());
+            String text = String.format("%s, редагував задачу задачу '%s' на '%s'",editTask.getCreatorEmail(), task.getTitle(), editTask.getTitle());
             task.setTitle(editTask.getTitle());
             task.setDescription(editTask.getDescription());
             task.setDateOfStart(editTask.getDateOfStart());
             task.setDateOfEnd(editTask.getDateOfEnd());
             task.setDateOfCreate(new Date()); //Перезаписываем дату создания
             task.setUser(userService.getUserById(editTask.getUserId()));
-            util.checkStatus(Status.CREATED,task.getDateOfStart(),task.getDateOfEnd(),task.getId());
+            task.setStatus(util.checkStatus(Status.CREATED,task.getDateOfStart(),task.getDateOfEnd(),task.getId()));
             groupHistoryService.save(task.getGroup(),text);
             return task;
         }).orElseThrow(() -> new EntityNotFoundException("Ошибка при обновлении задачи"));
     }
 
     @Override
-    public void updateTaskStatusToCompletedById(Long id) {
-        taskRepository.findById(id).ifPresent(task -> task.setStatus(Status.DONE));
+    @Transactional
+    public TaskDto updateTaskStatusToCompletedById(Long id) {
+        Task task = taskRepository.findById(id).orElseThrow();
+        task.setStatus(Status.DONE);
+
+        return new TaskDto(task.getId(), task.getTitle(), task.getDescription(), task.getStatus(), task.getDateOfEnd(),
+                task.getDateOfStart(), -1L, task.getUser().getId(), task.getUser().getEmail(), task.getCreatorEmail());
     }
     public void updateTaskStatusById(Long id,Status status) {
         taskRepository.findById(id).ifPresent(task -> task.setStatus(status));

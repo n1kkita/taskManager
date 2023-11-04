@@ -95,8 +95,8 @@ document.addEventListener('DOMContentLoaded', function() {
             eventStatus.textContent = statusName;
 
             console.log(userRole);
-            console.log(currentUserID)
-            console.log(userId)
+            console.log(currentUserID);
+            console.log(userId);
 
             if(userRole !== 'ROLE_ADMIN'){
                 editButton.style.display='none';
@@ -248,7 +248,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('notificationChange');
         changeButton.addEventListener("click", function (event) {
             event.preventDefault();
-            const ownerId = document.getElementById("currentUserId").value;
+            const username = document.getElementById("username").value;
             const taskId = id; // замените на актуальный ID задачи
             const taskData = {
                 title: inputTitle.value,
@@ -256,7 +256,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 dateOfStart: new Date(inputDateStart.value).toISOString(),
                 dateOfEnd: new Date(inputDateEnd.value).toISOString(),
                 userId: selectedUser.value,
-                ownerId: ownerId
+                creatorEmail: username
             };
 
             fetch(`/tasks/${taskId}`, {
@@ -378,23 +378,17 @@ document.addEventListener('DOMContentLoaded', function() {
             };
         }
     }
-
-
-
-
     const notificationCompeted = document.getElementById('notificationCompeted');
     document.getElementById('completedButton').addEventListener('click', function () {
-        const fileInput = document.getElementById('fileInput');
-        const uploadForm = document.getElementById('uploadForm');
         const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
         loadingModal.show();
-        // Создаем новый объект FormData и добавляем в него файл
         const formData = new FormData();
-        formData.append('file', files[0]);
-
+        // Перебираем массив files и добавляем каждый файл к formData
+        for (var i = 0; i < files.length; i++) {
+            formData.append('files', files[i]);
+        }
         console.log(files)
-
-        /*// Выполняем запрос с использованием Fetch API
+        // Выполняем запрос с использованием Fetch API
         fetch(`/tasks/${id}`, {
             method: 'PATCH',
             body: formData, // Отправляем FormData, содержащий файл
@@ -442,7 +436,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
         // Предотвращаем отправку формы по умолчанию
-        e.preventDefault();*/
+        e.preventDefault();
     });
 
 
@@ -510,8 +504,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 };
             });
 
-
-
             tasks.forEach(task => {
                 console.log('Adding event:', task.id, task.userId, task.status, task.title, task.description, task.dateOfStart, task.dateOfEnd);
                 calendar.addEvent({
@@ -544,7 +536,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const dateOfStartInput = document.getElementById('dateOfStart');
         const dateOfEndInput = document.getElementById('dateOfEnd');
         const notificationCreate = document.getElementById('notificationCreate');
-        const ownerId = document.getElementById('currentUserId').value;
+        const username = document.getElementById('username').value;
 
 
         const dateOfStart = new Date(dateOfStartInput.value).toISOString(); // Преобразование в стандартный ISO8601 формат
@@ -560,7 +552,7 @@ document.addEventListener('DOMContentLoaded', function() {
             dateOfEnd: dateOfEnd,
             groupId: groupId,
             userId: userId,
-            ownerId: ownerId
+            creatorEmail: username
         };
 
         fetch('/tasks', {
