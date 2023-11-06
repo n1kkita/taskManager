@@ -484,27 +484,8 @@ document.addEventListener('DOMContentLoaded', function() {
     fetch(`/tasks/groups/${groupId}`)
         .then(response => response.json())
         .then(tasks => {
-            calendar.setOption('eventContent', function(info) {
-                const eventElement = document.createElement('div');
-                eventElement.classList.add('p-2', 'bg-gradient-primary', 'text-white', 'rounded', 'shadow', 'd-flex', 'justify-content-between');
-
-                const titleElement = document.createElement('div');
-                titleElement.textContent = info.event.title;
-
-                const additionalInfo = document.createElement('small');
-                additionalInfo.classList.add('text-muted');
-                additionalInfo.style.fontWeight = 'bold';
-                additionalInfo.textContent = getStatus(info.event.extendedProps.status);
-
-                eventElement.appendChild(titleElement);
-                eventElement.appendChild(additionalInfo);
-
-                return {
-                    domNodes: [eventElement]
-                };
-            });
-
             tasks.forEach(task => {
+
                 console.log('Adding event:', task.id, task.userId, task.status, task.title, task.description, task.dateOfStart, task.dateOfEnd);
                 calendar.addEvent({
                     id: task.id,
@@ -517,8 +498,30 @@ document.addEventListener('DOMContentLoaded', function() {
                     display: 'block',
                     description: task.description,
                     backgroundColor: getBackgroundColorByStatus(task.status),
-                    borderColor: getBorderColorByStatus(task.status)
+                    borderColor: getBorderColorByStatus(task.status),
+                    className: className(task.userId)
                 });
+            });
+
+            calendar.setOption('eventContent', function(info) {
+                const eventElement = document.createElement('div');
+                eventElement.classList.add('p-2', 'bg-gradient-primary', 'text-white', 'rounded', 'shadow', 'd-flex', 'justify-content-between');
+
+                const titleElement = document.createElement('div');
+                titleElement.textContent = info.event.title;
+
+
+                const additionalInfo = document.createElement('small');
+                additionalInfo.classList.add('text-muted');
+                additionalInfo.style.fontWeight = 'bold';
+                additionalInfo.textContent = getStatus(info.event.extendedProps.status);
+
+                eventElement.appendChild(titleElement);
+                eventElement.appendChild(additionalInfo);
+
+                return {
+                    domNodes: [eventElement]
+                };
             });
             calendar.render();
         })
@@ -577,7 +580,8 @@ document.addEventListener('DOMContentLoaded', function() {
                             display: 'block',
                             description: task.description,
                             backgroundColor: getBackgroundColorByStatus(task.status),
-                            borderColor: getBorderColorByStatus(task.status)
+                            borderColor: getBorderColorByStatus(task.status),
+                            className: className(task.userId)
                         });
                         calendar.render();
                         // Показываем уведомление плавно
@@ -650,6 +654,17 @@ function getStatus(status) {
         case "NOT_DONE":
             return "Провалено"; // Красный цвет для NOT_DONE
     }
+}
+function className(userId){
+    var className = '';
+    let currentUserId = parseInt(document.getElementById('currentUserId').value, 10);
+    let taskUserId = parseInt(userId, 10);
+
+    if(taskUserId === currentUserId){
+        className = 'blinking-event';
+        console.log(className);
+    }
+    return className;
 }
 
 

@@ -22,6 +22,33 @@
       box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
     }
 
+    .blinking-event {
+      animation: blink 1s infinite alternate;
+      position: relative;
+      background-color: transparent; /* Сделаем фон события прозрачным */
+    }
+
+    @keyframes blink {
+      0%, 100% {
+        box-shadow: 0 0 10px rgba(50, 194, 0, 0.01); /* Тень */
+      }
+      100%{
+        box-shadow: 0 0 10px rgb(50, 194, 0); /* Тень */
+      }
+    }
+
+    .blinking-event::before {
+      content: "Ваша задача";
+      position: absolute;
+      top: -32px; /* Расстояние над событием */
+      left: 50%;
+      background-color: #32c200; /* Цвет фона текста */
+      color: #faf7f7; /* Цвет текста */
+      padding: 2px 2px; /* Отступы вокруг текста */
+      transform: translateX(-50%); /* Центрирование текста по горизонтали */
+      border-radius: 4px; /* Закругленные углы текста */
+    }
+
   </style>
 </head>
 <body style="background-color: #cecece;">
