@@ -5,8 +5,6 @@ import com.example.taskmanager.dto.TaskDto;
 import com.example.taskmanager.exception.EmptyFieldException;
 import com.example.taskmanager.exception.InvalidDateException;
 import com.example.taskmanager.models.Status;
-import com.example.taskmanager.models.Task;
-import com.example.taskmanager.repositories.TaskRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,7 +13,6 @@ import java.util.Date;
 @Component
 @RequiredArgsConstructor
 public class Util {
-    private final TaskRepository taskRepository;
 
     public static void validation(TaskDto taskDto){
         //Проверка на корректность данных
@@ -35,7 +32,7 @@ public class Util {
         }
     }
     @Transactional
-    public Status checkStatus(Status status,Date dateOfStart,Date dateOfEnd,Long id){
+    public Status checkStatus(Status status,Date dateOfStart,Date dateOfEnd){
         var currentDate = new Date();
         if(status.equals(Status.CREATED) || !status.equals(Status.DONE) ){
 
