@@ -28,7 +28,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public List< TaskDto > getAllByGroupId(Long groupId) {
         return taskRepository.findAllByGroupId(groupId).stream()
-                .peek(task -> task.setStatus(util.checkStatus(task.getStatus(),task.getDateOfStart(),task.getDateOfEnd(),task.getId()))
+                .peek(task -> task.setStatus(util.checkStatus(task.getStatus(),task.getDateOfStart(),task.getDateOfEnd()))
                 ).toList();
     }
     @Override
@@ -51,7 +51,7 @@ public class TaskServiceImpl implements TaskService {
                 .creatorEmail(taskDto.getCreatorEmail())
                 .build();
         taskRepository.save(task);
-        Status status = util.checkStatus(task.getStatus(), task.getDateOfStart(), task.getDateOfEnd(), task.getId());
+        Status status = util.checkStatus(task.getStatus(), task.getDateOfStart(), task.getDateOfEnd());
         task.setStatus(status);
 
         String text = String.format("%s, назнавич задачу '%s', %s",taskDto.getCreatorEmail(),task.getTitle(),user.getEmail());
@@ -81,7 +81,7 @@ public class TaskServiceImpl implements TaskService {
             task.setDateOfEnd(editTask.getDateOfEnd());
             task.setDateOfCreate(new Date()); //Перезаписываем дату создания
             task.setUser(userService.getUserById(editTask.getUserId()));
-            task.setStatus(util.checkStatus(Status.CREATED,task.getDateOfStart(),task.getDateOfEnd(),task.getId()));
+            task.setStatus(util.checkStatus(Status.CREATED,task.getDateOfStart(),task.getDateOfEnd()));
             groupHistoryService.save(task.getGroup(),text);
             return task;
         }).orElseThrow(() -> new EntityNotFoundException("Ошибка при обновлении задачи"));

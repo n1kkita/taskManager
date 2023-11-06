@@ -25,7 +25,7 @@ public class SuccessHandler implements AuthenticationSuccessHandler {
         if(authentication.getPrincipal() instanceof DefaultOAuth2User userDetails){
             username = userDetails.getAttribute("email");
             User user = userRepository.findByEmail(username).orElse(new User());
-            if(user.getRoles().isEmpty()){
+            if(user.getPassword() == null){
                 new DefaultRedirectStrategy().sendRedirect(request,response,"/registration?oauthEmail="+username);
                 return;
             }
