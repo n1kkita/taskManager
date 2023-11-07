@@ -1,8 +1,12 @@
+let id;
+let userRole = '';
+const deleteButton = document.getElementById('deleteButton');
+
 document.addEventListener('DOMContentLoaded', function() {
-    let id = 0;
+    id = 0;
     const calendarEl = document.getElementById('calendar');
     const groupIdJson = document.getElementById('groupId');
-    const userRole = document.getElementById('mode').value;
+    userRole = document.getElementById('mode').value;
     let groupId = groupIdJson.value;
     console.log("Создаеться календарь...")
     const calendar = new FullCalendar.Calendar(calendarEl, {
@@ -12,8 +16,8 @@ document.addEventListener('DOMContentLoaded', function() {
             center: 'title',
             right: 'dayGridMonth'
         },
-        locale: 'ru',
-
+        locale: 'uk',
+        droppable: true,
         // Дополнительные настройки:
         eventStartEditable: true, // Разрешает изменение начальной даты события
         expandRows:false,
@@ -53,89 +57,8 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('Select event:', startDate, endDate);
         },
 
-        eventClick: function(info) {
-            const event = info.event;
-            const eventModal = document.getElementById('eventModal');
-            const eventTitle = document.getElementById('eventTitle');
-            const eventDescription = document.getElementById('eventDescription');
-            const eventDateStart = document.getElementById('eventDateStart');
-            const eventDateEnd = document.getElementById('eventDateEnd');
-            const eventStatus = document.getElementById('eventStatus');
-            const eventUser = document.getElementById('eventUser');
-            const iconElement = document.getElementById('icon');
-            const head = document.getElementById('head');
-            const completedButton = document.getElementById('completedButton');
-            let currentUserID = document.getElementById('currentUserId').value;
-            const editButton = document.getElementById('editButton');
-
-
-            var statusName = getStatus(event.extendedProps.status);
-            id = event.id;
-            const userId = info.event.extendedProps.userId;
-
-            // Загрузка информации о пользователе
-            fetch(`/users/${userId}/dto`)
-                .then(response => response.json())
-                .then(user => {
-                    // Отображение информации о пользователе
-                    console.log(user.name);
-                    console.log(user.email);
-                    eventUser.innerHTML = `${user.name} <br> ${user.email}`;
-                    //console.log(userLogin); // You can also log the response to see the data
-                })
-                .catch(error => {
-                    console.error('Error fetching user:', error);
-                });
-
-
-            eventTitle.textContent = event.title;
-            eventDescription.textContent = event.extendedProps.description;
-            eventDateStart.textContent = `Початок : ${event.start.toLocaleString()}`;
-            eventDateEnd.textContent = `Кінець : ${event.end.toLocaleString()}`;
-            eventStatus.textContent = statusName;
-
-            console.log(userRole);
-            console.log(currentUserID);
-            console.log(userId);
-
-            if(userRole !== 'ROLE_ADMIN'){
-                editButton.style.display='none';
-                deleteButton.style.display='none';
-            }
-            if ((parseInt(currentUserID) === parseInt(userId) && statusName !=='Виконанно' && statusName !=='Провалено') || userRole === 'ROLE_ADMIN') {
-                completedButton.style.display = 'block';
-            } else {
-                completedButton.style.display = 'none';
-            }
-
-
-            switch (statusName) {
-                case "Створено":
-                    iconElement.setAttribute('name', 'save-outline');
-                    eventStatus.style.color = '#6fb6fa'; // Изменение цвета текста
-                    head.style.backgroundColor='#6fb6fa';
-                    eventDateEnd.style.color = '#6fb6fa';
-                    break;
-                case "У процессі":
-                    iconElement.setAttribute('name', 'construct-outline');
-                    eventStatus.style.color = '#ff3a01';
-                    head.style.backgroundColor='#ff3a01';
-                    eventDateEnd.style.color = '#ff3a01';
-                    break;
-                case "Виконанно":
-                    iconElement.setAttribute('name', 'checkmark-outline'); // Имя иконки для DONE
-                    eventStatus.style.color = '#65f346';
-                    head.style.backgroundColor='#65f346';
-                    eventDateEnd.style.color = '#65f346';
-                    break;
-                case "Провалено":
-                    iconElement.setAttribute('name', 'close-circle-outline'); // Имя иконки для NOT_DONE
-                    eventStatus.style.color = '#e1003b';
-                    head.style.backgroundColor='#e1003b';
-                    eventDateEnd.style.color = '#e1003b';
-                    break;
-            }
-            $(eventModal).modal('show');
+        eventClick: function (info){
+            click(info,true);
         },
         eventDidMount: function(info) {
             // Добавление дополнительной информации о задаче при наведении
@@ -147,149 +70,27 @@ document.addEventListener('DOMContentLoaded', function() {
                 delay: { show: 500, hide: 0 }
             });
         },
+        eventDrop: function(info) {
+            var newStartDate = info.event.start.toLocaleString();
+            var newEndDate = info.event.end.toLocaleString();
+            id = info.event.id;
+            console.log(info.event);
+            alert("Задача '" +info.event.title +"' \n" + "Дати задачі будуть змінені на:\nДата старту: " + newStartDate + "\nДата кінця: " + newEndDate);
+
+            if (!confirm("Ви впевнені в цій зміні?")) {
+                info.revert();
+            } else {
+                const userId = click(info,false);
+                console.log("userId" + userId);
+                editFunction(id,true,userId);
+            }
+        }
+
 
     });
     const editButton = document.getElementById('editButton');
-    editButton.addEventListener('click', async function (){
-        const eventTitle = document.getElementById('eventTitle');
-        const eventDescription = document.getElementById('eventDescription');
-        const eventDateStart = document.getElementById('eventDateStart');
-        const eventDateEnd = document.getElementById('eventDateEnd');
-        const changeButton = document.getElementById('editButton');
-        const eventUser = document.getElementById('eventUser');
-
-
-
-        // Преобразование даты и времени в формат datetime-local
-        const startDate = new Date(eventDateStart.textContent);
-        const endDate = new Date(eventDateEnd.textContent);
-
-        const startDateFormatted = `${startDate.getFullYear()}-${('0' + (startDate.getDate())).slice(-2)}-${('0' + (startDate.getMonth() + 1)).slice(-2)}T${('0' + startDate.getHours()).slice(-2)}:${('0' + startDate.getMinutes()).slice(-2)}`;
-
-        const endDateFormatted = `${endDate.getFullYear()}-${('0' + (endDate.getDate())).slice(-2)}-${('0' + (endDate.getMonth() + 1)).slice(-2)}T${('0' + endDate.getHours()).slice(-2)}:${('0' + endDate.getMinutes()).slice(-2)}`;
-
-        // Создание input-полей и установка значений
-        const inputTitle = document.createElement('input');
-        inputTitle.type = 'text';
-        inputTitle.value = eventTitle.textContent;
-        inputTitle.className = 'form-control';
-
-        const inputDescription = document.createElement('textarea');
-        inputDescription.value = eventDescription.textContent;
-        inputDescription.className = 'form-control';
-
-        const inputDateStart = document.createElement('input');
-        inputDateStart.type = 'datetime-local';
-        inputDateStart.value = startDateFormatted;
-        inputDateStart.className = 'form-control';
-
-        const inputDateEnd = document.createElement('input');
-        inputDateEnd.type = 'datetime-local';
-        inputDateEnd.value = endDateFormatted;
-        inputDateEnd.className = 'form-control';
-
-        const submitButton = document.createElement('button');
-        submitButton.type = 'submit';
-        inputDateEnd.className = 'form-control';
-
-        const selectUser = document.createElement('select');
-        selectUser.id = 'change_user_selected';
-        selectUser.classList.add('form-select');
-        selectUser.setAttribute('aria-label', 'Default select example');
-
-        const firstOption = document.createElement('option');
-        firstOption.setAttribute('selected', 'true');
-        firstOption.setAttribute('disabled', 'true');
-        firstOption.textContent = 'Выберите пользователя';
-        selectUser.textContent='';
-        selectUser.appendChild(firstOption);
-
-        const idGroup = document.getElementById('groupId').value;
-        console.log('Group id ' + idGroup);
-        // Здесь используется асинхронный запрос для получения списка пользователей с сервера
-        fetch(`/groups/${idGroup}/users`) // Замените на ваш эндпоинт для получения пользователей
-            .then(response => response.json())
-            .then(data => {
-                // Получаем массив пользователей из JSON
-                data.forEach(user => {
-                    const option = document.createElement('option');
-                    option.setAttribute('value', user.id);
-                    option.textContent = user.name + "(" + user.email + ")";
-                    selectUser.appendChild(option);
-                });
-            })
-            .catch(error => console.error('Ошибка получения пользователей:', error));
-
-        eventUser.innerHTML='';
-        eventUser.appendChild(selectUser);
-
-        const selectedUser = document.createElement('input');
-        inputDateEnd.className = 'form-control';
-
-        selectUser.addEventListener("change", function() {
-            const selectedUserId = this.value;
-            console.log('Выбран пользователь ' + selectedUserId);
-            selectedUser.value = selectedUserId;
-        });
-
-
-        eventTitle.textContent = '';
-        eventTitle.appendChild(inputTitle);
-
-        eventDescription.textContent = '';
-        eventDescription.appendChild(inputDescription);
-
-        eventDateStart.textContent = '';
-        eventDateStart.appendChild(inputDateStart);
-
-        eventDateEnd.textContent = '';
-        eventDateEnd.appendChild(inputDateEnd);
-
-        document.getElementById('notificationChange');
-        changeButton.addEventListener("click", function (event) {
-            event.preventDefault();
-            const username = document.getElementById("username").value;
-            const taskId = id; // замените на актуальный ID задачи
-            const taskData = {
-                title: inputTitle.value,
-                description: inputDescription.value,
-                dateOfStart: new Date(inputDateStart.value).toISOString(),
-                dateOfEnd: new Date(inputDateEnd.value).toISOString(),
-                userId: selectedUser.value,
-                creatorEmail: username
-            };
-
-            fetch(`/tasks/${taskId}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(taskData)
-            })
-                .then(response =>{
-                    if(response.ok){
-                        console.log('Task updated:');
-                        localStorage.setItem('showNotification', 'true');
-                        window.location.reload();
-                    } else {
-                        response.text().then( error => {
-                            const notificationChange = document.getElementById('notificationErrorTaskCreate');
-                            const er = document.getElementById('errorTask');
-                            er.innerText=error;
-                            notificationChange.style.display = 'block';
-                            notificationChange.classList.add('show'); // Добавляем класс для анимации
-
-                            setTimeout(() => {
-                                // Скрываем уведомление через 2 секунды
-                                notificationChange.style.display = 'none';
-                                notificationChange.classList.remove('show'); // Удаляем класс для анимации
-
-                                localStorage.removeItem('showNotification'); // Удаляем флаг из localStorage
-                            }, 8000);
-                        });
-                    }
-                });
-        });
+    editButton.addEventListener('click', () => {
+        editFunction(id,false);
     });
     var dropZone = document.getElementById('drop-zone');
     const selectedfiles = document.getElementById("selected-files-info");
@@ -439,8 +240,6 @@ document.addEventListener('DOMContentLoaded', function() {
         e.preventDefault();
     });
 
-
-    const deleteButton = document.getElementById('deleteButton');
     const notification = document.getElementById('notificationDelete');
 
     deleteButton.addEventListener('click', async function () {
@@ -668,7 +467,241 @@ function className(userId){
 }
 
 
+async function editFunction(id,auto_click,userId){
+    const eventTitle = document.getElementById('eventTitle');
+    const eventDescription = document.getElementById('eventDescription');
+    const eventDateStart = document.getElementById('eventDateStart');
+    const eventDateEnd = document.getElementById('eventDateEnd');
+    const changeButton = document.getElementById('editButton');
+    const eventUser = document.getElementById('eventUser');
 
+
+
+    // Преобразование даты и времени в формат datetime-local
+    const startDate = new Date(eventDateStart.textContent);
+    const endDate = new Date(eventDateEnd.textContent);
+
+    const startDateFormatted = `${startDate.getFullYear()}-${('0' + (startDate.getDate())).slice(-2)}-${('0' + (startDate.getMonth() + 1)).slice(-2)}T${('0' + startDate.getHours()).slice(-2)}:${('0' + startDate.getMinutes()).slice(-2)}`;
+
+    const endDateFormatted = `${endDate.getFullYear()}-${('0' + (endDate.getDate())).slice(-2)}-${('0' + (endDate.getMonth() + 1)).slice(-2)}T${('0' + endDate.getHours()).slice(-2)}:${('0' + endDate.getMinutes()).slice(-2)}`;
+
+    // Создание input-полей и установка значений
+    const inputTitle = document.createElement('input');
+    inputTitle.type = 'text';
+    inputTitle.value = eventTitle.textContent;
+    inputTitle.className = 'form-control';
+
+    const inputDescription = document.createElement('textarea');
+    inputDescription.value = eventDescription.textContent;
+    inputDescription.className = 'form-control';
+
+    const inputDateStart = document.createElement('input');
+    inputDateStart.type = 'datetime-local';
+    inputDateStart.value = startDateFormatted;
+    inputDateStart.className = 'form-control';
+
+    const inputDateEnd = document.createElement('input');
+    inputDateEnd.type = 'datetime-local';
+    inputDateEnd.value = endDateFormatted;
+    inputDateEnd.className = 'form-control';
+
+    const submitButton = document.createElement('button');
+    submitButton.type = 'submit';
+    inputDateEnd.className = 'form-control';
+
+    const selectUser = document.createElement('select');
+    selectUser.id = 'change_user_selected';
+    selectUser.classList.add('form-select');
+    selectUser.setAttribute('aria-label', 'Default select example');
+
+    const firstOption = document.createElement('option');
+    firstOption.setAttribute('selected', 'true');
+    firstOption.setAttribute('disabled', 'true');
+    firstOption.textContent = 'Выберите пользователя';
+    selectUser.textContent='';
+    selectUser.appendChild(firstOption);
+
+    const idGroup = document.getElementById('groupId').value;
+    console.log('Group id ' + idGroup);
+    // Здесь используется асинхронный запрос для получения списка пользователей с сервера
+    fetch(`/groups/${idGroup}/users`) // Замените на ваш эндпоинт для получения пользователей
+        .then(response => response.json())
+        .then(data => {
+            // Получаем массив пользователей из JSON
+            data.forEach(user => {
+                const option = document.createElement('option');
+                option.setAttribute('value', user.id);
+                option.textContent = user.name + "(" + user.email + ")";
+                selectUser.appendChild(option);
+            });
+        })
+        .catch(error => console.error('Ошибка получения пользователей:', error));
+
+    eventUser.innerHTML='';
+    eventUser.appendChild(selectUser);
+
+    const selectedUser = document.createElement('input');
+    inputDateEnd.className = 'form-control';
+
+    selectUser.addEventListener("change", function() {
+        const selectedUserId = this.value;
+        console.log('Выбран пользователь ' + selectedUserId);
+        selectedUser.value = selectedUserId;
+    });
+
+
+    eventTitle.textContent = '';
+    eventTitle.appendChild(inputTitle);
+
+    eventDescription.textContent = '';
+    eventDescription.appendChild(inputDescription);
+
+    eventDateStart.textContent = '';
+    eventDateStart.appendChild(inputDateStart);
+
+    eventDateEnd.textContent = '';
+    eventDateEnd.appendChild(inputDateEnd);
+
+    document.getElementById('notificationChange');
+    changeButton.addEventListener("click", function (event) {
+        event.preventDefault();
+        if(auto_click){
+            selectedUser.value = userId;
+        }
+        const username = document.getElementById("username").value;
+        const taskId = id; // замените на актуальный ID задачи
+        const taskData = {
+            title: inputTitle.value,
+            description: inputDescription.value,
+            dateOfStart: new Date(inputDateStart.value).toISOString(),
+            dateOfEnd: new Date(inputDateEnd.value).toISOString(),
+            userId: selectedUser.value,
+            creatorEmail: username
+        };
+        console.log(taskData);
+
+        fetch(`/tasks/${taskId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(taskData)
+        })
+            .then(response =>{
+                if(response.ok){
+                    console.log('Task updated:');
+                    localStorage.setItem('showNotification', 'true');
+                    window.location.reload();
+                } else {
+                    response.text().then( error => {
+                        const notificationChange = document.getElementById('notificationErrorTaskCreate');
+                        const er = document.getElementById('errorTask');
+                        er.innerText=error;
+                        notificationChange.style.display = 'block';
+                        notificationChange.classList.add('show'); // Добавляем класс для анимации
+
+                        setTimeout(() => {
+                            // Скрываем уведомление через 2 секунды
+                            notificationChange.style.display = 'none';
+                            notificationChange.classList.remove('show'); // Удаляем класс для анимации
+
+                            localStorage.removeItem('showNotification'); // Удаляем флаг из localStorage
+                        }, 8000);
+                    });
+                }
+            });
+    });
+    if(auto_click){
+        changeButton.click();
+    }
+}
+function click(info,show_modal){
+    const event = info.event;
+    const eventModal = document.getElementById('eventModal');
+    const eventTitle = document.getElementById('eventTitle');
+    const eventDescription = document.getElementById('eventDescription');
+    const eventDateStart = document.getElementById('eventDateStart');
+    const eventDateEnd = document.getElementById('eventDateEnd');
+    const eventStatus = document.getElementById('eventStatus');
+    const eventUser = document.getElementById('eventUser');
+    const iconElement = document.getElementById('icon');
+    const head = document.getElementById('head');
+    const completedButton = document.getElementById('completedButton');
+    let currentUserID = document.getElementById('currentUserId').value;
+    const editButton = document.getElementById('editButton');
+
+    var statusName = getStatus(event.extendedProps.status);
+    id = event.id;
+    const userId = info.event.extendedProps.userId;
+
+
+    // Загрузка информации о пользователе
+    fetch(`/users/${userId}/dto`)
+        .then(response => response.json())
+        .then(user => {
+            // Отображение информации о пользователе
+            console.log(user.name);
+            console.log(user.email);
+            eventUser.innerHTML = `${user.name} <br> ${user.email}`;
+            //console.log(userLogin); // You can also log the response to see the data
+        })
+        .catch(error => {
+            console.error('Error fetching user:', error);
+        });
+
+
+    eventTitle.textContent = event.title;
+    eventDescription.textContent = event.extendedProps.description;
+    eventDateStart.textContent = `Початок : ${event.start.toLocaleString()}`;
+    eventDateEnd.textContent = `Кінець : ${event.end.toLocaleString()}`;
+    eventStatus.textContent = statusName;
+
+    console.log(userRole);
+    console.log(currentUserID);
+    console.log(userId);
+
+    if(userRole !== 'ROLE_ADMIN'){
+        editButton.style.display='none';
+        deleteButton.style.display='none';
+    }
+    if ((parseInt(currentUserID) === parseInt(userId) && statusName !=='Виконанно' && statusName !=='Провалено') || userRole === 'ROLE_ADMIN') {
+        completedButton.style.display = 'block';
+    } else {
+        completedButton.style.display = 'none';
+    }
+
+
+    switch (statusName) {
+        case "Створено":
+            iconElement.setAttribute('name', 'save-outline');
+            eventStatus.style.color = '#6fb6fa'; // Изменение цвета текста
+            head.style.backgroundColor='#6fb6fa';
+            eventDateEnd.style.color = '#6fb6fa';
+            break;
+        case "У процессі":
+            iconElement.setAttribute('name', 'construct-outline');
+            eventStatus.style.color = '#ff3a01';
+            head.style.backgroundColor='#ff3a01';
+            eventDateEnd.style.color = '#ff3a01';
+            break;
+        case "Виконанно":
+            iconElement.setAttribute('name', 'checkmark-outline'); // Имя иконки для DONE
+            eventStatus.style.color = '#65f346';
+            head.style.backgroundColor='#65f346';
+            eventDateEnd.style.color = '#65f346';
+            break;
+        case "Провалено":
+            iconElement.setAttribute('name', 'close-circle-outline'); // Имя иконки для NOT_DONE
+            eventStatus.style.color = '#e1003b';
+            head.style.backgroundColor='#e1003b';
+            eventDateEnd.style.color = '#e1003b';
+            break;
+    }
+    if(show_modal) {
+        $(eventModal).modal('show');
+    }
+    return userId;
+}
 
 
 

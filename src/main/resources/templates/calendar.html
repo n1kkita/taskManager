@@ -136,11 +136,11 @@
   </div>
   <div class="col-md-10">
     <div class="card mt-4" style="max-width: 100%;">
-      <div class="card-header" style="background-color: #faf7f7">
+      <div class="card-header" style="background-color: #ff5333;color: rgb(248,245,245)">
         <div class="text-start">
-          <h4 th:text="'Група:' + ${groupName}"> GroupName </h4>
-          <h4 th:text="'Ви:' + ${username}"> UserLogin </h4>
-          <h4 th:text="'Ваша роль:' + ${mode}"> Role </h4>
+          <h3 th:text="'Група:' + ${groupName}"> GroupName </h3>
+          <h3 th:text="'Ви:' + ${username}"> UserLogin </h3>
+          <h3 th:text="'Ваша роль:' + ${mode}"> Role </h3>
           <div th:if="${mode != mode.ROLE_ADMIN}">
             <form id="leaveTheGroup">
               <input type="hidden" name="idUser" th:value="${currentUserId}">
@@ -151,7 +151,7 @@
             </form>
           </div>
         </div>
-        <h2 class="text-center">MyTaskManager</h2>
+        <h1 class="text-center">MyTaskManager</h1>
       </div>
       <div class="card-body">
         <div class="row justify-content-end">
@@ -419,7 +419,25 @@
     </div>
   </div>
 </div>
-
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Confirm Change</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to change the event from <span id="startDate"></span> to <span id="endDate"></span>?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" id="confirmButton">Confirm</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <div id="notificationDelete" class="notification fast" style="background-color: rgba(57, 255, 0, 0.4);">
   <span class="notification-text">Завдання успішно видаленно!</span>
