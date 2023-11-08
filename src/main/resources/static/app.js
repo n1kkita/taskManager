@@ -9,15 +9,23 @@ document.addEventListener('DOMContentLoaded', function() {
     userRole = document.getElementById('mode').value;
     let groupId = groupIdJson.value;
     console.log("Создаеться календарь...")
+    var selectable = true;
+    var droppable = true;
+    if(userRole !== 'ROLE_ADMIN'){
+        selectable = false;
+        droppable = false;
+    }
+
     const calendar = new FullCalendar.Calendar(calendarEl, {
-        selectable: true,
+        selectable: selectable,
         headerToolbar: {
             left: 'prev,next today',
             center: 'title',
             right: 'dayGridMonth'
         },
         locale: 'uk',
-        droppable: true,
+
+        droppable: droppable,
         // Дополнительные настройки:
         eventStartEditable: true, // Разрешает изменение начальной даты события
         expandRows:false,
@@ -71,18 +79,23 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         },
         eventDrop: function(info) {
-            var newStartDate = info.event.start.toLocaleString();
-            var newEndDate = info.event.end.toLocaleString();
-            id = info.event.id;
-            console.log(info.event);
-            alert("Задача '" +info.event.title +"' \n" + "Дати задачі будуть змінені на:\nДата старту: " + newStartDate + "\nДата кінця: " + newEndDate);
+            if(userRole === 'ROLE_ADMIN') {
+                var newStartDate = info.event.start.toLocaleString();
+                var newEndDate = info.event.end.toLocaleString();
+                id = info.event.id;
+                console.log(info.event);
+                alert("Задача '" + info.event.title + "' \n" + "Дати задачі будуть змінені на:\nДата старту: " + newStartDate + "\nДата кінця: " + newEndDate);
 
-            if (!confirm("Ви впевнені в цій зміні?")) {
-                info.revert();
+                if (!confirm("Ви впевнені в цій зміні?")) {
+                    info.revert();
+                } else {
+                    const userId = click(info, false);
+                    console.log("userId" + userId);
+                    editFunction(id, true, userId);
+                }
             } else {
-                const userId = click(info,false);
-                console.log("userId" + userId);
-                editFunction(id,true,userId);
+                alert("Ви не можете змінювати задачі!");
+                info.revert();
             }
         }
 
@@ -332,7 +345,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.getElementById('createTaskForm').addEventListener('submit', function(event) {
         event.preventDefault();
-
+        const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+        loadingModal.show();
         const title = document.getElementById('title').value;
         const description = document.getElementById('description').value;
         const dateOfStartInput = document.getElementById('dateOfStart');
@@ -366,6 +380,7 @@ document.addEventListener('DOMContentLoaded', function() {
         })
             .then(response => {
                 if(response.ok){
+                    loadingModal.hide();
                     response.json().then(task=>{
                         console.log('Task added:', task);
                         console.log('Adding event:', task.id, task.userId, task.status, task.title, task.description, task.dateOfStart, task.dateOfEnd);
@@ -394,6 +409,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     })
                 } else {
                     response.text().then( error => {
+                        loadingModal.hide();
                         const notificationChange = document.getElementById('notificationErrorTaskCreate');
                         const er = document.getElementById('errorTask');
                         er.innerText=error;

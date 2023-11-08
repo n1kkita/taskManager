@@ -1,6 +1,7 @@
 package com.example.taskmanager.events.listiners;
 
 import com.example.taskmanager.dto.TaskDto;
+import com.example.taskmanager.events.CreateTaskEvent;
 import com.example.taskmanager.events.PerformingTaskWithSendingFile;
 import com.example.taskmanager.events.UpdateTaskStatusEvent;
 import com.example.taskmanager.models.Status;
@@ -23,14 +24,20 @@ public class EventListener {
     @org.springframework.context.event.EventListener
     public void event(UpdateTaskStatusEvent event) {
         TaskDto taskDto = (TaskDto) event.getSource();
-        String html = html((TaskDto) event.getSource(),"notificationOfUpdateStatusTask",false);
+        String html = html((TaskDto) event.getSource(),"notificationOfUpdateStatusTask");
         emailSenderService.send(html, taskDto.getAppointedUserEmail(), "Task status update");
     }
     @org.springframework.context.event.EventListener
     public void event(PerformingTaskWithSendingFile event) {
         TaskDto taskDto = (TaskDto) event.getSource();
-        String html = html((TaskDto) event.getSource(),"notificationOfCompletedTask",true);
+        String html = html((TaskDto) event.getSource(),"notificationOfCompletedTask");
         emailSenderService.sendWithFile(html,"The user has completed your task",taskDto.getCreatorEmail(),event.getFiles());
+    }
+    @org.springframework.context.event.EventListener
+    public void event(CreateTaskEvent event) {
+        TaskDto taskDto = (TaskDto) event.getSource();
+        String html = html((TaskDto) event.getSource(),"notificationOfCreateTask");
+        emailSenderService.send(html,taskDto.getAppointedUserEmail(),"You have been assigned a new task");
     }
 
     public String getColorByStatus(Status status) {
@@ -41,7 +48,7 @@ public class EventListener {
             case NOT_DONE -> "#f84d4d"; // Красный цвет для NOT_DONE
         };
     }
-    public String html(TaskDto task,String template,boolean isWithFiles){
+    public String html(TaskDto task,String template){
         Context context = new Context();
         // Установить часовой пояс Киева (UTC+2 или UTC+3)
         TimeZone timeZoneKiev = TimeZone.getTimeZone("Europe/Kiev");
@@ -54,9 +61,7 @@ public class EventListener {
         context.setVariable("dateEnd", simpleDateFormat.format(task.getDateOfEnd()));
         context.setVariable("task", task);
         context.setVariable("statusColor", getColorByStatus(task.getStatus()));
-        if(isWithFiles){
-            context.setVariable("owner_email",task.getCreatorEmail());
-        }
+        context.setVariable("owner_email",task.getCreatorEmail());
 
         return templateEngine.process(template, context);
     }

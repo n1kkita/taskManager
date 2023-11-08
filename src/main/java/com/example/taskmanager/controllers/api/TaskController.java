@@ -2,6 +2,7 @@ package com.example.taskmanager.controllers.api;
 
 
 import com.example.taskmanager.dto.TaskDto;
+import com.example.taskmanager.events.CreateTaskEvent;
 import com.example.taskmanager.events.PerformingTaskWithSendingFile;
 import com.example.taskmanager.events.UpdateTaskStatusEvent;
 import com.example.taskmanager.events.publisher.EventPublisher;
@@ -26,7 +27,9 @@ public class TaskController {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
     public TaskDto saveTask(@RequestBody TaskDto taskDto){
-        return taskService.saveTask(taskDto);
+        TaskDto savedTaskDto = taskService.saveTask(taskDto);
+        eventPublisher.publish(new CreateTaskEvent(savedTaskDto));
+        return savedTaskDto;
     }
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PutMapping("/{id}")
