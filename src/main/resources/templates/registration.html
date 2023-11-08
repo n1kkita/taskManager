@@ -22,15 +22,33 @@
       <br>
       <strong style="font-size: 36px">Реєстрація</strong>
       <br>
-      <form id="registrationForm">
+      <form id="registrationForm" th:method="POST" th:action="@{/registration}" th:object="${form}">
         <div class="form-group">
-          <input type="text" class="form-control" id="name" name="name" placeholder="Name">
+          <div th:if="${#fields.hasErrors('name')}">
+          <input type="text" class="form-control is-invalid" name="name"  placeholder="Name">
+            <div class="invalid-feedback" th:errors="*{name}"></div>
+          </div>
+          <div th:unless="${#fields.hasErrors('name')}">
+            <input type="text" class="form-control" name="name"  placeholder="Name">
+          </div>
         </div>
         <div class="form-group">
-          <input type="text" class="form-control" id="email" name="email" th:value="${email}" placeholder="Email">
+          <div th:if="${#fields.hasErrors('email')}">
+            <input type="text" class="form-control is-invalid" name="email" th:value="${oauthEmail}" placeholder="Email">
+            <div class="invalid-feedback" th:errors="*{email}"></div>
+          </div>
+          <div th:unless="${#fields.hasErrors('email')}">
+            <input type="text" class="form-control" name="email" th:value="${oauthEmail}" placeholder="Email">
+          </div>
         </div>
         <div class="form-group">
-          <input type="password" class="form-control" id="password" name="password" placeholder="Password" size="15px">
+          <div th:if="${#fields.hasErrors('password')}">
+            <input type="password" class="form-control is-invalid" name="password"  placeholder="Password" size="15px">
+            <div class="invalid-feedback" th:errors="*{password}"></div>
+          </div>
+          <div th:unless="${#fields.hasErrors('password')}">
+            <input type="password" class="form-control" name="password"  placeholder="Password" size="15px">
+          </div>
         </div>
         <button type="submit" class="btn" style="font-size: 12px; background-color: #172940;color: white">
           <b>Зареєструватись</b>
@@ -38,11 +56,14 @@
         <button class="btn btn-light" type="button" style="scale: 100%" id="authentication">
           <strong>Є аккаунт?</strong>
         </button>
-        <div th:if="${email != null}">
+        <div th:if="${oauthEmail != null}">
           <div class="alert alert-info">
             Please register
           </div>
-        </div>
+        </div><!--
+        <div class="alert alert-info" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+        <div class="alert alert-info" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+        <div class="alert alert-info" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>-->
         <br>
         <br>
       </form>
@@ -55,50 +76,13 @@
 </div>
 
 </body>
+
 <script>
 
   document.getElementById('authentication').addEventListener('click',function (){
     window.location.href='/authentication';
   });
 
-  document.getElementById('registrationForm').addEventListener('submit', function(event) {
-    event.preventDefault();
-
-    const form = event.target;
-    const formData = {
-      name: form.name.value,
-      email: form.email.value,
-      password: form.password.value
-    };
-
-    fetch('/registration', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(formData)
-    })
-            .then(response => {
-              if (response.ok) {
-                  window.location.href = '/home/'+document.getElementById("email").value;
-              } else {
-                response.text().then(error=>{
-                  const notificationChange = document.getElementById('notificationRegError');
-                  const er = document.getElementById('error');
-                  er.innerText=error;
-                  notificationChange.style.display = 'block';
-                  notificationChange.classList.add('show');
-
-                  setTimeout(() => {
-                    notificationChange.style.display = 'none';
-                    notificationChange.classList.remove('show');
-
-                    localStorage.removeItem('showNotification');
-                  }, 8000);
-                })
-              }
-            });
-  });
 
 </script>
 </html>

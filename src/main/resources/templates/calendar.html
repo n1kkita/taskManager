@@ -276,7 +276,7 @@
         </div>
         <hr>
         <div id="drop-zone" class="hoverable">
-          <span id="text">Кликните или перетащите файлы сюда</span>
+          <span id="text">Натисніть або перетягніть файли.</span>
         </div>
         <hr>
         <div id="selected-files-info">
@@ -375,7 +375,7 @@
           <form id="addNewOwnerForm">
             <div class="form-group">
               <select id="owner_selected" class="form-select" aria-label="Default select example">
-                <option selected disabled>Выберите пользователя</option>
+                <option selected disabled>Виберіть користувача</option>
                 <option th:each="user : ${usersInGroupWithoutOwners}" th:value="${user.id}">
                   <span>
                   <strong th:text="${user.name}"></strong>
@@ -419,25 +419,7 @@
     </div>
   </div>
 </div>
-<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Confirm Change</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <p>Are you sure you want to change the event from <span id="startDate"></span> to <span id="endDate"></span>?</p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary" id="confirmButton">Confirm</button>
-      </div>
-    </div>
-  </div>
-</div>
+
 
 <div id="notificationDelete" class="notification fast" style="background-color: rgba(57, 255, 0, 0.4);">
   <span class="notification-text">Завдання успішно видаленно!</span>
@@ -501,6 +483,7 @@
       })
     });
   });
+
   document.getElementById("historyGroup").addEventListener("click",function (){
     const eventModal = document.getElementById('historyModal');
     $(eventModal).modal('show');

@@ -17,6 +17,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -28,9 +29,10 @@ public class MainController {
     private final UserService userService;
     private final GeneralServiceToUserAndGroups serviceToUserAndGroups;
     @GetMapping("/registration")
-    public String showRegistrationForm(@RequestParam(required = false) String oauthEmail,Model model) {
-        model.addAttribute("registrationForm", new RegistrationForm())
-                .addAttribute("email",oauthEmail);
+    public String showRegistrationForm(@RequestParam(required = false) String oauthEmail,
+                                       @ModelAttribute(name = "form") RegistrationForm registrationForm,
+                                       Model model) {
+        model.addAttribute("oauthEmail",oauthEmail);
         return "registration";
     }
     @GetMapping("/authentication")

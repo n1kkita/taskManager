@@ -59,6 +59,7 @@ public class TaskServiceImpl implements TaskService {
 
         taskDto.setId(task.getId());
         taskDto.setStatus(task.getStatus());
+        taskDto.setAppointedUserEmail(user.getEmail());
 
         return taskDto;
     }
@@ -82,6 +83,7 @@ public class TaskServiceImpl implements TaskService {
             task.setDateOfCreate(new Date()); //Перезаписываем дату создания
             task.setUser(userService.getUserById(editTask.getUserId()));
             task.setStatus(util.checkStatus(Status.CREATED,task.getDateOfStart(),task.getDateOfEnd()));
+            task.setCreatorEmail(editTask.getCreatorEmail());
             groupHistoryService.save(task.getGroup(),text);
             return task;
         }).orElseThrow(() -> new EntityNotFoundException("Ошибка при обновлении задачи"));

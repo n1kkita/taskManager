@@ -27,9 +27,10 @@
       <br><br>
       </div>
       <form id="authenticationForm" th:action="@{/authentication}" method="post">
-        <input name="username" class="form-control" style="margin-top:10px;" placeholder="Email" required autofocus="autofocus"/>
+        <div th:if="${registrationForm != null}">
+        <input name="username" class="form-control" style="margin-top:10px;" placeholder="Email" th:value="${registrationForm.email}" required autofocus="autofocus"/>
         <br>
-        <input name="password"  class="form-control" type="password" placeholder="Password" required autofocus="autofocus" />
+        <input name="password"  class="form-control" type="password" placeholder="Password" th:value="${registrationForm.password}" required autofocus="autofocus" />
         <button type="submit" class="btn" style="font-size: 12px; margin-top:10px; background-color: #172940;color: white">
           <b>Войти</b>
         </button>
@@ -37,6 +38,19 @@
           <strong style="color: #172940">Нема аккаунту?</strong>
         </button>
         <br>
+        </div>
+        <div th:unless="${registrationForm != null}">
+          <input name="username" class="form-control" style="margin-top:10px;" placeholder="Email" required autofocus="autofocus"/>
+          <br>
+          <input name="password"  class="form-control" type="password" placeholder="Password" required autofocus="autofocus" />
+          <button type="submit" class="btn" style="font-size: 12px; margin-top:10px; background-color: #172940;color: white">
+            <b>Войти</b>
+          </button>
+          <button class="btn btn-light" type="button" style="scale: 100%; margin-top:10px;" id="registration">
+            <strong style="color: #172940">Нема аккаунту?</strong>
+          </button>
+          <br>
+        </div>
       </form>
       <div class="content-center d-flex justify-content-center align-items-end">
       <a th:href="@{/oauth2/authorization/google}" class="btn" style="font-size: 12px; margin-top:5px; background-color: #ea3b15;color: white" role="button" aria-pressed="false">
@@ -51,8 +65,8 @@
       </div>
       <div th:if="${param.error}">
         <div class="alert alert-danger">
-          Either password or <nav></nav>
-          Email entered is incorrect!</div>
+          Пароль чи <nav></nav>
+          Електрона почта не вірні!</div>
       </div>
     </div>
   </div>
