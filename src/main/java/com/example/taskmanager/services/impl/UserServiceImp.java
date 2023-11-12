@@ -3,7 +3,6 @@ package com.example.taskmanager.services.impl;
 import com.example.taskmanager.dto.RegistrationForm;
 import com.example.taskmanager.dto.UserDto;
 import com.example.taskmanager.exception.DuplicateLoginException;
-import com.example.taskmanager.models.Role;
 import com.example.taskmanager.models.User;
 import com.example.taskmanager.repositories.UserRepository;
 import com.example.taskmanager.services.interfaceses.UserService;
@@ -49,7 +48,6 @@ public class UserServiceImp implements UserService{
         user.setEmail(form.getEmail());
         user.setName(form.getName());
         user.setPassword(passwordEncoder.encode(form.getPassword()));
-        user.getRoles().add(Role.ROLE_USER);
 
         return userRepository.save(user);
     }

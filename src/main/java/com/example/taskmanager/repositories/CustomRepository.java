@@ -1,6 +1,5 @@
 package com.example.taskmanager.repositories;
 
-import com.example.taskmanager.models.GroupEntity;
 import com.example.taskmanager.models.User;
 
 import java.util.Optional;

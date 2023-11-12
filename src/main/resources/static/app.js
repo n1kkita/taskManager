@@ -483,7 +483,7 @@ function className(userId){
 }
 
 
-async function editFunction(id,auto_click,userId){
+async function editFunction(id,auto_click,userId,date_start,date_end){
     const eventTitle = document.getElementById('eventTitle');
     const eventDescription = document.getElementById('eventDescription');
     const eventDateStart = document.getElementById('eventDateStart');
@@ -493,13 +493,21 @@ async function editFunction(id,auto_click,userId){
 
 
 
+    const s = eventDateStart.textContent;
+    const s1 = eventDateEnd.textContent;
+    console.log(s);
+    console.log(s1);
+
     // Преобразование даты и времени в формат datetime-local
-    const startDate = new Date(eventDateStart.textContent);
-    const endDate = new Date(eventDateEnd.textContent);
+    const startDate = new Date(s);
+    const endDate = new Date(s1);
+    console.log(startDate);
+    console.log(endDate);
 
     const startDateFormatted = `${startDate.getFullYear()}-${('0' + (startDate.getDate())).slice(-2)}-${('0' + (startDate.getMonth() + 1)).slice(-2)}T${('0' + startDate.getHours()).slice(-2)}:${('0' + startDate.getMinutes()).slice(-2)}`;
-
     const endDateFormatted = `${endDate.getFullYear()}-${('0' + (endDate.getDate())).slice(-2)}-${('0' + (endDate.getMonth() + 1)).slice(-2)}T${('0' + endDate.getHours()).slice(-2)}:${('0' + endDate.getMinutes()).slice(-2)}`;
+
+
 
     // Создание input-полей и установка значений
     const inputTitle = document.createElement('input');
@@ -668,8 +676,10 @@ function click(info,show_modal){
 
     eventTitle.textContent = event.title;
     eventDescription.textContent = event.extendedProps.description;
-    eventDateStart.textContent = `Початок : ${event.start.toLocaleString()}`;
-    eventDateEnd.textContent = `Кінець : ${event.end.toLocaleString()}`;
+    eventDateStart.textContent = `${event.start.toLocaleString()}`;
+    eventDateEnd.textContent = `${event.end.toLocaleString()}`;
+
+
     eventStatus.textContent = statusName;
 
     console.log(userRole);

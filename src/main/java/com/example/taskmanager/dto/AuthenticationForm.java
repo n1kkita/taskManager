@@ -1,6 +1,5 @@
 package com.example.taskmanager.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data

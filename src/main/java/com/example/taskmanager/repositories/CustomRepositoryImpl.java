@@ -1,13 +1,11 @@
 package com.example.taskmanager.repositories;
 
 import com.example.taskmanager.models.GroupEntity;
-import com.example.taskmanager.models.Task;
 import com.example.taskmanager.models.User;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 
 @Repository
