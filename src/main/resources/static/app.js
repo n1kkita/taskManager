@@ -354,7 +354,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const notificationCreate = document.getElementById('notificationCreate');
         const username = document.getElementById('username').value;
 
-
+        console.log(dateOfEndInput.value);
         const dateOfStart = new Date(dateOfStartInput.value).toISOString(); // Преобразование в стандартный ISO8601 формат
         const dateOfEnd = new Date(dateOfEndInput.value).toISOString();
         const groupIdJson = document.getElementById('groupId');
@@ -495,17 +495,53 @@ async function editFunction(id,auto_click,userId,date_start,date_end){
 
     const s = eventDateStart.textContent;
     const s1 = eventDateEnd.textContent;
-    console.log(s);
-    console.log(s1);
 
-    // Преобразование даты и времени в формат datetime-local
-    const startDate = new Date(s);
-    const endDate = new Date(s1);
-    console.log(startDate);
-    console.log(endDate);
+// Убираем запятые
+    const cleanS = s.replace(",", "");
+    const cleanS1 = s1.replace(",", "");
 
-    const startDateFormatted = `${startDate.getFullYear()}-${('0' + (startDate.getDate())).slice(-2)}-${('0' + (startDate.getMonth() + 1)).slice(-2)}T${('0' + startDate.getHours()).slice(-2)}:${('0' + startDate.getMinutes()).slice(-2)}`;
-    const endDateFormatted = `${endDate.getFullYear()}-${('0' + (endDate.getDate())).slice(-2)}-${('0' + (endDate.getMonth() + 1)).slice(-2)}T${('0' + endDate.getHours()).slice(-2)}:${('0' + endDate.getMinutes()).slice(-2)}`;
+    const dateS = cleanS.split(" ");
+    const dateS1 = cleanS1.split(" ");
+
+    const dateComponentsS = dateS[0].split(".");
+    const dateComponentsS1 = dateS1[0].split(".");
+    let startDateFormatted = '';
+    let endDateFormatted='';
+// Создаем новую дату, указывая компоненты в порядке "год, месяц, день, час, минуты"
+    const startDate = new Date(
+        dateComponentsS[2],
+        dateComponentsS[1] - 1,
+        dateComponentsS[0],
+        dateS[1].split(":")[0],
+        dateS[1].split(":")[1]
+    );
+
+    const endDate = new Date(
+        dateComponentsS1[2],
+        dateComponentsS1[1] - 1,
+        dateComponentsS1[0],
+        dateS1[1].split(":")[0],
+        dateS1[1].split(":")[1]
+    );
+
+    if (isNaN(startDate) || isNaN(endDate)) {
+        console.log("Invalid Date");
+    } else {
+        startDateFormatted = `${startDate.getFullYear()}-${(
+            "0" + (startDate.getMonth() + 1)
+        ).slice(-2)}-${("0" + startDate.getDate()).slice(-2)}T${(
+            "0" + startDate.getHours()
+        ).slice(-2)}:${("0" + startDate.getMinutes()).slice(-2)}`;
+
+        endDateFormatted = `${endDate.getFullYear()}-${(
+            "0" + (endDate.getMonth() + 1)
+        ).slice(-2)}-${("0" + endDate.getDate()).slice(-2)}T${(
+            "0" + endDate.getHours()
+        ).slice(-2)}:${("0" + endDate.getMinutes()).slice(-2)}`;
+
+        console.log(startDateFormatted);
+        console.log(endDateFormatted);
+    }
 
 
 
