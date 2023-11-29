@@ -1,4 +1,4 @@
-package com.example.taskmanager.services.impl;
+package com.example.taskmanager.services.impl.group;
 
 import com.example.taskmanager.models.GroupEntity;
 import com.example.taskmanager.models.GroupHistory;
