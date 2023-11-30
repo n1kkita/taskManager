@@ -5,7 +5,7 @@ import com.example.taskmanager.events.UpdateTaskStatusEvent;
 import com.example.taskmanager.events.publisher.EventPublisher;
 import com.example.taskmanager.models.Status;
 import com.example.taskmanager.repositories.TaskRepository;
-import com.example.taskmanager.services.impl.TaskServiceImpl;
+import com.example.taskmanager.services.impl.task.TaskServiceImpl;
 import com.example.taskmanager.utils.Util;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;

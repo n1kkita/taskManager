@@ -6,6 +6,9 @@ import com.example.taskmanager.events.CreateTaskEvent;
 import com.example.taskmanager.events.PerformingTaskWithSendingFile;
 import com.example.taskmanager.events.UpdateTaskStatusEvent;
 import com.example.taskmanager.events.publisher.EventPublisher;
+import com.example.taskmanager.models.FileEntity;
+import com.example.taskmanager.models.Task;
+import com.example.taskmanager.services.interfaceses.TaskFileService;
 import com.example.taskmanager.services.interfaceses.TaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,17 +23,30 @@ import java.util.List;
 public class TaskController {
     private final TaskService taskService;
     private final EventPublisher eventPublisher;
+    private final TaskFileService taskFileService;
     @GetMapping("/groups/{groupId}")
     public List< TaskDto > getAllTasksByGroupId(@PathVariable Long groupId){
         return taskService.getAllByGroupId(groupId);
     }
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    public TaskDto saveTask(@RequestBody TaskDto taskDto){
+    public TaskDto saveTask(@RequestBody TaskDto taskDto,@RequestParam(value = "files",required = false) MultipartFile[] files){
         TaskDto savedTaskDto = taskService.saveTask(taskDto);
         eventPublisher.publish(new CreateTaskEvent(savedTaskDto));
         return savedTaskDto;
     }
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping("{id}/set_files")
+    public TaskDto setFilesForCreatedTask(@PathVariable Long id,@RequestParam(value = "files",required = false) MultipartFile[] files){
+        Task task = taskFileService.setFilesForTaskById(id, files);
+        return null;
+    }
+
+    @GetMapping("{id}/get_files")
+    public List<FileEntity> getFilesByTask(@PathVariable Long id){
+        return taskFileService.getFilesByTaskId(id);
+    }
+
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PutMapping("/{id}")
     public void updateTask(@PathVariable Long id, @RequestBody TaskDto task){

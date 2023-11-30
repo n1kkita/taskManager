@@ -5,7 +5,9 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 
 @Entity
@@ -37,6 +39,12 @@ public class Task {
     private GroupEntity group;
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
+    @OneToMany(mappedBy = "task",fetch = FetchType.LAZY)
+    private List<FileEntity> files = new ArrayList<>();
+    public void setFile(FileEntity file){
+        file.setTask(this);
+        files.add(file);
+    }
     @PrePersist
     public void init(){
         dateOfCreate = new Date();

@@ -205,6 +205,10 @@
               </select>
             </div>
           <br>
+          <div id="drop-zone-create" class="drop-zone">
+            <span id="text-create">Натисніть або перетягніть файли.</span>
+          </div>
+          <div id="selected-files-create-info"></div>
           <input type="hidden" id="selectedUserId" name="selectedUserId">
           <input type="submit" value="Створити" id="createButton" class="btn btn-primary" data-bs-dismiss="modal">
         </form>
@@ -269,7 +273,6 @@
           <button class="btn rounded-pill px-2" type="button" style="background-color: #65f346;color: white;" id="completedButton" data-bs-dismiss="modal">
             <ion-icon name="checkmark-outline" style="font-size: 1.7rem; vertical-align: middle;"></ion-icon>
           </button>
-
           <button class="btn btn-danger rounded-pill px-2" type="button" id="deleteButton" data-bs-dismiss="modal">
             <ion-icon name="trash-outline" style="font-size: 1.7rem; vertical-align: middle;"></ion-icon>
           </button>
@@ -278,11 +281,12 @@
         <div class="d-flex align-items-center">
           <p class="modal-title m-0" style="align-self: center; font-size: 18px; font-weight: bold;">Загальний розмір файлів < 25MB</p>
         </div>
-        <div id="drop-zone" class="hoverable">
+        <div id="drop-zone-completed" class="drop-zone">
           <span id="text">Натисніть або перетягніть файли.</span>
         </div>
         <hr>
-        <div id="selected-files-info">
+        <div id="selected-files-info"></div>
+        <div id="files"></div>
         </div>
       </div>
     </div>

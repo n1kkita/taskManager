@@ -1,4 +1,4 @@
-package com.example.taskmanager.services.impl;
+package com.example.taskmanager.services.impl.task;
 
 import com.example.taskmanager.dto.TaskDto;
 import com.example.taskmanager.models.*;

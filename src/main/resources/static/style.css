@@ -57,19 +57,19 @@
     margin-right: -25px;/* Adjust the value as per your desired distance */
 }
 
-#drop-zone {
+.drop-zone {
     border: 2px dashed #ccc;
     text-align: center;
     padding: 20px;
     cursor: pointer;
 }
 
-#drop-zone.hoverable {
+.drop-zone.hoverable {
     cursor: pointer;
     transition: background-color 0.3s, color 0.3s; /* Добавление плавного перехода при наведении */
 }
 
-#drop-zone.hoverable:hover {
+.drop-zone.hoverable:hover {
     background-color: #f0f0f0;
     color: #333;
 }

@@ -105,17 +105,57 @@ document.addEventListener('DOMContentLoaded', function() {
     editButton.addEventListener('click', () => {
         editFunction(id,false);
     });
-    var dropZone = document.getElementById('drop-zone');
+    var dropZoneCompeted = document.getElementById('drop-zone-completed');
+    var dropZoneCreate = document.getElementById('drop-zone-create');
     const selectedfiles = document.getElementById("selected-files-info");
+    const selectedfilesCreate = document.getElementById("selected-files-create-info");
+
     var files = [];
 
     // Обработчик события перетаскивания
-    dropZone.addEventListener('dragover', function(e) {
-        e.preventDefault();
-        dropZone.classList.add('drag-over');
+    dropZoneCompeted.addEventListener('dragover',function (e){
+        dragover(e);
+    });
+    dropZoneCreate.addEventListener('dragover',function (e){
+        dragover(e);
+    });
+    dropZoneCompeted.addEventListener('click', function() {
+        clickFiles('selected-files-info');
+    });
+    dropZoneCreate.addEventListener('click', function() {
+        clickFiles('selected-files-create-info');
     });
 
-    dropZone.addEventListener('click', function() {
+    // Обработчик события отпускания файлов
+    dropZoneCompeted.addEventListener('dragleave', function(e) {
+        dragleave(e);
+    });
+    // Обработчик события отпускания файлов
+    dropZoneCreate.addEventListener('dragleave', function(e) {
+        dragleave(e);
+    });
+
+    // Обработчик события бросания файлов
+    dropZoneCompeted.addEventListener('drop', function(e) {
+        drop(e,'selected-files-info');
+    });
+    // Обработчик события бросания файлов
+    dropZoneCreate.addEventListener('drop', function(e) {
+        drop(e,'selected-files-create-info');
+    });
+
+    function drop(e,divName){
+        e.preventDefault();
+        dropZoneCompeted.classList.remove('drag-over');
+        var newSelectedFiles = Array.from( e.dataTransfer.files);
+        files = files.concat(newSelectedFiles);
+        handleDroppedFiles(files,divName);
+    }
+    function dragleave(e){
+        e.preventDefault();
+        dropZoneCompeted.classList.remove('drag-over');
+    }
+    function clickFiles(divName){
         var fileInput = document.createElement('input');
         fileInput.type = 'file';
         fileInput.multiple = true; // Разрешить выбор нескольких файлов
@@ -124,32 +164,22 @@ document.addEventListener('DOMContentLoaded', function() {
         fileInput.addEventListener('change', function() {
             var newSelectedFiles = Array.from(fileInput.files);
             files = files.concat(newSelectedFiles);
-            handleDroppedFiles(files);
+            handleDroppedFiles(files,divName);
         });
 
         document.body.appendChild(fileInput);
         fileInput.click();
         document.body.removeChild(fileInput);
-    });
-
-    // Обработчик события отпускания файлов
-    dropZone.addEventListener('dragleave', function(e) {
+    }
+    function dragover(e) {
         e.preventDefault();
-        dropZone.classList.remove('drag-over');
-    });
-
-    // Обработчик события бросания файлов
-    dropZone.addEventListener('drop', function(e) {
-        e.preventDefault();
-        dropZone.classList.remove('drag-over');
-        var newSelectedFiles = Array.from( e.dataTransfer.files);
-        files = files.concat(newSelectedFiles);
-        handleDroppedFiles(files);
-    });
+        dropZoneCompeted.classList.add('drag-over');
+    }
 
     // Функция для обработки перетащенных файлов
-    function handleDroppedFiles(files) {
+    function handleDroppedFiles(files,divName) {
         console.log(files);
+        const selectedfiles = document.getElementById(divName);
         selectedfiles.innerText="";
         for (var i = 0; i < files.length; i++) {
             var file = files[i];
@@ -354,12 +384,18 @@ document.addEventListener('DOMContentLoaded', function() {
         const notificationCreate = document.getElementById('notificationCreate');
         const username = document.getElementById('username').value;
 
+        const formData = new FormData();
+        // Перебираем массив files и добавляем каждый файл к formData
+        for (var i = 0; i < files.length; i++) {
+            formData.append('files', files[i]);
+        }
         console.log(dateOfEndInput.value);
         const dateOfStart = new Date(dateOfStartInput.value).toISOString(); // Преобразование в стандартный ISO8601 формат
         const dateOfEnd = new Date(dateOfEndInput.value).toISOString();
         const groupIdJson = document.getElementById('groupId');
         let userId = document.getElementById("selectedUserId").value;
         let groupId = groupIdJson.value;
+
 
         const taskData = {
             title: title,
@@ -380,8 +416,13 @@ document.addEventListener('DOMContentLoaded', function() {
         })
             .then(response => {
                 if(response.ok){
-                    loadingModal.hide();
                     response.json().then(task=>{
+
+                        fetch(`/tasks/${task.id}/set_files`, {
+                            method: 'POST',
+                            body: formData
+                        }).then(r => console.log(r));
+
                         console.log('Task added:', task);
                         console.log('Adding event:', task.id, task.userId, task.status, task.title, task.description, task.dateOfStart, task.dateOfEnd);
                         calendar.addEvent({
@@ -397,6 +438,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             borderColor: getBorderColorByStatus(task.status),
                             className: className(task.userId)
                         });
+                        loadingModal.hide();
                         calendar.render();
                         // Показываем уведомление плавно
                         notificationCreate.style.display = 'block';
@@ -675,7 +717,7 @@ async function editFunction(id,auto_click,userId,date_start,date_end){
         changeButton.click();
     }
 }
-function click(info,show_modal){
+function click(info,show_modal) {
     const event = info.event;
     const eventModal = document.getElementById('eventModal');
     const eventTitle = document.getElementById('eventTitle');
@@ -689,11 +731,32 @@ function click(info,show_modal){
     const completedButton = document.getElementById('completedButton');
     let currentUserID = document.getElementById('currentUserId').value;
     const editButton = document.getElementById('editButton');
-
+    const filesDiv = document.getElementById("files");
+    filesDiv.textContent='';
     var statusName = getStatus(event.extendedProps.status);
     id = event.id;
     const userId = info.event.extendedProps.userId;
 
+    fetch(`/tasks/${id}/get_files`, {
+        method: 'GET'
+    })
+        .then(response => response.json())
+        .then(files => {
+            // Предполагаем, что вам приходит массив файлов
+            files.forEach(file => {
+                // Создаем элемент для отображения информации о файле
+                var fileInfo = document.createElement('p');
+
+                // Создаем текстовый узел с именем файла
+                var fileNameTextNode = document.createTextNode(file.name);
+
+                // Добавляем текстовый узел в элемент fileInfo
+                fileInfo.appendChild(fileNameTextNode);
+
+                // Добавляем элемент fileInfo в зону selected-files-info
+                filesDiv.appendChild(fileInfo);
+            });
+        });
 
     // Загрузка информации о пользователе
     fetch(`/users/${userId}/dto`)

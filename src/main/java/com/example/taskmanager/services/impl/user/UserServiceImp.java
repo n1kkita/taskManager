@@ -1,4 +1,4 @@
-package com.example.taskmanager.services.impl;
+package com.example.taskmanager.services.impl.user;
 
 import com.example.taskmanager.dto.RegistrationForm;
 import com.example.taskmanager.dto.UserDto;
