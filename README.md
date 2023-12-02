@@ -4,7 +4,7 @@
 MyTaskManager - це проект управління задачами, розроблений на Java Spring та FullCalendar framework. Цей проект допоможе вам ефективно організувати свої завдання, відстежувати їх виконання та планувати робочий процес.
 
 # Інструкція з відкриття
-Ви можете перейти на сам сайт по URL: [https://acrid-stomach-production.up.railway.app/authentication](https://acrid-stomach-production.up.railway.app/authentication)
+Ви можете перейти на сам сайт по URL: [https://acrid-stomach-production.up.railway.app/authentication](https://acrid-stomach-production.up.railway.app/authentication) **НА ДАНИЙ МОМЕНТ НЕ ПРАЦЮЄ**
 
 # Інструкція з використання
 - Після реєстрації ви потрапите на свій профіль де ви зможете стоврити свою групу. Один користувач може мати безліч своїx груп
