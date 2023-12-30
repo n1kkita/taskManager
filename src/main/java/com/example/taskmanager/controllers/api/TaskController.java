@@ -6,12 +6,14 @@ import com.example.taskmanager.events.CreateTaskEvent;
 import com.example.taskmanager.events.PerformingTaskWithSendingFile;
 import com.example.taskmanager.events.UpdateTaskStatusEvent;
 import com.example.taskmanager.events.publisher.EventPublisher;
-import com.example.taskmanager.models.FileEntity;
 import com.example.taskmanager.models.Task;
-import com.example.taskmanager.services.interfaceses.TaskFileService;
 import com.example.taskmanager.services.interfaceses.TaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -22,51 +24,36 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TaskController {
     private final TaskService taskService;
-    private final EventPublisher eventPublisher;
-    private final TaskFileService taskFileService;
+
     @GetMapping("/groups/{groupId}")
     public List< TaskDto > getAllTasksByGroupId(@PathVariable Long groupId){
         return taskService.getAllByGroupId(groupId);
     }
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    public TaskDto saveTask(@RequestBody TaskDto taskDto,@RequestParam(value = "files",required = false) MultipartFile[] files){
-        TaskDto savedTaskDto = taskService.saveTask(taskDto);
-        eventPublisher.publish(new CreateTaskEvent(savedTaskDto));
-        return savedTaskDto;
-    }
-    @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping("{id}/set_files")
-    public TaskDto setFilesForCreatedTask(@PathVariable Long id,@RequestParam(value = "files",required = false) MultipartFile[] files){
-        Task task = taskFileService.setFilesForTaskById(id, files);
-        return null;
+    public TaskDto saveTask(@RequestBody TaskDto taskDto){
+        return taskService.saveTask(taskDto);
     }
 
-    @GetMapping("{id}/get_files")
-    public List<FileEntity> getFilesByTask(@PathVariable Long id){
-        return taskFileService.getFilesByTaskId(id);
-    }
-
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @PutMapping("/{id}")
-    public void updateTask(@PathVariable Long id, @RequestBody TaskDto task){
-        taskService.updateTaskById(id,task);
+    public TaskDto updateTask(@PathVariable Long id, @RequestBody TaskDto task){
+        TaskDto taskDto = taskService.updateTaskById(id, task);
+        System.out.println(taskDto);
+        return taskDto;
     }
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PatchMapping("/{id}")
-    public void updateTaskStatus(@PathVariable Long id, @RequestParam(value = "files",required = false) MultipartFile[] files){
-        TaskDto taskDto = taskService.updateTaskStatusToCompletedById(id);
-        if(files !=null){
-            eventPublisher.publish(new PerformingTaskWithSendingFile(taskDto, files));
-        } else {
-            eventPublisher.publish(new UpdateTaskStatusEvent(taskDto)); //on a first time
-        }
+    public TaskDto updateTaskStatus(@PathVariable Long id){
+        return taskService.updateTaskStatusToCompletedById(id);
     }
 
-    @ResponseStatus(HttpStatus.NO_CONTENT)
+
     @DeleteMapping("/{id}")
-    public void deleteTaskById(@PathVariable Long id){
+    public ResponseEntity<String> deleteTaskById(@PathVariable Long id){
         taskService.deleteById(id);
+        return ResponseEntity.ok()
+                .header("deleteTaskId", String.valueOf(id))
+                .build();
     }
 
 }

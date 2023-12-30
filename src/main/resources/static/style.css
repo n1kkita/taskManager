@@ -63,7 +63,23 @@
     padding: 20px;
     cursor: pointer;
 }
+.animate {
+    animation: pulse 2s infinite;
+}
 
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
 .drop-zone.hoverable {
     cursor: pointer;
     transition: background-color 0.3s, color 0.3s; /* Добавление плавного перехода при наведении */
@@ -72,4 +88,33 @@
 .drop-zone.hoverable:hover {
     background-color: #f0f0f0;
     color: #333;
+}
+.my-btn {
+    transition: all 0.3s ease; /* Плавная анимация для всех свойств */
+}
+
+.my-btn:hover {
+    transform: scale(1.1); /* Увеличение на 10% при наведении */
+}
+
+.my-btn-2 {
+    transition: all 0.3s ease; /* Плавная анимация для всех свойств */
+}
+
+.my-btn-2:hover {
+    transform: scale(1.05); /* Увеличение на 10% при наведении */
+}
+
+.my-btn:active {
+    transform: scale(0.9); /* Уменьшение на 10% при нажатии */
+}
+.fc-event {
+    transition: transform 0.3s ease;
+}
+
+.fc-event:hover {
+    transform: scale(1.1);
+}
+.active{
+    background-color: #0d6efd;
 }

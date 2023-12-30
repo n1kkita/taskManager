@@ -38,11 +38,6 @@ public class UserServiceImp implements UserService{
     @Override
     @Transactional
     public User create(RegistrationForm form) {
-        validation(form);
-        userRepository.getLoginByCreateLogin(form.getEmail()).ifPresent(string -> {
-            throw new DuplicateLoginException("Користувач с таким логіном уже є, виберіть інший");
-        });
-
         User user = new User();
 
         user.setEmail(form.getEmail());

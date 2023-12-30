@@ -1,6 +1,7 @@
 package com.example.taskmanager.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,5 +27,8 @@ public class FileEntity {
     @Lob
     @Column(columnDefinition = "LONGBLOB")
     private byte[] data;
+
+    @Enumerated(value = EnumType.STRING)
+    private Type type;
 
 }

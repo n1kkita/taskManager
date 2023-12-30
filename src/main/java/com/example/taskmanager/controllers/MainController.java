@@ -14,6 +14,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,12 +27,15 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
+import java.util.function.BiPredicate;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 @Controller
 @RequiredArgsConstructor
 public class MainController {
     private final UserService userService;
-    private final GeneralServiceToUserAndGroups serviceToUserAndGroups;
+
     @GetMapping("/registration")
     public String showRegistrationForm(@RequestParam(required = false) String oauthEmail,
                                        @ModelAttribute(name = "form") RegistrationForm registrationForm,
@@ -57,21 +65,32 @@ public class MainController {
             throw new NoAuthenticationUser();
         }
     }
-    @GetMapping("/{username}/MyGroups/{idGroup}")
+    @GetMapping("/{username}/groups/{idGroup}")
+    @PreAuthorize("#username == authentication.principal.username")
     @SneakyThrows
     public String MyGroup(@PathVariable Long idGroup,
-                                  @PathVariable String username,
-                                  @RequestParam(name = "page",defaultValue = "0") int page,
-                                  HttpSession session,
-                                  Model model){
-        if(session.getAttribute(username) != null) {
-            User user = (User) userService.loadUserByUsername(username);
+                          @PathVariable String username,
+                          @RequestParam(name = "page",defaultValue = "0") int page,
+                          @RequestParam(name = "autoOpenTask",required = false) boolean autoOpenTask,
+                          @RequestParam(name = "autoOpenTaskId",required = false) Integer autoOpenTaskId,
+                          HttpSession session,
+                          Model model){
 
+        if(session.getAttribute(username) != null || autoOpenTask) {
+            User user = (User) userService.loadUserByUsername(username);
             GroupEntity group =
-                     user.getOwnGroups()
+                    user.getOwnGroups()
                     .stream()
-                    .filter(group1 -> group1.getId().equals(idGroup))
-                    .findAny().orElseThrow();
+                    .filter(g -> g.getId().equals(idGroup))
+                    .findAny()
+                    .orElseGet(()-> user.getGroups()
+                            .stream()
+                            .filter(g ->g.getId().equals(idGroup))
+                            .findAny()
+                            .orElseThrow());
+
+            Supplier<Role> checkRoleUser = ()-> group.getOwners().contains(user) ? Role.ROLE_ADMIN : Role.ROLE_USER;
+            Role role = checkRoleUser.get();
 
             List<User> owners = group.getOwners();
             List<User> usersWithoutOwners = group.getUsers().stream().filter(u->!owners.contains(u)).toList();
@@ -79,7 +98,8 @@ public class MainController {
             List<UserDto> users = pages.getContent();
 
 
-            model.addAttribute("mode", Role.ROLE_ADMIN)
+
+            model.addAttribute("mode", role)
                     .addAttribute("groupId", idGroup)
                     .addAttribute("group", group)
                     .addAttribute("groupName", group.getName())
@@ -89,36 +109,10 @@ public class MainController {
                     .addAttribute("username", user.getEmail())
                     .addAttribute("currentUserId", user.getId())
                     .addAttribute("usersInGroupWithoutOwners", usersWithoutOwners)
-                    .addAttribute("usersInGroup", group.getUsers());
-
+                    .addAttribute("usersInGroup", group.getUsers())
+                    .addAttribute("autoOpenTaskId", autoOpenTask ? autoOpenTaskId : null);
             return "calendar";
 
-        } else {
-            throw new NoAuthenticationUser();
-        }
-    }
-
-    @GetMapping("/{username}/otherGroups/{idGroup}")
-    public String otherGroup(@PathVariable Long idGroup, @PathVariable String username,Model model,HttpSession session){
-        if(session.getAttribute(username) != null) {
-            User user = (User) userService.loadUserByUsername(username);
-
-            GroupEntity group = user.getGroups().stream()
-                    .filter(group1 -> group1.getId().equals(idGroup))
-                    .findFirst()
-                    .orElseThrow(() -> new EntityNotFoundException("Группа не найдена"));
-
-            List<UserDto> users = serviceToUserAndGroups.getAllUsersFromGroupById(idGroup);
-
-            model.addAttribute("mode", Role.ROLE_USER)
-                    .addAttribute("currentUserId", user.getId())
-                    .addAttribute("username", user.getEmail())
-                    .addAttribute("groupId", idGroup)
-                    .addAttribute("groupName", group.getName())
-                    .addAttribute("users", users)
-                    .addAttribute("group",group);
-
-            return "calendar";
         } else {
             throw new NoAuthenticationUser();
         }

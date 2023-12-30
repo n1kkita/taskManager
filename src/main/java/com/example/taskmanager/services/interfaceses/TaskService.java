@@ -8,7 +8,7 @@ public interface TaskService {
     List< TaskDto > getAllByGroupId(Long groupId);
     TaskDto saveTask(TaskDto taskDto);
     void deleteById(Long id);
-    void updateTaskById(Long id, TaskDto task);
+    TaskDto updateTaskById(Long id, TaskDto task);
     TaskDto updateTaskStatusToCompletedById(Long id);
 
 }

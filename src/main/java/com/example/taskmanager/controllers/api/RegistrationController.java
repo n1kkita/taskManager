@@ -19,12 +19,9 @@ public class RegistrationController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.OK)
-    public String createUser(@ModelAttribute(name = "form") @Valid RegistrationForm form, BindingResult bindingResult, Model model){
-        if(bindingResult.hasErrors())
-            return "registration";
-
+    public String createUser(@ModelAttribute(name = "form") RegistrationForm form, Model model){
         userService.create(form);
         model.addAttribute("registrationForm",form);
-        return "/authentication";
+        return "authentication";
     }
 }

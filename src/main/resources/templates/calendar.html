@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MYTASKMANAGER</title>
+  <title>TASKMANAGER</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.css" rel="stylesheet">
@@ -15,8 +15,8 @@
   <style>
     body {
       overflow-x: hidden;
+      background-color: #f8f8f8 !important;
     }
-
     .card {
       border: none;
       box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
@@ -36,7 +36,26 @@
         box-shadow: 0 0 10px rgb(50, 194, 0); /* Тень */
       }
     }
+    /* Общие стили для полосы прокрутки */
+    ::-webkit-scrollbar {
+      width: 8px; /* Ширина полосы прокрутки */
+    }
 
+    /* Стили для трека (основного контейнера) полосы прокрутки */
+    ::-webkit-scrollbar-track {
+      background-color: #f1f1f1; /* Цвет фона трека */
+    }
+
+    /* Стили для "бегунка" (самой полосы прокрутки) */
+    ::-webkit-scrollbar-thumb {
+      background-color: #888; /* Цвет бегунка */
+      border-radius: 6px; /* Скругление углов бегунка */
+    }
+
+    /* Стили для ползунка в режиме наведения (hover) */
+    ::-webkit-scrollbar-thumb:hover {
+      background-color: #555; /* Цвет бегунка при наведении */
+    }
     .blinking-event::before {
       content: "Ваша задача";
       position: absolute;
@@ -51,12 +70,13 @@
 
   </style>
 </head>
-<body style="background-color: #cecece;">
+<body>
 
 <input id="groupId" type="hidden" th:value="${groupId}">
 <input id="mode" type="hidden" th:value="${mode}">
 <input id="currentUserId" type="hidden" th:value="${currentUserId}">
 <input id="username" type="hidden" th:value="${username}">
+<input id="autoOpenTaskId" type="hidden" th:value="${autoOpenTaskId}">
 
 <svg xmlns="http://www.w3.org/2000/svg" class="d-none">
   <symbol id="check2" viewBox="0 0 16 16">
@@ -96,37 +116,37 @@
 
 <div class="row">
   <div class="col-md-1">
-    <div class="d-flex flex-column flex-shrink-0 bg-body-tertiary" style="width: 7.0rem; height: 100%">
+    <div class="card d-flex flex-column flex-shrink-0 bg-body-tertiary justify-content-center" style="width: 11.5rem; height: 100%;">
       <ul class="nav nav-pills nav-flush flex-column mb-auto text-center">
         <li>
           <a href="/" class="d-block p-3 link-body-emphasis text-decoration-none" data-bs-toggle="tooltip" data-bs-placement="right" aria-label="Icon-only">
-            <img  width="80" height="50" src="/logo.svg">
+            <img  width="150" height="150" src="/logo.svg">
             <span class="visually-hidden">Icon-only</span>
           </a>
           <hr>
         </li>
         <li>
-          <a th:href="@{/home/{username}(username=${username})}">
+          <a th:href="@{/home/{username}(username=${username})}" class="my-btn">
             <svg class="bi pe-none" width="24" height="24" role="img"><use xlink:href="#home"></use></svg>
           </a>
           <hr>
         </li>
         <div th:if="${mode == mode.ROLE_ADMIN}">
         <li>
-          <button class="btn rounded-pill px-2" id="addedSearchDeleteUsers">
+          <button class="btn rounded-pill px-2 my-btn" id="addedSearchDeleteUsers">
             <ion-icon name="body-outline" style="font-size: 1.5rem; vertical-align: middle;"></ion-icon>
           </button>
           <hr>
         </li>
         <li>
-          <button class="btn rounded-pill px-2" id="addedNewOwner">
+          <button class="btn rounded-pill px-2 my-btn" id="addedNewOwner">
             <ion-icon name="person-add-outline" style="font-size: 1.5rem; vertical-align: middle;"></ion-icon>
           </button>
           <hr>
         </li>
         </div>
         <li>
-          <button class="btn rounded-pill px-2" id="historyGroup">
+          <button class="btn rounded-pill px-2 my-btn" id="historyGroup">
             <ion-icon name="file-tray-full-outline" style="font-size: 1.5rem; vertical-align: middle;"></ion-icon>
           </button>
           <hr>
@@ -134,7 +154,7 @@
       </ul>
     </div>
   </div>
-  <div class="col-md-10">
+  <div class="col-md-10" style="margin-left: 50px">
     <div class="card mt-4" style="max-width: 100%;">
       <div class="card-header" style="background-color: #ff5333;color: rgb(248,245,245)">
         <div class="text-start">
@@ -145,7 +165,7 @@
             <form id="leaveTheGroup">
               <input type="hidden" name="idUser" th:value="${currentUserId}">
               <input type="hidden" name="idGroup" th:value="${idGroup}">
-              <button class="btn btn-danger rounded-pill px-2" type="submit">
+              <button class="btn btn-danger rounded-pill px-2 my-btn " type="submit">
                 Покинути групу
               </button>
             </form>
@@ -161,6 +181,7 @@
         </div>
       </div>
     </div>
+    <div style="height: 5vh"></div>
   </div>
 </div>
 
@@ -177,24 +198,24 @@
         <form id="createTaskForm">
           <div class="form-group">
             <label for="title">Заголовок:</label>
-            <input type="text" class="form-control" id="title" name="title">
+            <input type="text" class="form-control my-btn-2" id="title" name="title">
           </div>
           <div class="form-group">
             <label for="description">Опис:</label>
-            <textarea class="form-control" id="description" name="description"></textarea>
+            <textarea class="form-control my-btn-2" id="description" name="description"></textarea>
           </div>
           <div class="form-group">
             <label for="dateOfStart">Дата початку:</label>
-            <input type="datetime-local" class="form-control" id="dateOfStart" name="dateOfStart">
+            <input type="datetime-local" class="form-control my-btn-2" id="dateOfStart" name="dateOfStart">
           </div>
           <div class="form-group">
             <label for="dateOfEnd">Дата закінчення:</label>
-            <input type="datetime-local" class="form-control" id="dateOfEnd" name="dateOfEnd">
+            <input type="datetime-local" class="form-control my-btn-2" id="dateOfEnd" name="dateOfEnd">
           </div>
           <hr>
             <div class="form-group">
-              <select id="user_selected" class="form-select" aria-label="Default select example">
-                <option selected disabled>Выберите пользователя</option>
+              <select id="user_selected" class="form-select my-btn-2" aria-label="Default select example">
+                <option selected disabled>Выберіть користувача</option>
                 &lt;!&ndash; Проходите по пользователям и заполняйте варианты выпадающего списка &ndash;&gt;
                 <option th:each="user : ${usersInGroup}" th:value="${user.id}">
                   <span>
@@ -204,13 +225,14 @@
                 </option>
               </select>
             </div>
-          <br>
+          <hr>
           <div id="drop-zone-create" class="drop-zone">
             <span id="text-create">Натисніть або перетягніть файли.</span>
           </div>
+          <br>
           <div id="selected-files-create-info"></div>
           <input type="hidden" id="selectedUserId" name="selectedUserId">
-          <input type="submit" value="Створити" id="createButton" class="btn btn-primary" data-bs-dismiss="modal">
+          <input type="submit" value="Створити" id="createButton" class="btn btn-primary my-btn" data-bs-dismiss="modal">
         </form>
       </div>
     </div>
@@ -218,21 +240,23 @@
 </div>
 </div>
 
-<div class="modal fade" id="eventModal" tabindex="-1" role="dialog" aria-labelledby="eventModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" role="document">
+<div class="modal fade rounded" id="eventModal" tabindex="-1" role="dialog" aria-labelledby="eventModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
-      <div id="head" class="card-header">
+      <div id="head" class="card-header rounded">
         <div class="d-flex align-items-center">
           <h5 class="modal-title m-3 me-2" id="eventModalLabel" style="font-size: 24px">Інформація про завдання</h5>
           <ion-icon class="fs-1" name="clipboard-outline" style="margin-left: auto;"></ion-icon>
         </div>
         <div class="d-flex align-items-center" style="margin-right: 10px;">
-          <button class="btn rounded-pill px-2" type="button" style="background-color: #f55a40;color: white;" data-bs-dismiss="modal">
+          <button class="btn rounded-pill px-2 my-btn" type="button" style="background-color: rgba(0,0,0,0.37);color: white;" data-bs-dismiss="modal">
             <ion-icon name="close" style="font-size: 1.7rem; vertical-align: middle;"></ion-icon>
           </button>
         </div>
       </div>
       <div class="modal-body">
+        <div class="row">
+          <div class="col-md-6 border-end border-2">
         <div class="d-flex align-items-center">
           <ion-icon class="fs-1 me-2" name="bookmark-sharp"></ion-icon>
           <p class="modal-title m-0" id="eventTitle" style="align-self: center; font-size: 18px; font-weight: bold;">Заголовок</p>
@@ -268,38 +292,57 @@
         </div>
         <hr>
         <div class="d-flex gap-2 justify-content-left">
-          <button class="btn rounded-pill px-3" type="button" style="background-color: #ff3a01;color: white;" id="editButton"> Редагувати </button>
-
-          <button class="btn rounded-pill px-2" type="button" style="background-color: #65f346;color: white;" id="completedButton" data-bs-dismiss="modal">
+          <button class="btn rounded-pill px-3 my-btn" type="button" style="background-color: #ff3a01;color: white;" id="editButton"> Редагувати </button>
+          <button class="btn rounded-pill px-3 my-btn" type="button" style="background-color: #ff3a01;color: white;display: none" id="editButtonApply"> Прийняти зміни </button>
+          <button class="btn rounded-pill px-2 my-btn" type="button" style="background-color: #65f346;color: white;" id="completedButton" data-bs-dismiss="modal">
             <ion-icon name="checkmark-outline" style="font-size: 1.7rem; vertical-align: middle;"></ion-icon>
           </button>
-          <button class="btn btn-danger rounded-pill px-2" type="button" id="deleteButton" data-bs-dismiss="modal">
+          <button class="btn btn-danger rounded-pill px-2 my-btn" type="button" id="deleteButton" data-bs-dismiss="modal">
             <ion-icon name="trash-outline" style="font-size: 1.7rem; vertical-align: middle;"></ion-icon>
           </button>
         </div>
+          </div>
+          <div class="col-md-6">
+        <div class="d-flex align-items-center">
+          <p class="modal-title m-0" style="align-self: center; font-size: 18px; font-weight: bold;">Файли які додав власник</p>
+        </div>
+        <div id="files-owner"></div>
         <hr>
         <div class="d-flex align-items-center">
-          <p class="modal-title m-0" style="align-self: center; font-size: 18px; font-weight: bold;">Загальний розмір файлів < 25MB</p>
+          <p class="modal-title m-0" style="align-self: center; font-size: 18px; font-weight: bold;">Файли які додав користувач</p>
         </div>
-        <div id="drop-zone-completed" class="drop-zone">
-          <span id="text">Натисніть або перетягніть файли.</span>
+        <div id="files-user"></div>
+            <hr>
+            <div id="drop-zone-completed" class="drop-zone my-btn-2">
+              <span id="text">Натисніть або перетягніть файли</span>
+            </div>
+            <div id="selected-files-info"></div>
+            <hr>
+            <div th:if="${mode == mode.ROLE_ADMIN}">
+            <div class="d-flex gap-2 justify-content-left">
+              <button class="btn rounded-pill px-3 my-btn" type="button" style="background-color: #4bb3e0;color: white;" id="editFilesButton"> Змінити файли </button>
+              <button class="btn rounded-pill px-3 my-btn" type="button" style="background-color: #4bb3e0;color: white; display: none" id="editFilesButtonCompletedChanges"> Прийняти зміни </button>
+            </div>
+            </div>
         </div>
-        <hr>
-        <div id="selected-files-info"></div>
-        <div id="files"></div>
         </div>
       </div>
     </div>
   </div>
 </div>
 
+<!--<small class="modal-title m-0" id="emptyFilesOwner" style="align-self: center;">Власник не додав файлів</small>-->
+<!--<small class="modal-title m-0" id="emptyFilesUser" style="align-self: center;">Користувач не додав файлів</small>-->
+
 <div th:if="${mode == mode.ROLE_ADMIN}">
   <div class="modal fade" id="eventModalForUsers" tabindex="-1" role="dialog" aria-labelledby="eventModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
       <div class="modal-content p-3">
         <div class="row">
+          <h3 class="modal-content p-3 text-center" style="display: flex;">Пошук користувачів</h3>
           <div style="display: flex">
             <div class="col-md-6" style="display: block; margin-right: 110px">
+              <h6 class="modal-content p-3 text-center" style="display: flex;">Користувачі у групі</h6>
               <div th:if="${usersInGroupWithoutOwners.isEmpty()}">
                 <strong>В группі не має інших людей</strong>
               </div>
@@ -313,9 +356,8 @@
                         <strong th:text="${deleteUser.username}"></strong>
                       </div><div class="col-md-2"></div>
                       <input type="hidden" th:value="${deleteUser.id}" name="idUser">
-                      <input type="hidden" th:value="${groupId}" name="idGroup">
                       <div class="col-md-6">
-                        <button class="btn" type="submit" style="background-color: #f53030;color: white;"> Видалити с групи </button>
+                        <button class="btn my-btn" type="submit" style="background-color: #f53030;color: white;"> Видалити с групи </button>
                       </div>
                     </div>
                     <hr>
@@ -324,12 +366,13 @@
               </div>
             </div>
             <div class="col-md-4">
+              <h6 class="modal-content p-3 text-center" style="display: flex;">Пошук</h6>
               <div style="color: #172940; display: block">
                 <form action="/users/search" method="get" id="searchForm">
                   <div class="input-group flex-nowrap">
-                    <input type="text" id="searchLogin" name="searchLogin" class="form-control" placeholder="Пошук користувача"
+                    <input type="text" id="searchLogin" name="searchLogin" class="form-control my-btn-2" placeholder="Пошук користувача"
                            aria-label="Название группы" aria-describedby="addon-wrapping">
-                    <button class="btn" type="submit" style="background-color: #f37427;color: white;"> Пошук </button>
+                    <button class="btn my-btn" type="submit" style="background-color: #f37427;color: white;"> Пошук </button>
                   </div>
                 </form>
                 <hr>
@@ -339,7 +382,7 @@
                       <strong th:text="${addedUser.email}" th:id="'login' + ${addedUser.id}"></strong>
                       <input type="hidden" th:value="${addedUser.id}" name="addedUserId">
                       <input type="hidden" th:value="${groupId}" name="idGroup">
-                      <button class="btn" type="submit" style="background-color: #f37427;color: white;"> Додати в группу </button>
+                      <button class="btn my-btn" type="submit" style="background-color: #f37427;color: white;"> Додати в группу </button>
                       <hr>
                     </form>
                   </div>
@@ -347,7 +390,7 @@
               <form action="/home" id="backFormUser" method="get" style="display: inline-block;">
                 <div th:if="${currentPage != null and currentPage > 0}">
                   <input id="backPageIdUser" name="page" th:value="${currentPage - 1}" type="hidden">
-                  <button class="btn rounded-pill px-2" type="submit" style="background-color: #0d6efd;color: white;">
+                  <button class="btn rounded-pill px-2 my-btn" type="submit" style="background-color: #0d6efd;color: white;">
                     <ion-icon name="chevron-back-outline" style="font-size: 1.5rem; vertical-align: middle;"></ion-icon>
                   </button>
                 </div>
@@ -357,7 +400,7 @@
                     <div th:if="${currentPage != null and currentPage != totalPages - 1 }" id="pagination">
                       <input id="nextPageIdUser" name="page" th:value="${currentPage != null ? currentPage + 1 : 1}"
                              type="hidden">
-                      <button class="btn rounded-pill px-2" type="submit" style="background-color: #0d6efd;color: white;">
+                      <button class="btn rounded-pill px-2 my-btn" type="submit" style="background-color: #0d6efd;color: white;">
                         <ion-icon name="chevron-forward-outline" style="font-size: 1.5rem; vertical-align: middle;"></ion-icon>
                       </button>
                     </div>
@@ -381,7 +424,7 @@
           <h3 class="mb-3">Додати нового власника до групи</h3>
           <form id="addNewOwnerForm">
             <div class="form-group">
-              <select id="owner_selected" class="form-select" aria-label="Default select example">
+              <select id="owner_selected" class="form-select my-btn-2" aria-label="Default select example">
                 <option selected disabled>Виберіть користувача</option>
                 <option th:each="user : ${usersInGroupWithoutOwners}" th:value="${user.id}">
                   <span>
@@ -393,7 +436,7 @@
             </div>
             <br>
             <input type="hidden" id="selectedOwnerId" name="selectedUserId">
-            <input type="submit" value="Додати" id="addNewOwnerButton" class="btn btn-primary" data-bs-dismiss="modal">
+            <input type="submit" value="Додати" id="addNewOwnerButton" class="btn btn-primary my-btn" data-bs-dismiss="modal">
           </form>
         </div>
       </div>
@@ -407,7 +450,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h3 class="modal-title" id="exampleModalScrollableTitle">History</h3>
-        <button class="btn rounded-pill px-2" type="button" style="background-color: #f55a40;color: white;" data-bs-dismiss="modal">
+        <button class="btn rounded-pill px-2 my-btn" type="button" style="background-color: #f55a40;color: white;" data-bs-dismiss="modal">
           <ion-icon name="close" style="font-size: 1.7rem; vertical-align: middle;"></ion-icon>
         </button>
       </div>
@@ -453,22 +496,23 @@
   <ion-icon name="save-outline" class="notification-icon"></ion-icon>
 </div>
 
+<div id="notificationLoad" class="notification fast" style="background-color: rgba(0, 108, 192, 0.4);">
+  <span class="notification-text">Йде загрузка...</span>
+  <ion-icon name="save-outline" class="notification-icon"></ion-icon>
+</div>
 
-<div class="modal fade" id="loadingModal" tabindex="-1" role="dialog"  aria-hidden="true">
+<div class="modal fade" id="eventModalLoading" tabindex="-1" role="dialog" aria-labelledby="eventModalLoading" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-body text-center">
-        <div class="spinner-border text-primary m-2" style="width: 3rem; height: 3rem;" role="status">
-          <span class="sr-only"></span>
-        </div>
-        <p class="mt-2">Йде обробка запиту...</p>
+    <div class="modal-content p-3">
+      <div  style="display: block;">
+        <h3 class="mb-3">Загрузка...</h3>
       </div>
     </div>
   </div>
 </div>
-
-
 <script>
+  let ownerId = parseInt(document.getElementById("currentUserId").value, 10);
+
   document.addEventListener("DOMContentLoaded", function () {
     const leaveTheGroup = document.getElementById('leaveTheGroup');
 
@@ -533,9 +577,8 @@
         event.preventDefault();
 
         const idUser = form.querySelector("input[name=idUser]").value;
-        const idGroup = form.querySelector("input[name=idGroup]").value;
 
-        fetch(`/groups/${idUser}/${idGroup}`, {
+        fetch(`/groups/${idUser}/${groupId}`, {
           method: "DELETE"
         })
                 .then((response) => {
@@ -551,7 +594,7 @@
     event.preventDefault(); // Предотвращаем отправку формы
 
     const searchLogin = document.getElementById("searchLogin").value;
-    const groupId = document.getElementById('groupId').value;
+
 
 
     fetch(`/users/search?login=${searchLogin}&idGroup=${groupId}`)
@@ -619,7 +662,6 @@
         event.preventDefault();
 
         const addedUserId = form.querySelector("input[name=addedUserId]").value;
-        const idGroup = form.querySelector("input[name=idGroup]").value;
         const loginUserElement = document.getElementById('login' + addedUserId);
         const loginUser = loginUserElement.textContent;
 
@@ -627,7 +669,7 @@
 
 
 
-        fetch(`/groups/${idGroup}/${addedUserId}`, {
+        fetch(`/groups/${groupId}/${addedUserId}`, {
           method: "PUT"
         }).then((response) => {
           if (response.ok) {
@@ -639,8 +681,6 @@
     });
   });
   document.addEventListener("submit", function (event) {
-    const groupId = document.getElementById('groupId').value;
-    const username = document.getElementById("username").value;
     const searchOutput = document.getElementById("search-output");
     // Check if the submitted form is the search form
     if (event.target.id === "nextFormUser") {
@@ -648,7 +688,7 @@
 
       const nextPageIdUser = document.getElementById("nextPageIdUser").value;
 
-      fetch(`/${username}/MyGroups/${groupId}?page=${encodeURIComponent(nextPageIdUser)}`)
+      fetch(`/${username}/groups/${groupId}?page=${encodeURIComponent(nextPageIdUser)}`)
               .then(response => response.text())
               .then(data => {
                 const parser = new DOMParser();
@@ -677,13 +717,12 @@
                     event.preventDefault();
 
                     const addedUserId = form.querySelector("input[name=addedUserId]").value;
-                    const idGroup = form.querySelector("input[name=idGroup]").value;
                     const loginUserElement = document.getElementById('login' + addedUserId);
                     const loginUser = loginUserElement.textContent;
 
                     console.log("User id:" + addedUserId);
 
-                    fetch(`/groups/${idGroup}/${addedUserId}`, {
+                    fetch(`/groups/${groupId}/${addedUserId}`, {
                       method: "PUT"
                     })
                             .then((response) => {
@@ -701,8 +740,6 @@
     }
   });
   document.addEventListener("submit", function (event) {
-    const groupId = document.getElementById('groupId').value;
-    const username = document.getElementById("username").value;
 
     const searchOutput = document.getElementById("search-output");
     // Check if the submitted form is the search form
@@ -711,7 +748,7 @@
 
       const backPageIdUser = document.getElementById("backPageIdUser").value;
 
-      fetch(`/${username}/MyGroups/${groupId}?page=${encodeURIComponent(backPageIdUser)}`)
+      fetch(`/${username}/groups/${groupId}?page=${encodeURIComponent(backPageIdUser)}`)
               .then(response => response.text())
               .then(data => {
                 const parser = new DOMParser();
@@ -740,13 +777,12 @@
                     event.preventDefault();
 
                     const addedUserId = form.querySelector("input[name=addedUserId]").value;
-                    const idGroup = form.querySelector("input[name=idGroup]").value;
                     const loginUserElement = document.getElementById('login' + addedUserId);
                     const loginUser = loginUserElement.textContent;
 
                     console.log("User id:" + addedUserId);
 
-                    fetch(`/groups/${idGroup}/${addedUserId}`, {
+                    fetch(`/groups/${groupId}/${addedUserId}`, {
                       method: "PUT"
                     })
                             .then((response) => {
@@ -765,12 +801,8 @@
   });
 
   document.getElementById('addNewOwnerForm').addEventListener('submit', function() {
-    let ownerId = parseInt(document.getElementById("currentUserId").value, 10);
     let newOwnerId = parseInt(document.getElementById("selectedOwnerId").value, 10);
-    let idGroup = parseInt(document.getElementById("groupId").value, 10);
-
-
-    fetch(`/groups/${idGroup}/${ownerId}/add_new_owner/${newOwnerId}`, {
+    fetch(`/groups/${groupId}/${ownerId}/add_new_owner/${newOwnerId}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -783,6 +815,10 @@
   });
 
 </script>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.2/sockjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 <script src="/app.js"></script>
 <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
 <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>

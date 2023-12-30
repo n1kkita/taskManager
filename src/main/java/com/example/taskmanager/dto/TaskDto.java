@@ -4,12 +4,14 @@ import com.example.taskmanager.models.Status;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.Date;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class TaskDto {
+@ToString
+public class TaskDto  {
     private Long id;
     private String title;
     private String description;
@@ -20,4 +22,5 @@ public class TaskDto {
     private Long userId;
     private String appointedUserEmail;
     private String creatorEmail;
+
 }

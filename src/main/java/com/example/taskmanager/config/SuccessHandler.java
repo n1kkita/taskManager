@@ -12,12 +12,15 @@ import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.ui.ConcurrentModel;
+import org.springframework.ui.Model;
 
 @Component
 @RequiredArgsConstructor
 public class SuccessHandler implements AuthenticationSuccessHandler {
     private final HttpSession httpSession;
     private final UserRepository userRepository;
+
     @SneakyThrows
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {

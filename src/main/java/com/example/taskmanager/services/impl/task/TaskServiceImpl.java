@@ -3,10 +3,7 @@ package com.example.taskmanager.services.impl.task;
 import com.example.taskmanager.dto.TaskDto;
 import com.example.taskmanager.models.*;
 import com.example.taskmanager.repositories.TaskRepository;
-import com.example.taskmanager.services.interfaceses.GroupHistoryService;
-import com.example.taskmanager.services.interfaceses.GroupService;
-import com.example.taskmanager.services.interfaceses.TaskService;
-import com.example.taskmanager.services.interfaceses.UserService;
+import com.example.taskmanager.services.interfaceses.*;
 import com.example.taskmanager.utils.Util;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +18,7 @@ import java.util.List;
 @Transactional
 public class TaskServiceImpl implements TaskService {
     private final TaskRepository taskRepository;
+    private final TaskFileService taskFileService;
     private final GroupService groupService;
     private final UserService userService;
     private final GroupHistoryService groupHistoryService;
@@ -65,16 +63,18 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    @Transactional
     public void deleteById(Long id) {
+        taskFileService.deleteFileByTaskId(id);
         taskRepository.deleteById(id);
     }
 
     @Override
     @Transactional
-    public void updateTaskById(Long id, TaskDto editTask) {
+    public TaskDto updateTaskById(Long id, TaskDto editTask) {
         Util.validation(editTask);
 
-        taskRepository.findById(id).map(task -> {
+        return taskRepository.findById(id).map(task -> {
             String text = String.format("%s, редагував задачу задачу '%s' на '%s'",editTask.getCreatorEmail(), task.getTitle(), editTask.getTitle());
             task.setTitle(editTask.getTitle());
             task.setDescription(editTask.getDescription());
@@ -85,7 +85,11 @@ public class TaskServiceImpl implements TaskService {
             task.setStatus(util.checkStatus(Status.CREATED,task.getDateOfStart(),task.getDateOfEnd()));
             task.setCreatorEmail(editTask.getCreatorEmail());
             groupHistoryService.save(task.getGroup(),text);
-            return task;
+            return new TaskDto(
+                    task.getId(),task.getTitle(),task.getDescription(),task.getStatus(),
+                    task.getDateOfEnd(),task.getDateOfStart(),-1L,task.getUser().getId(),
+                    task.getUser().getEmail(),task.getCreatorEmail()
+            );
         }).orElseThrow(() -> new EntityNotFoundException("Ошибка при обновлении задачи"));
     }
 
@@ -95,8 +99,11 @@ public class TaskServiceImpl implements TaskService {
         Task task = taskRepository.findById(id).orElseThrow();
         task.setStatus(Status.DONE);
 
-        return new TaskDto(task.getId(), task.getTitle(), task.getDescription(), task.getStatus(), task.getDateOfEnd(),
-                task.getDateOfStart(), -1L, task.getUser().getId(), task.getUser().getEmail(), task.getCreatorEmail());
+        return new TaskDto(
+                task.getId(),task.getTitle(),task.getDescription(),task.getStatus(),
+                task.getDateOfEnd(),task.getDateOfStart(),-1L,task.getUser().getId(),
+                task.getUser().getEmail(),task.getCreatorEmail()
+        );
     }
     public void updateTaskStatusById(Long id,Status status) {
         taskRepository.findById(id).ifPresent(task -> task.setStatus(status));

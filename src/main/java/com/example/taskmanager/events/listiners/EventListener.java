@@ -1,12 +1,14 @@
 package com.example.taskmanager.events.listiners;
 
 import com.example.taskmanager.dto.TaskDto;
-import com.example.taskmanager.events.CreateTaskEvent;
-import com.example.taskmanager.events.PerformingTaskWithSendingFile;
-import com.example.taskmanager.events.UpdateTaskStatusEvent;
+import com.example.taskmanager.dto.UserDto;
+import com.example.taskmanager.events.*;
 import com.example.taskmanager.models.Status;
+import com.example.taskmanager.models.Task;
+import com.example.taskmanager.models.Type;
+import com.example.taskmanager.models.User;
 import com.example.taskmanager.services.impl.email.EmailSenderService;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -16,28 +18,51 @@ import java.util.Date;
 import java.util.TimeZone;
 
 @Component
-@RequiredArgsConstructor
 public class EventListener {
+    private final TimeZone timeZoneKiev = TimeZone.getTimeZone("Europe/Kiev");;
+    private final Context context = new Context();
     private final EmailSenderService emailSenderService;
     private final TemplateEngine templateEngine;
-
+    private final SimpleDateFormat simpleDateFormat;
+    @Autowired
+    public EventListener(EmailSenderService emailSenderService,TemplateEngine templateEngine){
+        this.emailSenderService = emailSenderService;
+        this.templateEngine = templateEngine;
+        this.simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+        context.setVariable("currentTime", simpleDateFormat.format(new Date()));
+        simpleDateFormat.setTimeZone(timeZoneKiev);
+    }
     @org.springframework.context.event.EventListener
     public void event(UpdateTaskStatusEvent event) {
         TaskDto taskDto = (TaskDto) event.getSource();
-        String html = html((TaskDto) event.getSource(),"notificationOfUpdateStatusTask");
+        String html = htmlWithoutFiles(taskDto,"notificationOfUpdateStatusTask");
         emailSenderService.send(html, taskDto.getAppointedUserEmail(), "Task status update");
     }
     @org.springframework.context.event.EventListener
     public void event(PerformingTaskWithSendingFile event) {
-        TaskDto taskDto = (TaskDto) event.getSource();
-        String html = html((TaskDto) event.getSource(),"notificationOfCompletedTask");
-        emailSenderService.sendWithFile(html,"The user has completed your task",taskDto.getCreatorEmail(),event.getFiles());
+        Task task = (Task) event.getSource();
+        String html = htmlWithFiles(task,"notificationOfCompletedTask");
+        emailSenderService.send(html,task.getCreatorEmail(),"The user has completed your task");
     }
     @org.springframework.context.event.EventListener
     public void event(CreateTaskEvent event) {
-        TaskDto taskDto = (TaskDto) event.getSource();
-        String html = html((TaskDto) event.getSource(),"notificationOfCreateTask");
-        emailSenderService.send(html,taskDto.getAppointedUserEmail(),"You have been assigned a new task");
+        Task task = (Task) event.getSource();
+        String html = htmlWithFiles(task,"notificationOfCreateTask");
+        emailSenderService.send(html,task.getUser().getEmail(),"You have been assigned a new task");
+    }
+    @org.springframework.context.event.EventListener
+    public void event(VerificationEvent event) {
+        UserDto userDto = (UserDto) event.getSource();
+        Integer verificationCode = event.getVerificationCode();
+        String html = htmlVerification(userDto,verificationCode,"verificationEmail");
+        emailSenderService.send(html,userDto.getEmail(),"Task Manager. Email confirmation");
+    }
+
+    @org.springframework.context.event.EventListener
+    public void event(RemoveCodeEvent event) {
+        String link = (String) event.getSource();
+        System.out.println("Link was deleted:" + link);
+        event.getSession().removeAttribute(link);
     }
 
     public String getColorByStatus(Status status) {
@@ -48,20 +73,37 @@ public class EventListener {
             case NOT_DONE -> "#f84d4d"; // Красный цвет для NOT_DONE
         };
     }
-    public String html(TaskDto task,String template){
-        Context context = new Context();
-        // Установить часовой пояс Киева (UTC+2 или UTC+3)
-        TimeZone timeZoneKiev = TimeZone.getTimeZone("Europe/Kiev");
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm");
-        simpleDateFormat.setTimeZone(timeZoneKiev);
 
-        context.setVariable("user_email", task.getAppointedUserEmail());
-        context.setVariable("currentTime", simpleDateFormat.format(new Date()));
+    public String htmlWithFiles(Task task,String template){
+
+        context.setVariable("user_email", task.getUser().getEmail());
         context.setVariable("dateStart", simpleDateFormat.format(task.getDateOfStart()));
         context.setVariable("dateEnd", simpleDateFormat.format(task.getDateOfEnd()));
         context.setVariable("task", task);
         context.setVariable("statusColor", getColorByStatus(task.getStatus()));
         context.setVariable("owner_email",task.getCreatorEmail());
+        context.setVariable("files_owner",task.getFiles().stream().filter(fileEntity -> fileEntity.getType().equals(Type.OWNER_FILE)).toList());
+        context.setVariable("files_user",task.getFiles().stream().filter(fileEntity -> fileEntity.getType().equals(Type.USER_FILE)).toList());
+
+        return templateEngine.process(template, context);
+    }
+
+    public String htmlWithoutFiles(TaskDto taskDto,String template){
+
+        context.setVariable("user_email", taskDto.getAppointedUserEmail());
+        context.setVariable("currentTime", simpleDateFormat.format(new Date()));
+        context.setVariable("dateStart", simpleDateFormat.format(taskDto.getDateOfStart()));
+        context.setVariable("dateEnd", simpleDateFormat.format(taskDto.getDateOfEnd()));
+        context.setVariable("taskDto", taskDto);
+        context.setVariable("statusColor", getColorByStatus(taskDto.getStatus()));
+        context.setVariable("owner_email",taskDto.getCreatorEmail());
+
+        return templateEngine.process(template, context);
+    }
+    public String htmlVerification(UserDto userDto,Integer verificationCode,String template){
+
+        context.setVariable("userDto", userDto);
+        context.setVariable("verificationCode",verificationCode);
 
         return templateEngine.process(template, context);
     }

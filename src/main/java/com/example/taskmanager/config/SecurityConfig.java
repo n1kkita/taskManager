@@ -9,6 +9,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 
 @Configuration
 @EnableWebSecurity
@@ -26,8 +27,7 @@ public class SecurityConfig {
         return http.authorizeHttpRequests(request -> {
                     request
                             .requestMatchers("/registration", "/authentication").permitAll()
-                            .requestMatchers("/home/**", "/calendar/**").authenticated();
-
+                            .requestMatchers("/home/**","/groups/**").authenticated();
                     request.anyRequest().permitAll();
                 }).formLogin(form -> {
                     form.loginPage("/authentication");

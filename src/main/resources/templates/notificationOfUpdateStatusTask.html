@@ -47,20 +47,23 @@
 </head>
 <body>
 <div class="container">
-    <input type="hidden" id ="status" th:value="${task.getStatus()}">
+    <input type="hidden" id ="status" th:value="${taskDto.getStatus()}">
 
     <h1>Your Task has been updated</h1>
     <div>
-        <p class="lead" th:text="'Hi, ' + ${user_email} + '.'">Hi, Никита.</p>
+        <p class="lead" th:text="'Hi, ' + ${taskDto.getAppointedUserEmail()} + '.'">Hi, Никита.</p>
         <p class="lead" style="display: inline;">Your task</p>
-        <span class="lead" th:text="'&laquo;' + ${task.getTitle()} + '&raquo; status has been updated: ' + ${currentTime} + '.'" style="display: inline;">
+        <span class="lead" th:text="'&laquo;' + ${taskDto.getTitle()} + '&raquo; status has been updated: ' + ${currentTime} + '.'" style="display: inline;">
         Your task &laquo;Рутина&raquo; saved at: 28.10.2023 15:30.
         </span>
-        <br><br>
+        <br>
         <p class="lead fw-bold text-primary" th:text="'Date start: ' + ${dateStart} + '.'">Date start: 28.10.2023 16:30.</p>
         <p class="lead fw-bold text-primary" th:text="'Date end: ' + ${dateEnd} + '.'">Date end: 28.10.2023 20:30.</p>
         <p class="lead" style="display: inline;">Current task status: </p>
-        <span class="lead fw-bold" th:style="'color: ' + ${statusColor} + ';'" id="statusText" th:text="${task.getStatus()} + '.'"></span>
+        <span class="lead fw-bold" th:style="'color: ' + ${statusColor} + ';'" id="statusText" th:text="${taskDto.getStatus()} + '.'"></span>
+        <!--<hr>
+        <a class="lead fw-bold" th:href="@{'http://localhost:8080/' + ${taskDto.getAppointedUserEmail()} + '/groups/' + ${taskDto.getGroupId()} + '?autoOpenTask=true&autoOpenTaskId=' + ${taskDto.getId()}}">Open task...</a>
+-->
     </div>
 </div>
 </body>

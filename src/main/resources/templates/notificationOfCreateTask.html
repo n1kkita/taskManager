@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -40,33 +40,82 @@
         .text-primary {
             color: #4bb3e0;
         }
+        /* Добавление стилей для ячейки таблицы с ссылкой на скачивание */
+        td {
+            padding: 10px;
+        }
 
-        /* Ваши кастомные стили здесь */
+        /* Стилизация элементов списка файлов */
+        .file-item {
+            margin-bottom: 10px;
+        }
+
+        /* Стилизация ссылок на скачивание файлов */
+        .file-item a {
+            display: block;
+            padding: 10px;
+            background-color: #4bb3e0; /* Замените на ваш цвет фона */
+            color: white;
+            text-decoration: none;
+            text-align: center;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        /* Изменение цвета фона при наведении */
+        .file-item a:hover {
+            background-color: #0088c2; /* Замените на ваш цвет фона при наведении */
+        }
 
     </style>
 </head>
 <body>
 <div class="container">
-    <input type="hidden" id ="status" th:value="${task.getStatus()}">
+    <input type="hidden" id="status" th:value="${task.getStatus()}">
 
     <h1>You have been assigned a new task</h1>
     <div>
+        <hr>
         <p class="lead" th:text="'Hi, ' + ${user_email} + '.'">Hi, Никита.</p>
-        <p class="lead" style="display: inline;">The group owner</p>
-        <span class="lead" th:text="' ' + ${owner_email} + ' has assigned a new task to you at:' + ${currentTime} + '.'" style="display: inline;">
-         &laquo;Рутина&raquo;  you have assigned to the user petya@gmail.com has been completed at: 28.10.2023 15:30.
-        </span>
-        <br><br>
-        <p class="lead fw-bold" >Task Description:</p>
-        <p class="lead" style="margin-right: 400px" th:text="${task.getDescription()}"></p>
+        <p class="lead">The group owner <span class="lead" th:text="' ' + ${owner_email} + ' has assigned a new task to you at:' + ${currentTime} + '.'">
+             &laquo;Рутина&raquo; you have assigned to the user petya@gmail.com has been completed at: 28.10.2023 15:30.
+        </span></p>
+        <hr>
+        <p class="lead fw-bold">Task Description:</p>
+        <p class="lead" th:text="${task.getDescription()}"></p>
+        <hr>
         <p class="lead fw-bold text-primary" th:text="'Task start date: ' + ${dateStart} + '.'">Date start: 28.10.2023 16:30.</p>
         <p class="lead fw-bold text-primary" th:text="'Task end date: ' + ${dateEnd} + '.'">Date end: 28.10.2023 20:30.</p>
+        <hr>
         <p class="lead" style="display: inline;">Current task status: </p>
         <span class="lead fw-bold" th:style="'color: ' + ${statusColor} + ';'" id="statusText" th:text="${task.getStatus()} + '.'"></span>
+        <hr>
+        <!--<hr>
+        <a class="lead fw-bold" th:href="@{'http://localhost:8080/' + ${user_email} + '/groups/' + ${task.getGroup().getId()} + '?autoOpenTask=true&autoOpenTaskId=' + ${task.getId()}}">Open task...</a>
+        -->
+        <p class="lead" th:if="${!files_owner.isEmpty()}" style="display: inline;">Files:</p>
+        <table>
+            <tbody>
+            <tr th:each="file:${files_owner}">
+                <td>
+                    <p th:text="${file.name}">kursova_Koval_5PI.pdf</p>
+                </td>
+                <td>
+                    <div class="file-item">
+                        <a th:href="@{http://localhost:8081/files/download/{fileId}(fileId=${file.id})}" download="">Download</a>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
     </div>
 </div>
+
 </body>
 <script>
+    document.getElementById("test-button").addEventListener("click",function (){
+        console.log("Кнопка нажата!");
+    });
 
     document.addEventListener("DOMContentLoaded", function () {
         const status = document.getElementById("status").value;

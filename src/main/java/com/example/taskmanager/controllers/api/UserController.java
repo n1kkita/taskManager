@@ -1,6 +1,7 @@
 package com.example.taskmanager.controllers.api;
 
 import com.example.taskmanager.dto.UserDto;
+import com.example.taskmanager.exception.DuplicateLoginException;
 import com.example.taskmanager.models.User;
 import com.example.taskmanager.repositories.UserRepository;
 import com.example.taskmanager.services.interfaceses.UserService;
@@ -32,4 +33,13 @@ public class UserController {
     public UserDto getDtoById(@PathVariable Long id){
         return userService.getDtoById(id);
     }
+    @GetMapping("/check_email/{email}")
+    public Boolean checkOnDuplicated(@PathVariable String email){
+        userRepository.getLoginByCreateLogin(email).ifPresent(string -> {
+            throw new DuplicateLoginException("Користувач с таким логіном уже є, виберіть інший");
+        });
+
+        return false;
+    }
+
 }

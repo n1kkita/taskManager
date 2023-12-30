@@ -13,7 +13,6 @@ import java.util.Date;
 @Component
 @RequiredArgsConstructor
 public class Util {
-
     public static void validation(TaskDto taskDto){
         //Проверка на корректность данных
         if(taskDto.getDateOfEnd().before(taskDto.getDateOfStart()) ||
@@ -27,8 +26,8 @@ public class Util {
     public static void validation(RegistrationForm registrationForm){
         if(registrationForm.getEmail().isEmpty() || registrationForm.getPassword().isEmpty() || registrationForm.getName().isEmpty()){
             throw new EmptyFieldException("Поля не мають бути пустими. Мінімальна кількість знаків для логіну і паролю 4 символи");
-        } else if(registrationForm.getName().length()<5 || registrationForm.getPassword().length()<5 || registrationForm.getEmail().length()<5){
-            throw new EmptyFieldException("Мінімальна кількість знаків для email і паролю 4 символи");
+        } else if(registrationForm.getName().length() < 3 || registrationForm.getPassword().length() < 6 || registrationForm.getEmail().length() < 6){
+            throw new EmptyFieldException("Мінімальна кількість знаків для імені: 3, для паролю: 6");
         }
     }
     @Transactional

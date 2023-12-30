@@ -2,82 +2,337 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Background Image Example</title>
+  <title>TASKMANAGER</title>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
   <link rel="stylesheet" href="/style.css">
   <style>
     body {
       background-color: rgba(250, 247, 247, 0.99);
-      background-image: url("/fon.jpg");
-      background-repeat: no-repeat;
-      color: #172940;
+      color: #172940;overflow-y: hidden;
+      overflow-x: hidden;
+    }
+    /* Custom styles for smaller and oval-shaped input fields */
+    .confirmation-code-input {
+      width: 45px; /* Adjust the width as needed */
+      height: 50px;
+      border-radius: 15px; /* Adjust the border-radius for oval shape */
+    }
+    /* Shake animation */
+    .shake {
+      animation: shake 0.5s;
+    }
+
+    @keyframes shake {
+      0%, 100% {
+        transform: translateX(0);
+      }
+      20%, 60% {
+        transform: translateX(-10px);
+      }
+      40%, 80% {
+        transform: translateX(10px);
+      }
+    }
+
+    /* Red highlight for incorrect code */
+    .incorrect-code {
+      border: 1px solid #ff4d4d !important;
+    }
+    /* Медиазапрос для устройств с шириной экрана до 768px (например, телефоны) */
+    @media screen and (max-width: 1000px) {
+      body {
+        overflow-y: visible;
+        overflow-x: hidden;/* Разрешить горизонтальный скроллинг на узких экранах */
+      }
+      /*
+            .row {
+              flex-direction: column-reverse; !* Поменять порядок колонок для удобства мобильных устройств *!
+            }
+
+            .col-md-8 {
+              width: 100%; !* Ширина 100% на мобильных устройствах *!
+            }*/
+      /*.row {
+        flex-direction: column-reverse;
+      }*/
+      /*.col-md-8 {
+        display: none;
+        visibility: hidden;
+      }*/
+
+      .col-md-4 {
+        width: 100%; /* Ширина 100% на мобильных устройствах */
+        border-radius: 0; /* Убрать закругление углов на мобильных устройствах */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh; /* Заполнить 100% высоты экрана на мобильных устройствах */
+      }
+      /* #log-in-form{
+
+       }
+       \
+
+       form {
+         width: 100%; !* Ширина 100% на мобильных устройствах *!
+         margin: 0 auto; !* Центрировать форму по горизонтали *!
+       }
+
+       .notification {
+         width: 100%; !* Ширина 100% на мобильных устройствах *!
+       }*/
     }
   </style>
 </head>
 <body>
-<div class="container">
-  <div class="row justify-content-end custom-form">
-    <div> <!-- Added the "custom-form" class here -->
-      <img  width="100" height="85" src="/logo.svg">
-      <br>
-      <strong style="font-size: 36px">Реєстрація</strong>
-      <br>
-      <form id="registrationForm" th:method="POST" th:action="@{/registration}" th:object="${form}">
-        <div class="form-group">
-          <div th:if="${#fields.hasErrors('name')}">
-          <input type="text" class="form-control is-invalid" name="name"  placeholder="Name">
-            <div class="invalid-feedback" th:errors="*{name}"></div>
-          </div>
-          <div th:unless="${#fields.hasErrors('name')}">
-            <input type="text" class="form-control" name="name"  placeholder="Name">
-          </div>
-        </div>
-        <div class="form-group">
-          <div th:if="${#fields.hasErrors('email')}">
-            <input type="text" class="form-control is-invalid" name="email" th:value="${oauthEmail}" placeholder="Email">
-            <div class="invalid-feedback" th:errors="*{email}"></div>
-          </div>
-          <div th:unless="${#fields.hasErrors('email')}">
-            <input type="text" class="form-control" name="email" th:value="${oauthEmail}" placeholder="Email">
-          </div>
-        </div>
-        <div class="form-group">
-          <div th:if="${#fields.hasErrors('password')}">
-            <input type="password" class="form-control is-invalid" name="password"  placeholder="Password" size="15px">
-            <div class="invalid-feedback" th:errors="*{password}"></div>
-          </div>
-          <div th:unless="${#fields.hasErrors('password')}">
-            <input type="password" class="form-control" name="password"  placeholder="Password" size="15px">
-          </div>
-        </div>
-        <button type="submit" class="btn" style="font-size: 12px; background-color: #172940;color: white">
-          <b>Зареєструватись</b>
-        </button>
-        <button class="btn btn-light" type="button" style="scale: 100%" id="authentication">
-          <strong>Є аккаунт?</strong>
-        </button>
-        <div th:if="${oauthEmail != null}">
-          <div class="alert alert-info">
-            Please register
-          </div>
-        </div><!--
-        <div class="alert alert-info" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
-        <div class="alert alert-info" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
-        <div class="alert alert-info" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>-->
+<div class="row">
+  <div class="col-md-8" style="display:flex;padding: 0">
+    <img id="fon" src="/fon.jpg" style="width: 100%; height: 100%" alt="">
+  </div>
+  <div class="col-md-4">
+    <div style="display: block">
+      <div class="content-center d-flex justify-content-center" style="margin-top: 25px; margin-bottom: 150px;">
+        <img  id="logo" width="250" height="250" src="/logo.svg">
         <br>
-        <br>
-      </form>
+      </div>
+      <div class="rounded-3 justify-content-center" style="padding: 10px; display: flex;align-items: center; justify-content: center; ">
+        <div style="display: block; scale: 150%" id="log-in-form">
+          <div class="content-center d-flex justify-content-center" style="margin-top: 20px">
+            <strong style="font-size: 36px">Реєстрація</strong>
+            <br><br>
+          </div>
+          <form id="registrationForm" th:method="POST" th:action="@{/registration}" th:object="${form}">
+            <div class="form-group">
+              <div>
+                <input type="text" class="form-control my-btn" id="name" name="name"  placeholder="Name">
+                <div class="invalid-feedback" id="name-invalid-feedback"></div>
+              </div>
+            </div>
+            <div class="form-group">
+              <div>
+                <input type="email" class="form-control my-btn" id="email" name="email" th:value="${oauthEmail}" placeholder="Email">
+                <div class="invalid-feedback" id="email-invalid-feedback"></div>
+              </div>
+            </div>
+            <div class="form-group">
+              <div>
+                <input type="password" class="form-control my-btn" id="password" name="password"  placeholder="Password" size="15px">
+                <div class="invalid-feedback" id="password-invalid-feedback"></div>
+              </div>
+            </div>
+            <button type="submit" class="btn my-btn" style="font-size: 12px; background-color: #172940;color: white">
+              <b>Зареєструватись</b>
+            </button>
+            <button class="btn btn-light my-btn" type="button" style="scale: 100%" id="authentication">
+              <strong>Є аккаунт?</strong>
+            </button>
+            <div th:if="${oauthEmail != null}">
+              <div class="alert alert-info">
+                Please register
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
   </div>
 </div>
+
 <div id="notificationRegError" class="notification slow"  style="background-color: rgba(255,0,0,0.72);">
   <span class="notification-text" id="error"></span>
   <ion-icon name="construct-outline" class="notification-icon"></ion-icon>
 </div>
 
+<!-- Модальное окно -->
+<div class="modal" id="confirmationModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content" style="scale: 150%">
+      <div class="modal-header">
+        <div style="display: block">
+          <h5 class="modal-title">Введіть код підтвердження</h5>
+          <small id="descriptionForVerification" class="text-body-secondary">На почту exmaple@gmail.com було відправлено лист с кодом.</small>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div style="display: flex; align-items: center; justify-content: center; margin: 15px;" class="text-center rounded-3 justify-content-center my-card hidden">
+          <!-- Use individual input fields for each digit -->
+          <div style="margin-right: 5px">
+            <input type="text" class="form-control confirmation-code-input" maxlength="1" oninput="moveToNextInput(this)" onkeydown="handleBackspace(this, event)" />
+          </div>
+          <div style="margin-right: 5px">
+            <input type="text" class="form-control confirmation-code-input" maxlength="1" oninput="moveToNextInput(this)" onkeydown="handleBackspace(this, event)" />
+          </div>
+          <div style="margin-right: 5px">
+            <input type="text" class="form-control confirmation-code-input" maxlength="1" oninput="moveToNextInput(this)" onkeydown="handleBackspace(this, event)" />
+          </div>
+          <div style="margin-right: 5px">
+            <input type="text" class="form-control confirmation-code-input" maxlength="1" oninput="moveToNextInput(this)" onkeydown="handleBackspace(this, event)" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 </body>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.7/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const registrationButton = document.getElementById('registrationForm');
+    // Добавляем обработчик события на нажатие кнопки "Регистрация"
+    registrationButton.addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      let isValid = true;
+      const user_name = document.getElementById("name");
+      const user_password = document.getElementById("password");
+      const user_email = document.getElementById("email");
+      const user_name_feedback = document.getElementById('name-invalid-feedback');
+      const password_name_feedback = document.getElementById('password-invalid-feedback');
+      const password_email_feedback = document.getElementById('email-invalid-feedback');
+
+      user_name.classList.remove("is-invalid");
+      user_password.classList.remove("is-invalid");
+      user_email.classList.remove("is-invalid");
+
+
+      if(user_name.value === '' || user_name.value.length < 3){
+        isValid = false;
+        user_name.classList.add("is-invalid");
+        user_name_feedback.textContent='Мінімальна кількість знаків для імені: 3 символи';
+      }
+      if(user_password.value === '' || user_password.value.length <4){
+        isValid = false;
+        user_password.classList.add("is-invalid");
+        password_name_feedback.textContent='Мінімальна кількість знаків для паролю: 4 символи';
+      }
+
+      fetch(`/users/check_email/${user_email.value}`).then(response=>{
+        if(response.status === 409){
+          isValid = false;
+          response.text().then(message=>{
+            user_email.classList.add("is-invalid");
+            password_email_feedback.textContent = message;
+          });
+        }
+      }).then(()=>{
+        if(isValid) {
+          fetch(`/verification/${user_email.value}`, {
+            method: 'POST'
+          }).then(() => {
+            const modalDialog = document.getElementById('confirmationModal');
+            const user_email = document.getElementById("email").value;
+            const descriptionForVerification = document.getElementById('descriptionForVerification');
+
+            var codeInputs = document.getElementsByClassName("confirmation-code-input");
+
+            Array.from(codeInputs).forEach(input => {
+              input.value = ''; // Устанавливаем значение поля ввода в пустую строку
+            });
+
+            descriptionForVerification.textContent = 'На пошту ' + user_email + ' було відправлено лист с кодом.'
+
+            $(modalDialog).modal('show');
+          });
+        }
+      });
+    });
+  });
+  function checkConfirmationCode() {
+    // Implement your logic to check the confirmation code
+    // For example, you can retrieve the values from each input field and validate them
+    var codeInputs = document.getElementsByClassName("confirmation-code-input");
+    var confirmationCode = Array.from(codeInputs).map(input => input.value).join('');
+    const user_email = document.getElementById("email").value;
+
+
+    fetch(`/verification/${user_email}?userCode=${confirmationCode}`).then(response=>{
+      if(response.ok){
+        response.json().then(isCorrect=> {
+          console.log(isCorrect)
+          if (isCorrect) {
+            document.getElementById('registrationForm').submit();
+          }
+        });
+      } else if(response.status === 409){
+        // Incorrect code: Add shake animation and red highlight
+        for (var i = 0; i < codeInputs.length; i++) {
+          codeInputs[i].classList.add("shake", "incorrect-code");
+        }
+
+        // Remove classes after animation completes
+        setTimeout(function () {
+          for (var i = 0; i < codeInputs.length; i++) {
+            codeInputs[i].classList.remove("shake", "incorrect-code");
+          }
+        }, 500);
+      } else if(response.status === 502)
+        response.text().then(message=>{
+          const notificationRegError = document.getElementById('notificationRegError');
+          const errorText = document.getElementById("error");
+          errorText.textContent=message;
+          notificationRegError.style.display = 'block';
+          notificationRegError.classList.add('show'); // Добавляем класс для анимации
+
+          setTimeout(() => {
+            notificationRegError.style.display = 'none';
+            notificationRegError.classList.remove('show'); // Удаляем класс для анимации
+          }, 8000);
+        });
+    });
+  }
+
+
+  function moveToNextInput(currentInput) {
+    // Move focus to the next input field
+    var maxLength = parseInt(currentInput.getAttribute("maxlength"));
+    var currentLength = currentInput.value.length;
+
+    if (currentLength >= maxLength) {
+      var nextInput = currentInput.parentElement.nextElementSibling
+              ? currentInput.parentElement.nextElementSibling.querySelector('.confirmation-code-input')
+              : null;
+
+      // Move focus only if there is a next input field
+      if (nextInput) {
+        nextInput.focus();
+      }
+
+      // Check confirmation code if there is no next input (last input)
+      if (!nextInput) {
+        checkConfirmationCode();
+      }
+    }
+  }
+
+  function handleBackspace(currentInput, event) {
+    // Handle backspace key press when the input field is empty
+    var keyCode = event.keyCode || event.which;
+
+    if (keyCode === 8 && currentInput.value.length === 0) {
+      var prevInput = currentInput.parentElement.previousElementSibling.querySelector('.confirmation-code-input');
+
+      // Move focus to the previous input field when backspace is pressed
+      if (prevInput) {
+        prevInput.focus();
+      }
+    }
+  }
+
+  // Открыть модальное окно
+  document.getElementById('authentication').addEventListener('click', function() {
+    window.location.href="/authentication";
+  });
+
+  // Закрыть модальное окно
+  document.getElementById('closeModal').addEventListener('click', function() {
+    document.getElementById('myModal').style.display = 'none';
+  });
+
+
+
 
   document.getElementById('authentication').addEventListener('click',function (){
     window.location.href='/authentication';
